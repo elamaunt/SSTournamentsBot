@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.33027.164
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SSTournaments", "SSTournaments\SSTournaments.fsproj", "{D3F45242-19D1-47A2-A217-ACE987BC880B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSTournamentsBot.Api", "SSTournamentsBot.Api\SSTournamentsBot.Api.csproj", "{3343A8E2-BE89-4676-9FC4-6BDF66584C74}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D3F45242-19D1-47A2-A217-ACE987BC880B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3F45242-19D1-47A2-A217-ACE987BC880B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3F45242-19D1-47A2-A217-ACE987BC880B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3F45242-19D1-47A2-A217-ACE987BC880B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3343A8E2-BE89-4676-9FC4-6BDF66584C74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3343A8E2-BE89-4676-9FC4-6BDF66584C74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3343A8E2-BE89-4676-9FC4-6BDF66584C74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3343A8E2-BE89-4676-9FC4-6BDF66584C74}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E7757EA4-9703-48BF-984F-8331F150D67F}
+	EndGlobalSection
+EndGlobal
