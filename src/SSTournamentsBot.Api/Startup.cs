@@ -36,7 +36,8 @@ namespace SSTournamentsBot.Api
             services.Configure<DiscordOptions>(Configuration.GetSection("DiscordOptions"));
             services.Configure<TournamentEventsOptions>(Configuration.GetSection("TournamentEventsOptions"));
             services.Configure<DowStatsApiOptions>(Configuration.GetSection("DowStatsApiOptions"));
-            
+            services.Configure<DiscordBotOptions>(Configuration.GetSection("DiscordBotOptions"));
+
             services.AddControllers();
             services.AddHttpClient()
                 .AddSingleton(config)

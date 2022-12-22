@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,12 +12,14 @@ namespace SSTournamentsBot.Api.Services
     public class DiscordBot : IHostedService
     {
         readonly DiscordSocketClient _client;
+        readonly DiscordBotOptions _options;
         readonly IEventsTimeline _timeLine;
 
-        public DiscordBot(DiscordSocketClient client, IEventsTimeline timeLine)
+        public DiscordBot(DiscordSocketClient client, IEventsTimeline timeLine, IOptions<DiscordBotOptions> options)
         {
             _client = client;
             _timeLine = timeLine;
+            _options = options.Value;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -34,7 +37,7 @@ namespace SSTournamentsBot.Api.Services
 
             _client.Ready += OnReady;
 
-            await _client.LoginAsync(TokenType.Bot, "MTA1MjYzODkwODgyMDc1MDM4Ng.Gu84Mg.jy1ynULpArvVOkniiIPpX60Aa6khVeE0uFAWek");
+            await _client.LoginAsync(TokenType.Bot, _options.Token);
             await _client.StartAsync();
         }
 
