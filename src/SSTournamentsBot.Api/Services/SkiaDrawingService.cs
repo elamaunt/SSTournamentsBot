@@ -69,7 +69,7 @@ namespace SSTournamentsBot.Api.Services
             };
         }
 
-        public byte[] DrawToImage((Stage, MatchOrFreeBlock[])[] stages)
+        public byte[] DrawToImage((Stage, StageBlock[])[] stages)
         {
             var count = stages.Length;
 
@@ -165,7 +165,7 @@ namespace SSTournamentsBot.Api.Services
 
                         if (matchOrFree.IsMatch)
                         {
-                            var match = ((MatchOrFreeBlock.Match)matchOrFree).Item;
+                            var match = ((StageBlock.Match)matchOrFree).Item;
 
                             canvas.DrawRoundRect(SKRect.Create(leftOffset + (matchBlockWidth - mapSize - playerLineHeight) / 2, blockTopOffset - mapSize - mapMargin - 2, mapSize + 4, mapSize + 4), 3, 3, backDarkerPaint);
 
@@ -204,7 +204,7 @@ namespace SSTournamentsBot.Api.Services
                         }
                         else
                         {
-                            var freeBlock = (MatchOrFreeBlock.Free)matchOrFree;
+                            var freeBlock = (StageBlock.Free)matchOrFree;
 
                             canvas.DrawRoundRect(SKRect.Create(leftOffset, blockTopOffset, matchBlockWidth, playerLineHeight), 5, 5, backPaint);
 

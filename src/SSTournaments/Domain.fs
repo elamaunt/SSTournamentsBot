@@ -97,8 +97,9 @@ module Domain =
         Replays: Replay list
     }
 
-    type MatchOrFreeBlock =
+    type StageBlock =
         | Match of Match
+        | Group of (Player array) * (Match array)
         | Free of Player option
 
     let NextDay (day: System.DayOfWeek) = 
@@ -114,7 +115,7 @@ module Domain =
 
     let TournamentTypeByDayOfTheWeek day = 
         match day with
-        | System.DayOfWeek.Saturday -> Weekly
+       // | System.DayOfWeek.Saturday -> Weekly
         | _ -> Daily
 
     let GetMoscowTime() = 
@@ -244,45 +245,111 @@ module Domain =
             | Race r -> Some r
         | None -> None
 
-    let GenerateMatchesfrom stage seed isFirstStage =
+    let GenerateMatchesfrom stage seed =
         let random = System.Random(seed)
 
         match stage with 
         | Brackets players -> [| 
                 let power = GetPowerOfTwoNearestTo players.Length 1
                 let diff = players.Length - power
+                let isReducingStage = diff > 0
 
-                let isReducingStage = (not isFirstStage) && diff > 0
-
-                let mutable upTo: int = (power >>> 1) - 1
-                
                 if isReducingStage then 
-                    upTo <- diff - 1
 
-                for index in [0 .. upTo] do
+                    let m = diff >>> 1 // div to 2
 
-                    let player1 = players.[(index <<< 1)]
-                    let player2 = players.[if isReducingStage then (power + index) else ((index <<< 1) + 1)]
+                    if m = 0 then 
+                        let player1 = players.[0]
+                        let player2 = players.[1]
 
-                    let race1 = GetOrGenerateRace player1 (random.Next())
-                    let race2 = GetOrGenerateRace player2 (random.Next())
+                        let race1 = GetOrGenerateRace player1 (random.Next())
+                        let race2 = GetOrGenerateRace player2 (random.Next())
 
-                    yield Match { 
-                        Id = index
-                        Player1 = if player1.IsSome then Some (player1.Value, race1.Value) else None
-                        Player2 = if player2.IsSome then Some (player2.Value, race2.Value) else None
-                        Map = GetMapByIndex (random.Next(12))
-                        BestOf = One
-                        Result = NotCompleted (0, 0)
-                        Replays = [] }
+                        yield Match { 
+                            Id = 0
+                            Player1 = if player1.IsSome then Some (player1.Value, race1.Value) else None
+                            Player2 = if player2.IsSome then Some (player2.Value, race2.Value) else None
+                            Map = GetMapByIndex (random.Next(12))
+                            BestOf = One
+                            Result = NotCompleted (0, 0)
+                            Replays = [] }
 
-                if not isReducingStage then
-                    for i in [((upTo + 1) <<< 1) .. players.Length - 1] do
-                        yield Free players.[i]
-                else
-                    for i in [((upTo + 1) <<< 1) .. power - 1] do
-                        yield Free players.[i]
-                
+                        for i in [2 .. players.Length - 1] do
+                            yield Free players.[i]
+                    else
+                        let mutable id = 0
+                        let r = diff &&& 1 // rem to 2
+                        let partition = power / m
+
+                        for index in [0 .. m - 1] do
+                        
+                            let player1 = players.[partition * (index <<< 1)]
+                            let player2 = players.[partition * (index <<< 1) + 1]
+
+                            let race1 = GetOrGenerateRace player1 (random.Next())
+                            let race2 = GetOrGenerateRace player2 (random.Next())
+
+                            yield Match { 
+                                Id = id
+                                Player1 = if player1.IsSome then Some (player1.Value, race1.Value) else None
+                                Player2 = if player2.IsSome then Some (player2.Value, race2.Value) else None
+                                Map = GetMapByIndex (random.Next(12))
+                                BestOf = One
+                                Result = NotCompleted (0, 0)
+                                Replays = [] }
+                            
+                            id <- id + 1
+
+                            for i in [2 .. partition - 1] do
+                                let k = partition * (index <<< 1) + i
+                                if k < power then yield Free players.[k]
+
+                        let secondPartition = power / (m + r)
+
+                        for index in [0 .. (m + r - 1)] do
+                            let player1 = players.[power + secondPartition * (index <<< 1)]
+                            let player2 = players.[power + secondPartition * (index <<< 1) + 1]
+
+                            let race1 = GetOrGenerateRace player1 (random.Next())
+                            let race2 = GetOrGenerateRace player2 (random.Next())
+
+                            yield Match { 
+                                Id = id
+                                Player1 = if player1.IsSome then Some (player1.Value, race1.Value) else None
+                                Player2 = if player2.IsSome then Some (player2.Value, race2.Value) else None
+                                Map = GetMapByIndex (random.Next(12))
+                                BestOf = One
+                                Result = NotCompleted (0, 0)
+                                Replays = [] }
+
+                            id <- id + 1
+
+                            for i in [2 .. secondPartition] do
+                                let k = power + partition * (index <<< 1) + i
+                                if k < players.Length then yield Free players.[k]
+
+                else 
+                    let maxShift = players.Length &&& 1
+                    let mutable shift = 0
+                    for index in [0 .. (players.Length >>> 1) - 1] do
+                        let player1 = players.[shift + (index <<< 1)]
+                        let player2 = players.[shift + ((index <<< 1) + 1)]
+
+                        let race1 = GetOrGenerateRace player1 (random.Next())
+                        let race2 = GetOrGenerateRace player2 (random.Next())
+
+                        yield Match { 
+                            Id = index
+                            Player1 = if player1.IsSome then Some (player1.Value, race1.Value) else None
+                            Player2 = if player2.IsSome then Some (player2.Value, race2.Value) else None
+                            Map = GetMapByIndex (random.Next(12))
+                            BestOf = One
+                            Result = NotCompleted (0, 0)
+                            Replays = [] }
+
+                        if shift < maxShift then 
+                            shift <- shift + 1
+                            yield Free players.[shift + (index <<< 1) + 1]
             |] 
         | Groups groups -> [|
             let mutable id = 0
@@ -317,55 +384,18 @@ module Domain =
             (not isFirstStage) && diff > 0
         | Groups _ -> false
 
-    let IsPlayerFree stage isFirstStage playerIndex =
-            match stage with
-            | Brackets players ->
-                let power = GetPowerOfTwoNearestTo players.Length 1
-                let diff = players.Length - power
-
-                let isReducingStage = (not isFirstStage) && diff > 0
-               
-                let mutable upTo: int = (power >>> 1) - 1
-                
-                if isReducingStage then 
-                    upTo <- diff - 1
-
-                players.Length - (upTo <<< 1)
-            | Groups _ -> 0
-
-    let GenerateNextStageFrom stage (matches: Match array) isFirstStage = 
+    let GenerateNextStageFrom stage blocks = 
         match stage with
-        | Brackets players ->
+        | Brackets _ ->
             Brackets [|
-            
-                let power = GetPowerOfTwoNearestTo players.Length 1
-                let diff = players.Length - power
-
-                let isReducingStage = (not isFirstStage) && diff > 0
-
-                let mutable upTo: int = (power >>> 1) - 1
-                
-                if isReducingStage then 
-                    upTo <- diff - 1
-
-                for index in [0 .. upTo] do
-
-                    if isReducingStage && ((index <<< 1) + 1 < players.Length) then
-                        players.[(index <<< 1) + 1]
-                    
-                    match matches.[index].Result with 
-                    | NotCompleted _ -> None
-                    | Winner (w, _) -> Some w
-                    | TechnicalWinner (w, _) -> Some w
-                    | Draw _ -> None
-
-                if not isReducingStage then
-                    for i in [((upTo + 1) <<< 1) .. players.Length - 1] do
-                        players.[i]
-                else
-                    for i in [((upTo + 1) <<< 1) .. power - 1] do
-                        players.[i]
-
+                for block in blocks do
+                    match block with 
+                    | Match m -> match m.Result with
+                        | Winner (w, _) -> Some w
+                        | TechnicalWinner (w, _) -> Some w
+                        | _ -> None
+                    | Free p -> p
+                    | Group (_, _) -> () // TODO
             |]
         | Groups groups -> 
             Brackets(groups.[0] |> Array.choose(fun x -> Some(Some x))) // TODO
@@ -376,4 +406,5 @@ module Domain =
                 match block with 
                 | Match m -> m
                 | Free _ -> ()
+                | Group (_, matches) -> for m in matches do m
         |]

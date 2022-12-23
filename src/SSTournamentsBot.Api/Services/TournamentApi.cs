@@ -12,7 +12,7 @@ namespace SSTournamentsBot.Api.Services
     public class TournamentApi
     {
         private Tournament _currentTournament;
-        private List<(Stage, MatchOrFreeBlock[])> _stages;
+        private List<(Stage, StageBlock[])> _stages;
 
         private bool _isStarted;
         private bool _isCheckIn;
@@ -38,7 +38,7 @@ namespace SSTournamentsBot.Api.Services
                 _currentTournament = CreateTournamentByDate(Mod.Soulstorm);
                 _leftUsers = new List<UserData>();
                 _checkInedUsers = new List<UserData>();
-                _stages = new List<(Stage, MatchOrFreeBlock[])>();
+                _stages = new List<(Stage, StageBlock[])>();
             }
 
 
@@ -102,7 +102,7 @@ namespace SSTournamentsBot.Api.Services
 
             var stage = Start(_currentTournament);
             var random = new Random(_currentTournament.Seed);
-            var matches = GenerateMatchesfrom(stage, random.Next(), true);
+            var matches = GenerateMatchesfrom(stage, random.Next());
 
             _stages.Add((stage, matches));
             _isStarted = true;
@@ -114,24 +114,24 @@ namespace SSTournamentsBot.Api.Services
             if (!_isStarted)
                 return null;
 
-            var stages = new List<(Stage, MatchOrFreeBlock[])>(_stages);
+            var stages = new List<(Stage, StageBlock[])>(_stages);
             var last = stages.Last();
 
             var isFirstStage = stages.Count == 1;
 
             while (!IsTerminalStage(last.Item1))
             {
-                var next = GenerateNextStageFrom(last.Item1, GetMatches(last.Item2), isFirstStage);
+                var next = GenerateNextStageFrom(last.Item1, last.Item2);
                 isFirstStage = false;
 
                 if (!IsTerminalStage(next))
                 {
-                    var matches = GenerateMatchesfrom(next, 0, false);
+                    var matches = GenerateMatchesfrom(next, 0);
                     stages.Add(last = (next, matches));
                 }
                 else
                 {
-                    stages.Add(last = (next, new MatchOrFreeBlock[0]));
+                    stages.Add(last = (next, new StageBlock[0]));
                 }
             }
 
@@ -143,7 +143,7 @@ namespace SSTournamentsBot.Api.Services
             if (!_isStarted)
                 return null;
 
-            var stages = new List<(Stage, MatchOrFreeBlock[])>(_stages);
+            var stages = new List<(Stage, StageBlock[])>(_stages);
 
             var last = stages.Last();
 
