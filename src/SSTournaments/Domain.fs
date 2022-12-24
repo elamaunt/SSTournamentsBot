@@ -279,12 +279,13 @@ module Domain =
                     else
                         let mutable id = 0
                         let r = diff &&& 1 // rem to 2
-                        let partition = power / m
+                        let halfPlayers = (players.Length >>> 1) + r
+                        let partition = halfPlayers / (m + r)
 
-                        for index in [0 .. m - 1] do
+                        for index in [0 .. m + r - 1] do
                         
-                            let player1 = players.[partition * (index <<< 1)]
-                            let player2 = players.[partition * (index <<< 1) + 1]
+                            let player1 = players.[partition * index]
+                            let player2 = players.[partition * index + 1]
 
                             let race1 = GetOrGenerateRace player1 (random.Next())
                             let race2 = GetOrGenerateRace player2 (random.Next())
@@ -301,14 +302,13 @@ module Domain =
                             id <- id + 1
 
                             for i in [2 .. partition - 1] do
-                                let k = partition * (index <<< 1) + i
-                                if k < power then yield Free players.[k]
+                                yield Free players.[partition * index + i]
 
-                        let secondPartition = power / (m + r)
+                        let secondPartition = halfPlayers / m
 
-                        for index in [0 .. (m + r - 1)] do
-                            let player1 = players.[power + secondPartition * (index <<< 1)]
-                            let player2 = players.[power + secondPartition * (index <<< 1) + 1]
+                        for index in [0 .. (m - 1)] do
+                            let player1 = players.[halfPlayers + secondPartition * index]
+                            let player2 = players.[halfPlayers + secondPartition * index + 1]
 
                             let race1 = GetOrGenerateRace player1 (random.Next())
                             let race2 = GetOrGenerateRace player2 (random.Next())
@@ -324,10 +324,12 @@ module Domain =
 
                             id <- id + 1
 
-                            for i in [2 .. secondPartition] do
-                                let k = power + partition * (index <<< 1) + i
+                            for i in [2 .. secondPartition - 1] do
+                                let k = halfPlayers + partition * index + i
                                 if k < players.Length then yield Free players.[k]
 
+                        for i in [halfPlayers + secondPartition * m .. players.Length - 1] do
+                            yield Free players.[i]
                 else 
                     let maxShift = players.Length &&& 1
                     let mutable shift = 0
