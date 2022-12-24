@@ -304,6 +304,9 @@ module Domain =
                             for i in [2 .. partition - 1] do
                                 yield Free players.[partition * index + i]
 
+                        for i in [partition * (m + r) .. halfPlayers - 1] do
+                            yield Free players.[i]
+
                         let secondPartition = halfPlayers / m
 
                         for index in [0 .. (m - 1)] do
@@ -325,7 +328,7 @@ module Domain =
                             id <- id + 1
 
                             for i in [2 .. secondPartition - 1] do
-                                let k = halfPlayers + partition * index + i
+                                let k = halfPlayers + secondPartition * index + i
                                 if k < players.Length then yield Free players.[k]
 
                         for i in [halfPlayers + secondPartition * m .. players.Length - 1] do
