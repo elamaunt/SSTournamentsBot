@@ -10,6 +10,29 @@ namespace SSTournamentsBot.Api.Services
 {
     public class SkiaDrawingService : IDrawingService
     {
+        const int MatchBlockLeftAdditionalMargin = 50;
+
+        const int BlockMargin = 24;
+        const int MatchBlockWidth = 280;
+        const int MatchBlockHeight = 210;
+        const int FreeBlockHeight = 72;
+
+        const int LogoSize = 60;
+        const int TopHeaderMargin = 10;
+        const int BottomOffset = 32;
+        const int PlayerLineHeight = 40;
+        const int PlayerLineWidth = 230;
+        const int PlayerLinesOffset = 22;
+        const int PlayerLineTextOffset = 24;
+
+        const int MapSize = 80;
+        const int MapMargin = 20;
+        const int MapTextOffset = 12;
+
+        const int TopHeaderOffset = LogoSize + TopHeaderMargin;
+        const int FullBlockHeight = BlockMargin + MatchBlockHeight + BlockMargin;
+        const int FullFreeBlockHeight = BlockMargin + FreeBlockHeight + BlockMargin;
+
         Dictionary<Map, string> _maps;
         Dictionary<Map, string> _mapNames;
         Dictionary<Race, string> _races;
@@ -73,32 +96,17 @@ namespace SSTournamentsBot.Api.Services
         {
             var count = stages.Length;
 
-            var matchBlockLeftAddidionalMargin = 50;
+            var heightsDictionary = new Dictionary<Stage, int>();
 
-            var matchBlockMargin = 24;
-            var matchBlockWidth = 230;
-            var matchBlockHeight = 200;
+            for (int i = 0; i < stages.Length; i++)
+            {
+                var s = stages[i].Item1;
+                heightsDictionary[s] = CalculateStageHeight(stages[i].Item2);
+            }
 
-            var logoSize = 60;
-            var topHeaderMargin = 10;
-            var topHeaderOffset = logoSize + matchBlockMargin + topHeaderMargin;
-            var bottomOffset = 10;
-
-            var fullBlockHeight = matchBlockMargin + matchBlockHeight + matchBlockMargin;
-            
-            var mapSize = 80;
-            var playerLineHeight = 40;
-            var playerLinesOffset = 22;
-            var playerLineTextOffset = 22;
-            var mapTextOffset = 12;
-            var mapMargin = 20;
-
-            var biggestStage = stages.OrderByDescending(x => x.Item2.Length).FirstOrDefault();
-            var maxMatches = biggestStage.Item2.Length;
-
-
-            var fullWidth = matchBlockLeftAddidionalMargin + (matchBlockWidth + matchBlockLeftAddidionalMargin) * count + matchBlockMargin;
-            var fullHeight = fullBlockHeight * maxMatches + topHeaderOffset;
+            var maxStageHeight = heightsDictionary.Max(x => x.Value);
+            var fullWidth = (MatchBlockWidth + MatchBlockLeftAdditionalMargin) * count;
+            var fullHeight = maxStageHeight + TopHeaderOffset + BottomOffset;
 
             var info = new SKImageInfo(fullWidth, fullHeight);
             
@@ -126,7 +134,7 @@ namespace SSTournamentsBot.Api.Services
                     TextSize = 16
                 };
 
-                var textPaint = new SKPaint
+                var whitePaint = new SKPaint
                 {
                     Color = SKColors.White,
                     IsAntialias = true,
@@ -134,6 +142,15 @@ namespace SSTournamentsBot.Api.Services
                     TextAlign = SKTextAlign.Left,
                     TextSize = 14
                 };
+
+                /*var greyPaint = new SKPaint
+                {
+                    Color = SKColors.White.WithAlpha((byte)(255 * 0.4)),
+                    IsAntialias = true,
+                    Style = SKPaintStyle.Fill,
+                    TextAlign = SKTextAlign.Left,
+                    TextSize = 14
+                };*/
 
                 var mapTextPaint = new SKPaint
                 {
@@ -144,74 +161,134 @@ namespace SSTournamentsBot.Api.Services
                     TextSize = 12
                 };
 
-                canvas.DrawImage(SKImage.FromEncodedData(_logo), new SKRect(topHeaderMargin, topHeaderMargin, logoSize, logoSize), textPaint);
+                canvas.DrawImage(SKImage.FromEncodedData(_logo), new SKRect(TopHeaderMargin, TopHeaderMargin, LogoSize, LogoSize), whitePaint);
 
                 for (int i = 0; i < count; i++)
                 {
                     var pair = stages[i];
 
-                    var leftOffset = matchBlockLeftAddidionalMargin + matchBlockMargin + i * (matchBlockLeftAddidionalMargin + matchBlockWidth + matchBlockMargin + matchBlockMargin);
+                    var leftOffset = MatchBlockLeftAdditionalMargin + BlockMargin + i * (MatchBlockLeftAdditionalMargin + MatchBlockWidth + BlockMargin + BlockMargin);
 
-                    var matcheOrFreeBlocks = pair.Item2;
+                    var blocks = pair.Item2;
 
-                    var center = (info.Height - bottomOffset - topHeaderMargin - matchBlockMargin) / 2;
+                    var center = (info.Height - BottomOffset - TopHeaderMargin - BlockMargin) / 2;
 
-                    var topOffset = topHeaderOffset + center - matcheOrFreeBlocks.Length * fullBlockHeight / 2;
+                    var stageHeight = heightsDictionary[pair.Item1];
+                    var heightLoss = i > 0 ? heightsDictionary[stages[i - 1].Item1] - stageHeight : 0;
 
-                    for (int k = 0; k < matcheOrFreeBlocks.Length; k++)
+                    var topOffset = TopHeaderOffset + center - stageHeight / 2;
+
+                    for (int k = 0; k < blocks.Length; k++)
                     {
-                        var matchOrFree = matcheOrFreeBlocks[k];
-                        var blockTopOffset = topOffset + k * (matchBlockHeight + matchBlockMargin * 2) + mapSize + mapMargin;
+                        var block = blocks[k];
+                        var blockTopOffset = topOffset + BlockMargin + (k + 1) * (heightLoss / (blocks.Length+1)) - heightLoss / 2;
 
-                        if (matchOrFree.IsMatch)
+                        if (block.IsMatch)
                         {
-                            var match = ((StageBlock.Match)matchOrFree).Item;
+                            topOffset += MatchBlockHeight + BlockMargin * 2;
 
-                            canvas.DrawRoundRect(SKRect.Create(leftOffset + (matchBlockWidth - mapSize - playerLineHeight) / 2, blockTopOffset - mapSize - mapMargin - 2, mapSize + 4, mapSize + 4), 3, 3, backDarkerPaint);
+                            var match = ((StageBlock.Match)block).Item;
+
+                            canvas.DrawRoundRect(SKRect.Create(
+                                leftOffset + (PlayerLineWidth - MapSize - PlayerLineHeight) / 2,
+                                blockTopOffset - 2, 
+                                MapSize + 4, 
+                                MapSize + 4), 3, 3, backDarkerPaint);
 
                             var player1Ready = FSharpOption<Tuple<Player, Race>>.get_IsSome(match.Player1);
                             var player2Ready = FSharpOption<Tuple<Player, Race>>.get_IsSome(match.Player2);
 
                             if (player1Ready && player2Ready)
                             {
-                                canvas.DrawImage(SKImage.FromEncodedData(_maps[match.Map]), SKRect.Create(leftOffset + (matchBlockWidth - mapSize - playerLineHeight) / 2, blockTopOffset - mapSize - mapMargin, mapSize, mapSize), textPaint);
-                                canvas.DrawText(_mapNames[match.Map], new SKPoint(leftOffset + (matchBlockWidth - playerLineHeight) / 2, blockTopOffset - mapMargin + mapTextOffset), mapTextPaint);
+                                canvas.DrawImage(SKImage.FromEncodedData(_maps[match.Map]), SKRect.Create(
+                                    leftOffset + (PlayerLineWidth - MapSize - PlayerLineHeight) / 2, 
+                                    blockTopOffset,
+                                    MapSize,
+                                    MapSize), whitePaint);
+
+                                canvas.DrawText(_mapNames[match.Map], new SKPoint(
+                                    leftOffset + (PlayerLineWidth - PlayerLineHeight) / 2, 
+                                    blockTopOffset + MapSize + MapTextOffset), mapTextPaint);
                             }
 
-                            canvas.DrawRoundRect(SKRect.Create(leftOffset, blockTopOffset, matchBlockWidth, playerLineHeight), 5, 5, backPaint);
-                            canvas.DrawRoundRect(SKRect.Create(leftOffset - playerLineHeight - 2, blockTopOffset - 2, playerLineHeight + 4, playerLineHeight + 4), 3, 3, backDarkerPaint);
+                            canvas.DrawRoundRect(SKRect.Create(
+                                leftOffset, 
+                                blockTopOffset + MapSize + MapMargin,
+                                PlayerLineWidth, 
+                                PlayerLineHeight), 5, 5, backPaint);
+
+                            canvas.DrawRoundRect(SKRect.Create(
+                                leftOffset - PlayerLineHeight - 2,
+                                blockTopOffset + MapSize + MapMargin - 2,
+                                PlayerLineHeight + 4,
+                                PlayerLineHeight + 4), 3, 3, backDarkerPaint);
 
                             if (player1Ready)
                             {
                                 var player = match.Player1.Value.Item1;
 
+                                //var paint = IsPlayerLoseOrLeftTheTournament();
+
                                 if (player1Ready && player2Ready)
-                                    canvas.DrawImage(SKImage.FromEncodedData(_races[match.Player1.Value.Item2]), SKRect.Create(leftOffset - playerLineHeight - 1, blockTopOffset, playerLineHeight, playerLineHeight), backDarkerPaint);
-                                canvas.DrawText(player.Name, new SKPoint(leftOffset + 8, blockTopOffset + playerLineTextOffset), textPaint);
+                                    canvas.DrawImage(SKImage.FromEncodedData(_races[match.Player1.Value.Item2]), SKRect.Create(
+                                        leftOffset - PlayerLineHeight - 1,
+                                        blockTopOffset + MapSize + MapMargin,
+                                        PlayerLineHeight,
+                                        PlayerLineHeight), backDarkerPaint);
+
+                                canvas.DrawText(player.Name, new SKPoint(
+                                    leftOffset + 8,
+                                    blockTopOffset + MapSize + MapMargin + PlayerLineTextOffset), whitePaint);
                             }
 
-                            canvas.DrawRoundRect(SKRect.Create(leftOffset, blockTopOffset + playerLineHeight + playerLinesOffset, matchBlockWidth, playerLineHeight), 5, 5, backPaint);
-                            canvas.DrawRoundRect(SKRect.Create(leftOffset - playerLineHeight - 2, blockTopOffset + playerLineHeight + playerLinesOffset - 2, playerLineHeight + 4, playerLineHeight + 4), 3, 3, backDarkerPaint);
+                            canvas.DrawRoundRect(SKRect.Create(
+                                leftOffset,
+                                blockTopOffset + MapSize + MapMargin + PlayerLineHeight + PlayerLinesOffset,
+                                PlayerLineWidth,
+                                PlayerLineHeight), 5, 5, backPaint);
+
+                            canvas.DrawRoundRect(SKRect.Create(
+                                leftOffset - PlayerLineHeight - 2,
+                                blockTopOffset + MapSize + MapMargin + PlayerLineHeight + PlayerLinesOffset - 2,
+                                PlayerLineHeight + 4,
+                                PlayerLineHeight + 4), 3, 3, backDarkerPaint);
 
                             if (player2Ready)
                             {
                                 var player = match.Player2.Value.Item1;
 
                                 if (player1Ready && player2Ready)
-                                    canvas.DrawImage(SKImage.FromEncodedData(_races[match.Player2.Value.Item2]), SKRect.Create(leftOffset - playerLineHeight - 1, blockTopOffset + playerLineHeight + playerLinesOffset, playerLineHeight, playerLineHeight), backDarkerPaint);
-                                canvas.DrawText(player.Name, new SKPoint(leftOffset + 8, blockTopOffset + playerLineHeight + playerLinesOffset + playerLineTextOffset), textPaint);
+                                    canvas.DrawImage(SKImage.FromEncodedData(_races[match.Player2.Value.Item2]), SKRect.Create(
+                                        leftOffset - PlayerLineHeight - 1,
+                                        blockTopOffset + MapSize + MapMargin + PlayerLineHeight + PlayerLinesOffset, 
+                                        PlayerLineHeight, 
+                                        PlayerLineHeight), backDarkerPaint);
+
+                                canvas.DrawText(player.Name, new SKPoint(
+                                    leftOffset + 8, 
+                                    blockTopOffset + MapSize + MapMargin + PlayerLineHeight + PlayerLinesOffset + PlayerLineTextOffset), whitePaint);
                             }
                         }
                         else
                         {
-                            var freeBlock = (StageBlock.Free)matchOrFree;
+                            topOffset += FreeBlockHeight + BlockMargin * 2;
 
-                            canvas.DrawRoundRect(SKRect.Create(leftOffset, blockTopOffset, matchBlockWidth, playerLineHeight), 5, 5, backPaint);
+
+                            var freeBlock = (StageBlock.Free)block;
+
+                            canvas.DrawRoundRect(SKRect.Create(
+                                leftOffset, 
+                                blockTopOffset,
+                                PlayerLineWidth, 
+                                PlayerLineHeight), 5, 5, backPaint);
 
                             if (FSharpOption<Player>.get_IsSome(freeBlock.Item))
                             {
                                 var player = freeBlock.Item.Value;
-                                canvas.DrawText(player.Name, new SKPoint(leftOffset + 8, blockTopOffset + playerLineTextOffset), textPaint);
+
+                                canvas.DrawText(player.Name, new SKPoint(
+                                    leftOffset + 8,
+                                    blockTopOffset + PlayerLineTextOffset), whitePaint);
                             }
                         }
                     }
@@ -225,6 +302,23 @@ namespace SSTournamentsBot.Api.Services
                     return stream.ToArray();
                 }
             }
+        }
+
+        private int CalculateStageHeight(StageBlock[] blocks)
+        {
+            int height = 0;
+
+            for (int i = 0; i < blocks.Length; i++)
+            {
+                var block = blocks[i];
+
+                if (block.IsMatch)
+                    height += FullBlockHeight;
+                else if (block.IsFree)
+                    height += FullFreeBlockHeight;
+            }
+
+            return height;
         }
     }
 }
