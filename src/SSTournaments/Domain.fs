@@ -75,6 +75,7 @@ module Domain =
     type Count = int * int
 
     type TechnicalWinReason = 
+        | OpponentsLeft
         | OpponentsBan
         | Voting
         | Custom of string
@@ -95,6 +96,35 @@ module Domain =
         BestOf: BestOf
         Result: MatchResult
         Replays: Replay list
+    }
+
+    type GameType = 
+        | Type1v1
+        | Type2v2
+        | Type3v3
+        | Type4v4
+        | TypeUnspecified
+
+    type MapInfo = 
+        | Map1v1 of Map * string
+        | MapName of string
+
+    type ModInfo = 
+        | Mod of Mod
+        | ModName of string
+
+    type RaceInfo = 
+        | NormalRace of Race
+        | ModRace of string
+
+    type FinishedGameInfo = {
+        Winners: (uint64 * RaceInfo) array
+        Losers: (uint64 * RaceInfo) array
+        GameType: GameType
+        Duration: int32
+        Map: MapInfo
+        Mod: ModInfo
+        ReplayLink: string
     }
 
     type StageBlock =
@@ -245,7 +275,7 @@ module Domain =
             | Race r -> Some r
         | None -> None
 
-    let GenerateMatchesfrom stage seed =
+    let GenerateBlocksFrom stage seed idOffset =
         let random = System.Random(seed)
 
         match stage with 
@@ -266,7 +296,7 @@ module Domain =
                         let race2 = GetOrGenerateRace player2 (random.Next())
 
                         yield Match { 
-                            Id = 0
+                            Id = idOffset
                             Player1 = if player1.IsSome then Some (player1.Value, race1.Value) else None
                             Player2 = if player2.IsSome then Some (player2.Value, race2.Value) else None
                             Map = GetMapByIndex (random.Next(12))
@@ -277,7 +307,7 @@ module Domain =
                         for i in [2 .. players.Length - 1] do
                             yield Free players.[i]
                     else
-                        let mutable id = 0
+                        let mutable id = idOffset
                         let r = diff &&& 1 // rem to 2
                         let halfPlayers = (players.Length >>> 1) + r
                         let partition = halfPlayers / (m + r)
@@ -357,7 +387,7 @@ module Domain =
                             yield Free players.[shift + (index <<< 1) + 1]
             |] 
         | Groups groups -> [|
-            let mutable id = 0
+            let mutable id = idOffset
 
             for group in groups do
                 for index in [0..group.Length-1] do 
@@ -413,3 +443,85 @@ module Domain =
                 | Free _ -> ()
                 | Group (_, matches) -> for m in matches do m
         |]
+
+    let GetPlayableMatchesWithoutResult blocks = 
+        [|
+            for block in blocks do 
+                match block with 
+                | Match m -> m
+                | Free _ -> ()
+                | Group (_, matches) -> for m in matches do m
+                       
+        |] 
+        |> Array.filter(fun m -> 
+            if m.Player1.IsSome && m.Player2.IsSome then
+                match m.Result with
+                | NotCompleted _ -> true
+                | _ -> false
+            else false)
+
+    let ApplyPlayedMatches blocks matches = 
+        [|
+            for block in blocks do
+                match block with
+                | Match m -> 
+                    let sameMatch = matches |> Array.tryFind(fun x -> x.Player1.IsSome && x.Player1 = m.Player1 && x.Player2.IsSome && x.Player2 = m.Player2)
+
+                    match sameMatch with
+                    | Some sameMatch -> Match { m with Result = sameMatch.Result; Replays = sameMatch.Replays }
+                    | _ -> block
+                | _ -> block
+        |]
+
+    let IsEnoughWins bestOf count =
+        let (w1, w2) = count
+
+        match bestOf with 
+        | One -> w1 > 0 || w2 > 0
+        | Three -> w1 > 1 || w2 > 1
+        | Five -> w1 > 2 || w2 > 2
+        | Seven ->  w1 > 3 || w2 > 3
+
+    let AddWinToMatch m winnerSteamId replayLink usedMod = 
+        match m.Result with 
+        | NotCompleted c -> 
+            match (m.Player1, m.Player2) with
+            | (Some (p1, _), Some (p2, _)) ->
+                let (p1c, p2c) = c
+
+                let (winner, updatedCount) =
+                    match (p1.SteamId, p2.SteamId) with
+                    | (id, _) when id = winnerSteamId -> (Some p1, (p1c + 1, p2c))
+                    | (_, id) when id = winnerSteamId -> (Some p2, (p1c, p2c + 1))
+                    | _ -> (None, c)
+                 
+                match winner with 
+                | None -> m
+                | Some winner ->
+                    if IsEnoughWins m.BestOf updatedCount then 
+                        { m with Replays = m.Replays |> List.append([{ UsedMod = usedMod; Url = replayLink }]); Result = Winner (winner, updatedCount) }
+                    else
+                        { m with Replays = m.Replays |> List.append([{ UsedMod = usedMod; Url = replayLink }]); Result = NotCompleted updatedCount }
+            | _ -> m
+        | _ -> m
+
+    let AddTechicalLoseToMatch m loserSteamId reason = 
+           match m.Result with 
+           | NotCompleted c -> 
+               match (m.Player1, m.Player2) with
+               | (Some (p1, _), Some (p2, _)) ->
+
+                   let loser =
+                       match (p1.SteamId, p2.SteamId) with
+                       | (id, _) when id = loserSteamId -> Some p1
+                       | (_, id) when id = loserSteamId -> Some p2
+                       | _ -> None
+                    
+                   match loser with 
+                   | None -> m
+                   | Some loser -> { m with Result = TechnicalWinner ((if loser = p1 then p2 else p1), reason) }
+               | _ -> m
+           | _ -> m
+
+
+       

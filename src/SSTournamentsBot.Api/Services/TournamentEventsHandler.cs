@@ -22,7 +22,36 @@ namespace SSTournamentsBot.Api.Services
 
         public void DoCompleteStage()
         {
+            _logger.LogInformation("An attempt to complete the stage..");
+
             var result = _tournamentApi.TryCompleteCurrentStage();
+
+            if (result.IsNoTournament)
+            {
+                _logger.LogInformation("No a planned tournament");
+                return;
+            }
+
+            if (result.IsNotAllMatchesFinished)
+            {
+                _logger.LogInformation("Not all matches finished");
+                _botApi.SendMessage("Не все матчи текущей стадии были завершены. Для установления резултатов по каждому матчу будет запущено голосование.");
+
+                // TODO: start voting
+                _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(30));
+                return;
+            }
+
+            if (result.IsCompleted)
+            {
+                _logger.LogInformation("The stage has been completed");
+                _botApi.SendMessage("Стадия была успешно завершена! Следующая стадия начнется после 5-минутного перерыва.");
+
+                _timeline.AddOneTimeEventAfterTime(Event.StartNextStage, TimeSpan.FromSeconds(10));
+                return;
+            }
+
+            _logger.LogError("Broken state");
         }
 
         public void DoCompleteVoting()
@@ -63,6 +92,8 @@ namespace SSTournamentsBot.Api.Services
                 var players = _tournamentApi.RegisteredPlayers;
 
                 _botApi.SendMessage("Внимание! Началась стадия чекина на турнир. Всем участникам нужно выполнить команду __**/checkin**__ для подтверждения своего участия.", players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                
+                // TODO: chekins
                 _timeline.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromSeconds(1));
 
                 return;
@@ -95,6 +126,7 @@ namespace SSTournamentsBot.Api.Services
 
                 _botApi.SendMessage("Начинается турнир. В процессе генерации сетки..", players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
                 _botApi.SendFile(_tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира");
+                _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(30));
                 return;
             }
 
@@ -105,11 +137,41 @@ namespace SSTournamentsBot.Api.Services
                 _botApi.SendMessage("В данный момент турнир невозможно начать, так как участников недостаточно. Список зарегистрированных был обнулен.");
                 return;
             }
+
+            _logger.LogError("Broken state");
         }
 
         public void DoStartNextStage()
         {
-            var result = _tournamentApi.TryStartNexttage();
+            var result = _tournamentApi.TryStartNextStage();
+
+            while (result.IsDone && _tournamentApi.TryCompleteCurrentStage() == CompleteStageResult.Completed)
+                result = _tournamentApi.TryStartNextStage();
+
+            if (result.IsNoTournament)
+            {
+                _logger.LogInformation("No a planned tournament");
+                return;
+            }
+
+            if (result.IsTheStageIsTerminal)
+            {
+                _logger.LogInformation("The stage is terminal.");
+                _botApi.SendMessage("Определился победитель!");
+                _botApi.SendFile(_tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира");
+                return;
+            }
+
+            if (result.IsDone)
+            {
+                _logger.LogInformation("The stage has been started..");
+                _botApi.SendMessage("Начинается следующая стадия турнира! Генерация сетки..");
+                _botApi.SendFile(_tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира");
+                return;
+            }
+
+            _logger.LogError("Broken state");
         }
+
     }
 }

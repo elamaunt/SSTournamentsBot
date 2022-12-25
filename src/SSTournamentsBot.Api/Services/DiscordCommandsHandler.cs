@@ -43,7 +43,7 @@ namespace SSTournamentsBot.Api.Services
                 new CheckInSlashCommand(dataService, api),
                 new CheckOpponentSlashCommand(),
                 new InfoSlashCommand(api),
-                new KickBotsSlashCommand(),
+                new KickBotsSlashCommand(api),
                 new LeaveSlashCommand(dataService, api),
                 new MyIdSlashCommand(),
                 new PlayersShashCommand(api),
@@ -52,7 +52,8 @@ namespace SSTournamentsBot.Api.Services
                 new TimelineSlashCommand(_timeline),
                 new TimeSlashCommand(_timeline),
                 new ViewSlashCommand(api),
-                new VoteSlashCommand()
+                new VoteSlashCommand(),
+                new MatchesSlashCommand(api)
             }.ToDictionary(x => x.Name);
         }
 
@@ -117,8 +118,7 @@ namespace SSTournamentsBot.Api.Services
 #if DEBUG
                         await (guild.Channels.First(x => x.Name == "основной") as SocketTextChannel).SendMessageAsync(@"Привет, друзья! 
 SS Tournaments Bot к вашим услугам и готов устраивать для Вас автоматические турниры.
-Тестовый режим активирован. Турниры стартуют каждые 5 минут. Чек начинается за минуту до старта. Пока идет турнир, другие турниры не организуются.
-Для регистрации на турнир используйте команду play.");
+Тестовый режим активирован. Для регистрации на турнир используйте команду play.");
 #else
                     await guild.DefaultChannel.SendMessageAsync(@"Привет, друзья! 
 SS Tournaments Bot к вашим услугам и готов устраивать для Вас автоматические турниры.

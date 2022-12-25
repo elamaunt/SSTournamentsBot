@@ -37,7 +37,8 @@ namespace SSTournamentsBot.Api
             services.Configure<TournamentEventsOptions>(Configuration.GetSection("TournamentEventsOptions"));
             services.Configure<DowStatsApiOptions>(Configuration.GetSection("DowStatsApiOptions"));
             services.Configure<DiscordBotOptions>(Configuration.GetSection("DiscordBotOptions"));
-
+            services.Configure<DowStatsGameScannerOptions>(Configuration.GetSection("DowStatsReplayScannerOptions"));
+            
             services.AddControllers();
             services.AddHttpClient()
                 .AddSingleton(config)
@@ -46,6 +47,7 @@ namespace SSTournamentsBot.Api
                 .AddSingleton<CommandService>()
                 .AddSingleton<IEventsTimeline, InMemoryEventsTimeline>()
                 .AddSingleton<IEventsHandler, TournamentEventsHandler>()
+                .AddSingleton<IGameScanner, DowStatsGameScanner>()
                 .AddTransient<IStatsApi, DowStatsApi>()
 #if DEBUG
                 .AddTransient<IDataService, InMemoryDataService>()

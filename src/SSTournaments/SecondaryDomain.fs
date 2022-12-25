@@ -32,13 +32,13 @@ module SecondaryDomain =
     type CompleteVotingResult = 
         | NoVoting
         | NotEnoughVotes
-        | Completed of int32
+        | Completed
         | Cancelled
 
     type StartNextStageResult = 
         | NoTournament
         | TheStageIsTerminal
-        | Done of Match array
+        | Done
 
     type CompleteStageResult = 
         | NoTournament

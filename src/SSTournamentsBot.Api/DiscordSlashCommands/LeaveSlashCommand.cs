@@ -28,7 +28,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            if (_api.TryLeaveUser(userData))
+            if (_api.TryLeaveUser(userData.DiscordId, userData.SteamId))
                 await arg.RespondAsync($"Вы успешно покинули турнир.");
             else
                 await arg.RespondAsync($"Вы не были зарегистрированы в следующем турнире.");

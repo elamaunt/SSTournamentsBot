@@ -28,7 +28,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             try
             {
-                var match = _api.FindMatchWith(user.Id);
+                var match = _api.FindActiveMatchWith(user.Id);
 
                 if (match == null)
                 {
