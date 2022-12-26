@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System.IO;
 using System.Threading.Tasks;
@@ -21,6 +22,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override Task Handle(SocketSlashCommand arg)
         {
             return arg.RespondWithFileAsync(new MemoryStream(_api.RenderTournamentImage()), "tournament.png");
+        }
+
+        protected override void Configure(SlashCommandBuilder builder)
+        {
+            builder
+                .WithDefaultPermission(true)
+                .WithDefaultMemberPermissions(GuildPermission.Administrator | GuildPermission.ModerateMembers)
+                .WithDMPermission(true);
         }
     }
 }

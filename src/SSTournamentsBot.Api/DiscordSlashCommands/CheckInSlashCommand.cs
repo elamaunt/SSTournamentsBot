@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Threading.Tasks;
+using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
@@ -12,11 +13,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Description => "Подтвердить свое участие";
         
         readonly IDataService _dataService;
+        readonly IEventsTimeline _timeLine;
         readonly TournamentApi _api;
 
-        public CheckInSlashCommand(IDataService dataService, TournamentApi api)
+        public CheckInSlashCommand(IDataService dataService, IEventsTimeline timeLine, TournamentApi api)
         {
             _dataService = dataService;
+            _timeLine = timeLine;
             _api = api;
         }
         public override async Task Handle(SocketSlashCommand arg)
@@ -29,7 +32,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            var result = _api.ChechInUser(userData);
+            var result = _api.TryCheckInUser(userData.SteamId);
+
+            if (result.IsNotRegisteredIn)
+            {
+                await arg.RespondAsync($"Вы не регистрировались на текущий турнир");
+                return;
+            }
 
             if (result.IsNotCheckInStageNow)
             {
@@ -45,7 +54,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsDone)
             {
-                await arg.RespondAsync($"Вы успешно подтведили свое участие! ");
+                await arg.RespondAsync($"Вы успешно подтведили свое участие! Вы будете оповещены через упоминание здесь, как только турнир начнется.");
+
+                if (_api.IsAllPlayersCheckIned())
+                    _timeLine.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromSeconds(10));
                 return;
             }
         }

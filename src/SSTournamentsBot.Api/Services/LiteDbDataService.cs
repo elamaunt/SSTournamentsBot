@@ -37,7 +37,7 @@ namespace SSTournamentsBot.Api.Services
                         case "SisterOfBattle":
                             return RaceOrRandom.NewRace(Race.SisterOfBattle);
                         default:
-                            return RaceOrRandom.Random;
+                            return RaceOrRandom.RandomEveryMatch;
                     }
                 }
             );
@@ -80,7 +80,7 @@ namespace SSTournamentsBot.Api.Services
 
             var userByDiscordId = col.FindOne(x => x.DiscordId == discordId) ?? new UserData();
 
-            userByDiscordId.Race = RaceOrRandom.Random;
+            userByDiscordId.Race = RaceOrRandom.RandomEveryMatch;
             userByDiscordId.DiscordId = discordId;
             userByDiscordId.SteamId = steamId;
 

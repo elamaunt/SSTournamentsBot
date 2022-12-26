@@ -4,6 +4,13 @@ open Domain
 
 module SecondaryDomain = 
 
+    type GuildThread = 
+        | TournamentChat
+        | EventsTape
+        | Leaderboard
+        | History
+        | Logging
+
     type Stats = {
         SteamId: uint64
         Games1v1: int32
@@ -25,6 +32,7 @@ module SecondaryDomain =
 
     type UserCheckInResult = 
         | NoTournament
+        | NotRegisteredIn
         | Done
         | AlreadyCheckIned
         | NotCheckInStageNow

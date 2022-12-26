@@ -56,23 +56,24 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 userData = _dataService.UpdateUser(userData);
             }
 
-            var race = RaceOrRandom.Random;
+            var race = RaceOrRandom.RandomEveryMatch;
             var raceOption = arg.Data.Options.FirstOrDefault(x => x.Name == "race");
 
             if (raceOption != null)
             {
                 switch ((long)raceOption.Value)
                 {
-                    case 0: race = RaceOrRandom.Random; break;
-                    case 1: race = RaceOrRandom.NewRace(Race.SpaceMarines); break;
-                    case 2: race = RaceOrRandom.NewRace(Race.Chaos); break;
-                    case 3: race = RaceOrRandom.NewRace(Race.Orks); break;
-                    case 4: race = RaceOrRandom.NewRace(Race.Eldar); break;
-                    case 5: race = RaceOrRandom.NewRace(Race.ImperialGuard); break;
-                    case 6: race = RaceOrRandom.NewRace(Race.Tau); break;
-                    case 7: race = RaceOrRandom.NewRace(Race.Necrons); break;
-                    case 8: race = RaceOrRandom.NewRace(Race.DarkEldar); break;
-                    case 9: race = RaceOrRandom.NewRace(Race.SisterOfBattle); break;
+                    case 0: race = RaceOrRandom.RandomEveryMatch; break;
+                    case 1: race = RaceOrRandom.RandomOnTournament; break;
+                    case 2: race = RaceOrRandom.NewRace(Race.SpaceMarines); break;
+                    case 3: race = RaceOrRandom.NewRace(Race.Chaos); break;
+                    case 4: race = RaceOrRandom.NewRace(Race.Orks); break;
+                    case 5: race = RaceOrRandom.NewRace(Race.Eldar); break;
+                    case 6: race = RaceOrRandom.NewRace(Race.ImperialGuard); break;
+                    case 7: race = RaceOrRandom.NewRace(Race.Tau); break;
+                    case 8: race = RaceOrRandom.NewRace(Race.Necrons); break;
+                    case 9: race = RaceOrRandom.NewRace(Race.DarkEldar); break;
+                    case 10: race = RaceOrRandom.NewRace(Race.SisterOfBattle); break;
                     default:
                         break;
                 }
@@ -115,16 +116,17 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             builder.AddOption(new SlashCommandOptionBuilder()
                 .WithName("race")
                 .WithRequired(false)
-                .AddChoice("Random", 0)
-                .AddChoice("Space Marines", 1)
-                .AddChoice("Chaos Space Marines", 2)
-                .AddChoice("Orks", 3)
-                .AddChoice("Eldar", 4)
-                .AddChoice("Imperial Guard", 5)
-                .AddChoice("Tau", 6)
-                .AddChoice("Necron", 7)
-                .AddChoice("Dark Eldar", 8)
-                .AddChoice("Sisters Of Battle", 9)
+                .AddChoice("Random every match", 0)
+                .AddChoice("Random on the tournament", 1)
+                .AddChoice("Space Marines", 2)
+                .AddChoice("Chaos Space Marines", 3)
+                .AddChoice("Orks", 4)
+                .AddChoice("Eldar", 5)
+                .AddChoice("Imperial Guard", 6)
+                .AddChoice("Tau", 7)
+                .AddChoice("Necron", 8)
+                .AddChoice("Dark Eldar", 9)
+                .AddChoice("Sisters Of Battle", 10)
                 .WithType(ApplicationCommandOptionType.Integer)
                 .WithDescription("Выбрать расу"));
         }

@@ -27,7 +27,8 @@ module Domain =
         
     type RaceOrRandom = 
         | Race of Race
-        | Random
+        | RandomEveryMatch
+        | RandomOnTournament
 
     type Map = 
         | BloodRiver

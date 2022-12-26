@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using Microsoft.Extensions.Options;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,13 +11,15 @@ namespace SSTournamentsBot.Api.Services
     public class DiscordBotApi : IBotApi
     {
         readonly DiscordSocketClient _client;
+        readonly DiscordBotOptions _options;
 
-        public DiscordBotApi(DiscordSocketClient client)
+        public DiscordBotApi(DiscordSocketClient client, IOptions<DiscordBotOptions> options)
         {
+            _options = options.Value;
             _client = client;
         }
 
-        public async Task SendFile(byte[] file, string fileName, string text)
+        public async Task SendFile(byte[] file, string fileName, string text, GuildThread thread)
         {
             foreach (var item in _client.Guilds)
             {
@@ -25,7 +28,7 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        public async Task SendMessage(string message, params ulong[] mentions)
+        public async Task SendMessage(string message, GuildThread thread, params ulong[] mentions)
         {
             var messageBuilder = new StringBuilder();
 
@@ -48,7 +51,7 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        public void StartVoting(Voting voting)
+        public void StartVoting(Voting voting, GuildThread thread)
         {
             // TODO
         }

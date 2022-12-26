@@ -42,7 +42,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         {
             builder
                 .WithDefaultPermission(true)
-                .WithDefaultMemberPermissions(GuildPermission.Administrator)
+                .WithDefaultMemberPermissions(GuildPermission.Administrator | GuildPermission.ModerateMembers)
                 .WithDMPermission(true);
         }
     }

@@ -44,7 +44,7 @@ namespace SSTournamentsBot.Api
                 .AddSingleton(config)
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<HttpService, CustomHttpService>()
-                .AddSingleton<CommandService>()
+                //.AddSingleton<CommandService>()
                 .AddSingleton<IEventsTimeline, InMemoryEventsTimeline>()
                 .AddSingleton<IEventsHandler, TournamentEventsHandler>()
                 .AddSingleton<IGameScanner, DowStatsGameScanner>()

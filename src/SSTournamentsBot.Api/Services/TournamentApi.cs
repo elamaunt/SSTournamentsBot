@@ -85,6 +85,7 @@ namespace SSTournamentsBot.Api.Services
                 if (_leftUsers.Contains(steamId))
                     return false;
 
+                _checkInedUsers.Remove(steamId);
                 _leftUsers.Add(steamId);
 
                 for (int i = 0; i < _currentStageMatches.Length; i++)
@@ -179,7 +180,6 @@ namespace SSTournamentsBot.Api.Services
                 return StartResult.AlreadyStarted;
 
             _initialStage = Start(_currentTournament);
-            var random = new Random(_currentTournament.Seed);
 
             RegenerateStages();
 
@@ -313,9 +313,31 @@ namespace SSTournamentsBot.Api.Services
             return StartNextStageResult.Done;
         }
 
-        public UserCheckInResult ChechInUser(UserData userData)
+        public UserCheckInResult TryCheckInUser(ulong steamId)
         {
-            return UserCheckInResult.Done;
+            if (!IsTounamentStarted)
+                return UserCheckInResult.NoTournament;
+
+            if (!RegisteredPlayers.Any(x => x.SteamId == steamId))
+                return UserCheckInResult.NotRegisteredIn;
+
+            if (!_isCheckIn)
+                return UserCheckInResult.NotCheckInStageNow;
+
+            if (_checkInedUsers.Add(steamId))
+                return UserCheckInResult.Done;
+            else
+                return UserCheckInResult.AlreadyCheckIned;
+        }
+
+        public bool IsAllPlayersCheckIned()
+        {
+            return RegisteredPlayers.All(x => _checkInedUsers.Contains(x.SteamId));
+        }
+
+        public bool IsAllActiveMatchesCompleted()
+        {
+            return ActiveMatches.All(x => !x.Result.IsNotCompleted);
         }
     }
 }

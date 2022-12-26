@@ -28,6 +28,5 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                   .WithType(ApplicationCommandOptionType.Integer)
                   .WithRequired(true));
         }
-
     }
 }

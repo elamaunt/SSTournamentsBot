@@ -125,7 +125,7 @@ namespace SSTournamentsBot.Api.Services
             return list.ToArray();
         }
 
-        public (Event, DateTime, TimeSpan?) GetNextEventInfo()
+        public (Event Event, DateTime Date, TimeSpan? Period)? GetNextEventInfo()
         {
             return _events.OrderBy(x =>
             {
@@ -139,7 +139,7 @@ namespace SSTournamentsBot.Api.Services
                         return x.Date;
                 }
             })
-            .Select(x =>
+            .Select<EventInfo, (Event, DateTime, TimeSpan?)?>(x =>
             {
                 switch (x.Type)
                 {
@@ -154,7 +154,7 @@ namespace SSTournamentsBot.Api.Services
             .FirstOrDefault();
         }
 
-        public (Event, DateTime, TimeSpan?)[] GetAllScheduledEvents()
+        public (Event Event, DateTime Date, TimeSpan? Period)[] GetAllScheduledEvents()
         {
             return _events.OrderBy(x =>
             {
@@ -180,6 +180,11 @@ namespace SSTournamentsBot.Api.Services
                         return (x.Event, x.Date, x.Periodic ? new TimeSpan?(x.TimeSpan) : new TimeSpan?());
                 }
             }).ToArray();
+        }
+
+        public void ForceNextEvent()
+        {
+            throw new NotImplementedException();
         }
 
         private enum EventType
