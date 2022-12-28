@@ -19,9 +19,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Выводит текущую сетку турнира";
 
-        public override Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(SocketSlashCommand arg)
         {
-            return arg.RespondWithFileAsync(new MemoryStream(_api.RenderTournamentImage()), "tournament.png");
+            await arg.RespondWithFileAsync(new MemoryStream(await _api.RenderTournamentImage()), "tournament.png");
         }
 
         protected override void Configure(SlashCommandBuilder builder)

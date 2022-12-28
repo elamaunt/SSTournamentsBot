@@ -24,7 +24,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         }
         public override async Task Handle(SocketSlashCommand arg)
         {
-            var userData = _dataService.FindUserByDiscordId(arg.User.Id);
+            var userData =  _dataService.FindUserByDiscordId(arg.User.Id);
 
             if (userData == null)
             {
@@ -32,7 +32,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            var result = _api.TryCheckInUser(userData.SteamId);
+            var result = await _api.TryCheckInUser(userData.SteamId);
 
             if (result.IsNotRegisteredIn)
             {

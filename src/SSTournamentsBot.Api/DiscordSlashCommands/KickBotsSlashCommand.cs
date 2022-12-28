@@ -24,7 +24,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             {
                 var p = players[i];
                 if (p.IsBot)
-                    _tournamentApi.TryLeaveUser(p.DiscordId, p.SteamId);
+                    await _tournamentApi.TryLeaveUser(p.DiscordId, p.SteamId);
             }
 
             await arg.RespondAsync("Все боты покинули игру.");

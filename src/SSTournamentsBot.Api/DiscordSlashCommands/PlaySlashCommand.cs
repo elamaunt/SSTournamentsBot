@@ -82,7 +82,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 userData = _dataService.UpdateUser(userData);
             }
 
-            var result = _tournamentApi.TryRegisterUser(userData, user.Username);
+            var result = await _tournamentApi.TryRegisterUser(userData, user.Username);
 
             async Task Responce(string message)
             {
@@ -102,7 +102,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     break;
                 case Domain.RegistrationResult.AlreadyRegistered:
                     if (raceOption != null)
-                        _tournamentApi.UpdatePlayersRace(userData);
+                        await _tournamentApi.UpdatePlayersRace(userData);
                     await Responce($"Вы уже зарегистрированы на турнир.\nАккаунт на DowStats: https://dowstats.ru/player.php?sid={userData.SteamId}&server=steam#tab0 \nВыбранная раса: {userData.Race}");
                     break;
                 default:

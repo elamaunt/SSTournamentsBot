@@ -23,11 +23,11 @@ namespace SSTournamentsBot.Api.Services
             _tournamentApi = tournamentApi;
         }
 
-        public void DoCompleteStage()
+        public async void DoCompleteStage()
         {
             _logger.LogInformation("An attempt to complete the stage..");
 
-            var result = _tournamentApi.TryCompleteCurrentStage();
+            var result = await _tournamentApi.TryCompleteCurrentStage();
 
             if (result.IsNoTournament)
             {
@@ -38,7 +38,7 @@ namespace SSTournamentsBot.Api.Services
             if (result.IsNotAllMatchesFinished)
             {
                 _logger.LogInformation("Not all matches finished");
-                _botApi.SendMessage("Не все матчи текущей стадии были завершены. Для установления результатов по каждому матчу будет запущено голосование, либо решение будет принято модераторами.", GuildThread.EventsTape);
+                await _botApi.SendMessage("Не все матчи текущей стадии были завершены. Для установления результатов по каждому матчу будет запущено голосование, либо решение будет принято модераторами.", GuildThread.EventsTape);
 
                 // TODO: start voting. 
                 _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(30));
@@ -49,7 +49,7 @@ namespace SSTournamentsBot.Api.Services
             {
                 _scanner.Active = false;
                 _logger.LogInformation("The stage has been completed");
-                _botApi.SendMessage("Стадия была успешно завершена! Следующая стадия начнется после 5-минутного перерыва.", GuildThread.EventsTape);
+                await _botApi.SendMessage("Стадия была успешно завершена! Следующая стадия начнется после 5-минутного перерыва.", GuildThread.EventsTape);
 
                 _timeline.AddOneTimeEventAfterTime(Event.StartNextStage, TimeSpan.FromSeconds(10));
                 return;
@@ -58,16 +58,17 @@ namespace SSTournamentsBot.Api.Services
             _logger.LogError("Broken state");
         }
 
-        public void DoCompleteVoting()
+        public async void DoCompleteVoting()
         {
-            _botApi.TryCompleteVoting();
+            _logger.LogInformation("An attempt to complete the voting..");
+            var result = await _tournamentApi.TryCompleteVoting();
         }
 
-        public void DoStartCheckIn()
+        public async void DoStartCheckIn()
         {
             _logger.LogInformation("An attempt to start checkin stage..");
 
-            var result = _tournamentApi.TryStartTheCheckIn();
+            var result = await _tournamentApi.TryStartTheCheckIn();
 
             if (result.IsNoTournament)
             {
@@ -86,8 +87,8 @@ namespace SSTournamentsBot.Api.Services
                 var players = _tournamentApi.RegisteredPlayers;
 
                 _logger.LogInformation("Not enough players.");
-                _tournamentApi.DropTournament();
-                _botApi.SendMessage("В данный момент турнир невозможно начать, так как участников недостаточно. Список зарегистрированных был обнулен.", GuildThread.EventsTape, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                await _tournamentApi.DropTournament();
+                await _botApi.SendMessage("В данный момент турнир невозможно начать, так как участников недостаточно. Список зарегистрированных был обнулен.", GuildThread.EventsTape, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
                 return;
             }
 
@@ -97,7 +98,7 @@ namespace SSTournamentsBot.Api.Services
 
                 var players = _tournamentApi.RegisteredPlayers;
 
-                _botApi.SendMessage("Внимание! Началась стадия чекина на турнир. Всем участникам нужно выполнить команду __**/checkin**__ для подтверждения своего участия.", GuildThread.EventsTape, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                await _botApi.SendMessage("Внимание! Началась стадия чекина на турнир. Всем участникам нужно выполнить команду __**/checkin**__ для подтверждения своего участия.", GuildThread.EventsTape, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
                 
                 _timeline.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromSeconds(30));
                 return;
@@ -106,9 +107,9 @@ namespace SSTournamentsBot.Api.Services
             _logger.LogError("Broken state");
         }
 
-        public void DoStartCurrentTournament()
+        public async void DoStartCurrentTournament()
         {
-            var result = _tournamentApi.TryStartTheTournament();
+            var result = await _tournamentApi.TryStartTheTournament();
 
             if (result.IsNoTournament)
             {
@@ -128,8 +129,8 @@ namespace SSTournamentsBot.Api.Services
 
                 var players = _tournamentApi.RegisteredPlayers;
 
-                _botApi.SendMessage("Начинается турнир. В процессе генерации сетки..", GuildThread.EventsTape, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
-                _botApi.SendFile(_tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира", GuildThread.EventsTape);
+                await _botApi.SendMessage("Начинается турнир. В процессе генерации сетки..", GuildThread.EventsTape, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                await _botApi.SendFile(await _tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира", GuildThread.EventsTape);
                 _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(30));
                 _scanner.GameTypeFilter = GameType.Type1v1;
                 _scanner.Active = true;
@@ -140,20 +141,20 @@ namespace SSTournamentsBot.Api.Services
             {
                 var players = _tournamentApi.RegisteredPlayers;
                 _logger.LogInformation("Not enough players");
-                _tournamentApi.DropTournament();
-                _botApi.SendMessage("В данный момент турнир невозможно начать, так как участников недостаточно. Список зарегистрированных был обнулен.", GuildThread.EventsTape, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                await _tournamentApi.DropTournament();
+                await _botApi.SendMessage("В данный момент турнир невозможно начать, так как участников недостаточно. Список зарегистрированных был обнулен.", GuildThread.EventsTape, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
                 return;
             }
 
             _logger.LogError("Broken state");
         }
 
-        public void DoStartNextStage()
+        public async void DoStartNextStage()
         {
-            var result = _tournamentApi.TryStartNextStage();
+            var result = await _tournamentApi.TryStartNextStage();
 
-            while (result.IsDone && _tournamentApi.TryCompleteCurrentStage() == CompleteStageResult.Completed)
-                result = _tournamentApi.TryStartNextStage();
+            while (result.IsDone && (await _tournamentApi.TryCompleteCurrentStage()) == CompleteStageResult.Completed)
+                result = await _tournamentApi.TryStartNextStage();
 
             if (result.IsNoTournament)
             {
@@ -164,8 +165,8 @@ namespace SSTournamentsBot.Api.Services
             if (result.IsTheStageIsTerminal)
             {
                 _logger.LogInformation("The stage is terminal.");
-                _botApi.SendMessage("Определился победитель!", GuildThread.EventsTape);
-                _botApi.SendFile(_tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира", GuildThread.EventsTape);
+                await _botApi.SendMessage("Определился победитель!", GuildThread.EventsTape);
+                await _botApi.SendFile(await _tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира", GuildThread.EventsTape);
                 return;
             }
 
@@ -174,8 +175,8 @@ namespace SSTournamentsBot.Api.Services
                 _scanner.Active = true;
 
                 _logger.LogInformation("The stage has been started..");
-                _botApi.SendMessage("Начинается следующая стадия турнира! Генерация сетки..", GuildThread.EventsTape);
-                _botApi.SendFile(_tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира", GuildThread.EventsTape);
+                await _botApi.SendMessage("Начинается следующая стадия турнира! Генерация сетки..", GuildThread.EventsTape);
+                await  _botApi.SendFile(await _tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира", GuildThread.EventsTape);
                 return;
             }
 

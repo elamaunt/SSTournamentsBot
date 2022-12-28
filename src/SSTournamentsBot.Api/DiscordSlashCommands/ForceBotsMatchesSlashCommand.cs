@@ -28,14 +28,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 var p2 = match.Player2.Value.Item1;
                 if (random.Next(2) == 0 && p1.IsBot)
                 {
-                    _api.TryLeaveUser(p1.DiscordId, p1.SteamId);
+                    await _api.TryLeaveUser(p1.DiscordId, p1.SteamId);
                 } else if (p2.IsBot)
                 {
-                    _api.TryLeaveUser(p2.DiscordId, p2.SteamId);
+                    await _api.TryLeaveUser(p2.DiscordId, p2.SteamId);
                 }
                 else if (p1.IsBot)
                 {
-                    _api.TryLeaveUser(p1.DiscordId, p1.SteamId);
+                    await _api.TryLeaveUser(p1.DiscordId, p1.SteamId);
                 }
             }
         }

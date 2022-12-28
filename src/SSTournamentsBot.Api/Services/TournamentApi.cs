@@ -1,9 +1,10 @@
-﻿using Microsoft.FSharp.Core;
-using SSTournamentsBot.Api.DataDomain;
+﻿using SSTournamentsBot.Api.DataDomain;
 using SSTournamentsBot.Api.Domain;
+using SSTournamentsBot.Api.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
 
@@ -12,9 +13,10 @@ namespace SSTournamentsBot.Api.Services
     public class TournamentApi
     {
         private Tournament _currentTournament;
+        private VotingProgress _votingProgress;
 
-        private bool _isStarted;
-        private bool _isCheckIn;
+        private volatile bool _isStarted;
+        private volatile bool _isCheckIn;
 
         private (Stage, StageBlock[])[] _stages;
         private Match[] _playedMatches;
@@ -24,45 +26,54 @@ namespace SSTournamentsBot.Api.Services
         private Stage _initialStage;
         readonly IDrawingService _renderingService;
 
+        readonly AsyncQueue _queue = new AsyncQueue();
+
         public TournamentApi(IDrawingService renderingService)
         {
             _renderingService = renderingService;
         }
 
-        public RegistrationResult TryRegisterUser(UserData userData, string name, bool isBot = false)
+        public Task<RegistrationResult> TryRegisterUser(UserData userData, string name, bool isBot = false)
         {
-            if (_isStarted)
+            return _queue.Async(() =>
             {
-                return RegistrationResult.TournamentAlreadyStarted;
-            }
+                if (_isStarted)
+                {
+                    return RegistrationResult.TournamentAlreadyStarted;
+                }
 
-            if (_currentTournament == null)
-            {
-                _currentTournament = CreateTournamentByDate(Mod.Soulstorm);
-                _leftUsers = new HashSet<ulong>();
-                _checkInedUsers = new HashSet<ulong>();
-                _initialStage = null;
-                _playedMatches = new Match[0];
-                _currentStageMatches = new Match[0];
-            }
+                if (_currentTournament == null)
+                {
+                    _currentTournament = CreateTournamentByDate(Mod.Soulstorm);
+                    _leftUsers = new HashSet<ulong>();
+                    _checkInedUsers = new HashSet<ulong>();
+                    _initialStage = null;
+                    _playedMatches = new Match[0];
+                    _currentStageMatches = new Match[0];
+                }
 
 
-            if (IsPlayerRegisteredInTournament(_currentTournament, userData.SteamId, userData.DiscordId))
-                return RegistrationResult.AlreadyRegistered;
+                if (IsPlayerRegisteredInTournament(_currentTournament, userData.SteamId, userData.DiscordId))
+                    return RegistrationResult.AlreadyRegistered;
 
-            var player = new Player(name, userData.SteamId, userData.DiscordId, userData.Race, isBot);
-            _currentTournament = RegisterPlayerInTournament(_currentTournament, player);
+                var player = new Player(name, userData.SteamId, userData.DiscordId, userData.Race, isBot);
+                _currentTournament = RegisterPlayerInTournament(_currentTournament, player);
 
-            return RegistrationResult.Ok;
+                return RegistrationResult.Ok;
+            });
         }
 
-        public void DropTournament()
+        public Task DropTournament()
         {
-            _currentTournament = null;
-            _isCheckIn = false;
-            _isStarted = false;
-            _leftUsers = null;
-            _checkInedUsers = null;
+            return _queue.Async(() =>
+            {
+                _currentTournament = null;
+                _isCheckIn = false;
+                _isStarted = false;
+                _leftUsers = null;
+                _checkInedUsers = null;
+                _votingProgress = null;
+            });
         }
 
         public bool IsTounamentStarted => _isStarted;
@@ -72,119 +83,131 @@ namespace SSTournamentsBot.Api.Services
 
         public Match[] ActiveMatches => _currentStageMatches ?? new Match[0];
 
-        public bool TryLeaveUser(ulong discordId, ulong steamId)
+        public Task<bool> TryLeaveUser(ulong discordId, ulong steamId)
         {
-            if (_currentTournament == null)
-                return false;
-
-            if (!IsPlayerRegisteredInTournament(_currentTournament, steamId, discordId))
-                return false;
-
-            if (_isStarted)
+            return _queue.Async(() =>
             {
-                if (_leftUsers.Contains(steamId))
+                if (_currentTournament == null)
                     return false;
 
-                _checkInedUsers.Remove(steamId);
-                _leftUsers.Add(steamId);
-
-                for (int i = 0; i < _currentStageMatches.Length; i++)
-                     _currentStageMatches[i] = AddTechicalLoseToMatch(_currentStageMatches[i], steamId, TechnicalWinReason.OpponentsLeft);
-            }
-            else
-            {
-                _currentTournament = RemovePlayerFromTournament(_currentTournament, steamId);
-            }
-
-            return true;
-        }
-
-        public CheckInResult TryStartTheCheckIn()
-        {
-            if (_currentTournament == null)
-                return CheckInResult.NoTournament;
-
-            if (_isCheckIn || _isStarted)
-                return CheckInResult.AlreadyStarted;
-
-            if (!IsEnoughPlayersToPlay(_currentTournament))
-                return CheckInResult.NotEnoughPlayers;
-
-            _isCheckIn = true;
-            return CheckInResult.Done;
-        }
-
-        public void SubmitGame(FinishedGameInfo info)
-        {
-            if (info.GameType != GameType.Type1v1)
-                return;
-
-            if (info.Duration < 45)
-                return;
-
-            // TODO: other gameTypes
-            if (!info.Map.IsMap1v1)
-                return;
-
-            // TODO: other mods
-            if (!info.Mod.IsMod)
-                return;
-
-            var mod = ((ModInfo.Mod)info.Mod).Item;
-
-            if (mod != Mod.Soulstorm)
-                return;
-
-            var p1Info = info.Winners[0];
-            var p2Info = info.Losers[0];
-
-            if (!p1Info.Item2.IsNormalRace)
-                return;
-            if (!p2Info.Item2.IsNormalRace)
-                return;
-
-            var map = ((MapInfo.Map1v1)info.Map).Item1;
-
-            var p1Race = ((RaceInfo.NormalRace)p1Info.Item2).Item;
-            var p2Race = ((RaceInfo.NormalRace)p2Info.Item2).Item;
-
-            var matchWithIndex = _currentStageMatches.Select((x,i) => (x, i)).FirstOrDefault(pair =>
-            {
-                var x = pair.x;
-                if (x.Map != map)
+                if (!IsPlayerRegisteredInTournament(_currentTournament, steamId, discordId))
                     return false;
 
-                return (x.Player1.Value.Item1.SteamId == p1Info.Item1 &&
-                    x.Player2.Value.Item1.SteamId == p2Info.Item1 &&
-                    x.Player1.Value.Item2 == p1Race &&
-                    x.Player2.Value.Item2 == p2Race) ||
+                if (_isStarted)
+                {
+                    if (_leftUsers.Contains(discordId))
+                        return false;
 
-                    (x.Player1.Value.Item1.SteamId == p2Info.Item1 &&
-                    x.Player2.Value.Item1.SteamId == p1Info.Item1 &&
-                    x.Player1.Value.Item2 == p2Race &&
-                    x.Player2.Value.Item2 == p1Race);
+                    _checkInedUsers.Remove(steamId);
+                    _leftUsers.Add(discordId);
+
+                    for (int i = 0; i < _currentStageMatches.Length; i++)
+                        _currentStageMatches[i] = AddTechicalLoseToMatch(_currentStageMatches[i], steamId, TechnicalWinReason.OpponentsLeft);
+                }
+                else
+                {
+                    _currentTournament = RemovePlayerFromTournament(_currentTournament, steamId);
+                }
+
+                return true;
             });
-
-            if (matchWithIndex.x == null)
-                return;
-
-            _currentStageMatches[matchWithIndex.i] = AddWinToMatch(matchWithIndex.x, p1Info.Item1, info.ReplayLink, mod);
         }
 
-        public StartResult TryStartTheTournament()
+        public Task<CheckInResult> TryStartTheCheckIn()
         {
-            if (!IsEnoughPlayersToPlay(_currentTournament))
-                return StartResult.NotEnoughPlayers;
+            return _queue.Async(() =>
+            {
+                if (_currentTournament == null)
+                    return CheckInResult.NoTournament;
 
-            if (_isStarted)
-                return StartResult.AlreadyStarted;
+                if (_isCheckIn || _isStarted)
+                    return CheckInResult.AlreadyStarted;
 
-            _initialStage = Start(_currentTournament);
+                if (!IsEnoughPlayersToPlay(_currentTournament))
+                    return CheckInResult.NotEnoughPlayers;
 
-            RegenerateStages();
+                _isCheckIn = true;
+                return CheckInResult.Done;
+            });
+        }
 
-            _isStarted = true;
-            return StartResult.Done;
+        public Task SubmitGame(FinishedGameInfo info)
+        {
+            return _queue.Async(() =>
+            {
+                if (info.GameType != GameType.Type1v1)
+                    return;
+
+                if (info.Duration < 45)
+                    return;
+
+                // TODO: other gameTypes
+                if (!info.Map.IsMap1v1)
+                    return;
+
+                // TODO: other mods
+                if (!info.Mod.IsMod)
+                    return;
+
+                var mod = ((ModInfo.Mod)info.Mod).Item;
+
+                if (mod != Mod.Soulstorm)
+                    return;
+
+                var p1Info = info.Winners[0];
+                var p2Info = info.Losers[0];
+
+                if (!p1Info.Item2.IsNormalRace)
+                    return;
+                if (!p2Info.Item2.IsNormalRace)
+                    return;
+
+                var map = ((MapInfo.Map1v1)info.Map).Item1;
+
+                var p1Race = ((RaceInfo.NormalRace)p1Info.Item2).Item;
+                var p2Race = ((RaceInfo.NormalRace)p2Info.Item2).Item;
+
+                var matchWithIndex = _currentStageMatches.Select((x, i) => (x, i)).FirstOrDefault(pair =>
+                 {
+                     var x = pair.x;
+                     if (x.Map != map)
+                         return false;
+
+                     return (x.Player1.Value.Item1.SteamId == p1Info.Item1 &&
+                         x.Player2.Value.Item1.SteamId == p2Info.Item1 &&
+                         x.Player1.Value.Item2 == p1Race &&
+                         x.Player2.Value.Item2 == p2Race) ||
+
+                         (x.Player1.Value.Item1.SteamId == p2Info.Item1 &&
+                         x.Player2.Value.Item1.SteamId == p1Info.Item1 &&
+                         x.Player1.Value.Item2 == p2Race &&
+                         x.Player2.Value.Item2 == p1Race);
+                 });
+
+                if (matchWithIndex.x == null)
+                    return;
+
+                _currentStageMatches[matchWithIndex.i] = AddWinToMatch(matchWithIndex.x, p1Info.Item1, info.ReplayLink, mod);
+            });
+        }
+
+        public Task<StartResult> TryStartTheTournament()
+        {
+            return _queue.Async(() =>
+            {
+                if (!IsEnoughPlayersToPlay(_currentTournament))
+                    return StartResult.NotEnoughPlayers;
+
+                if (_isStarted)
+                    return StartResult.AlreadyStarted;
+
+                _initialStage = Start(_currentTournament);
+
+                RegenerateStages();
+
+                _isStarted = true;
+                return StartResult.Done;
+            });
         }
 
         private void RegenerateStages()
@@ -247,92 +270,153 @@ namespace SSTournamentsBot.Api.Services
                 if (p1 == null || p2 == null)
                     continue;
 
-                if (_leftUsers.Contains(p1.SteamId))
+                if (_leftUsers.Contains(p1.DiscordId))
                     _currentStageMatches[i] = AddTechicalLoseToMatch(m, p1.SteamId, TechnicalWinReason.OpponentsLeft);
-                else if (_leftUsers.Contains(p2.SteamId))
+                else if (_leftUsers.Contains(p2.DiscordId))
                     _currentStageMatches[i] = AddTechicalLoseToMatch(m, p2.SteamId, TechnicalWinReason.OpponentsLeft);
             }
         }
 
-        public byte[] RenderTournamentImage()
+        public Task<byte[]> RenderTournamentImage()
         {
-            if (!_isStarted)
-                return null;
-
-            return _renderingService.DrawToImage(_stages);
-        }
-
-        public Match FindActiveMatchWith(ulong discordId)
-        {
-            if (!_isStarted)
-                return null;
-
-            return _currentStageMatches.FirstOrDefault(x => x.Player1.Value.Item1.DiscordId == discordId || x.Player2.Value.Item1.DiscordId == discordId);
-        }
-
-        public void UpdatePlayersRace(UserData userData)
-        {
-            if (_isStarted)
-                return;
-
-            if (_currentTournament == null)
-                return;
-
-            var player = _currentTournament.RegisteredPlayers.First(x => x.DiscordId == userData.DiscordId);
-            var updatedPlayer = new Player(player.Name, userData.SteamId, userData.DiscordId, userData.Race, player.IsBot);
-            _currentTournament = UpdatePlayerInTournament(_currentTournament, updatedPlayer);
-        }
-
-        public CompleteStageResult TryCompleteCurrentStage()
-        {
-            var matches = _currentStageMatches;
-
-            if (!IsTounamentStarted || matches == null)
-                return CompleteStageResult.NoTournament;
-
-            if (matches.All(x => x.Result.IsTechnicalWinner || x.Result.IsWinner))
+            return _queue.Async(() =>
             {
-                _playedMatches = _playedMatches.Concat(matches).ToArray();
+                if (!_isStarted)
+                    return null;
 
-                return CompleteStageResult.Completed;
-            }
-
-            return CompleteStageResult.NotAllMatchesFinished;
+                return _renderingService.DrawToImage(_stages);
+            });
         }
 
-        public StartNextStageResult TryStartNextStage()
+        public Task<Match> FindActiveMatchWith(ulong discordId)
         {
-            if (!IsTounamentStarted)
-                return StartNextStageResult.NoTournament;
+            return _queue.Async(() =>
+            {
+                if (!_isStarted)
+                    return null;
 
-            RegenerateStages();
-
-            if (_currentStageMatches.Length == 0)
-                return StartNextStageResult.TheStageIsTerminal;
-
-            return StartNextStageResult.Done;
+                return _currentStageMatches.FirstOrDefault(x => x.Player1.Value.Item1.DiscordId == discordId || x.Player2.Value.Item1.DiscordId == discordId);
+            });
         }
 
-        public UserCheckInResult TryCheckInUser(ulong steamId)
+        public Task UpdatePlayersRace(UserData userData)
         {
-            if (!IsTounamentStarted)
-                return UserCheckInResult.NoTournament;
+            return _queue.Async(() =>
+            {
+                if (_isStarted)
+                    return;
 
-            if (!RegisteredPlayers.Any(x => x.SteamId == steamId))
-                return UserCheckInResult.NotRegisteredIn;
+                if (_currentTournament == null)
+                    return;
 
-            if (!_isCheckIn)
-                return UserCheckInResult.NotCheckInStageNow;
+                var player = _currentTournament.RegisteredPlayers.First(x => x.DiscordId == userData.DiscordId);
+                var updatedPlayer = new Player(player.Name, userData.SteamId, userData.DiscordId, userData.Race, player.IsBot);
+                _currentTournament = UpdatePlayerInTournament(_currentTournament, updatedPlayer);
+            });
+        }
 
-            if (_checkInedUsers.Add(steamId))
-                return UserCheckInResult.Done;
-            else
-                return UserCheckInResult.AlreadyCheckIned;
+        public Task<CompleteStageResult> TryCompleteCurrentStage()
+        {
+            return _queue.Async(() =>
+            {
+                var matches = _currentStageMatches;
+
+                if (!IsTounamentStarted || matches == null)
+                    return CompleteStageResult.NoTournament;
+
+                if (matches.All(x => x.Result.IsTechnicalWinner || x.Result.IsWinner))
+                {
+                    _playedMatches = _playedMatches.Concat(matches).ToArray();
+
+                    return CompleteStageResult.Completed;
+                }
+
+                return CompleteStageResult.NotAllMatchesFinished;
+            });
+        }
+
+        public Task<StartNextStageResult> TryStartNextStage()
+        {
+            return _queue.Async(() =>
+            {
+                if (!IsTounamentStarted)
+                    return StartNextStageResult.NoTournament;
+
+                RegenerateStages();
+
+                if (_currentStageMatches.Length == 0)
+                    return StartNextStageResult.TheStageIsTerminal;
+
+                return StartNextStageResult.Done;
+            });
+        }
+
+        public Task<UserCheckInResult> TryCheckInUser(ulong steamId)
+        {
+            return _queue.Async(() =>
+            {
+                if (!IsTounamentStarted)
+                    return UserCheckInResult.NoTournament;
+
+                if (!RegisteredPlayers.Any(x => x.SteamId == steamId))
+                    return UserCheckInResult.NotRegisteredIn;
+
+                if (!_isCheckIn)
+                    return UserCheckInResult.NotCheckInStageNow;
+
+                if (_checkInedUsers.Add(steamId))
+                    return UserCheckInResult.Done;
+                else
+                    return UserCheckInResult.AlreadyCheckIned;
+            });
+        }
+
+        public Task<AcceptVoteResult> TryAcceptVote(ulong discordId, string id)
+        {
+            return _queue.Async(() =>
+            {
+                if (_votingProgress == null || _currentTournament == null)
+                    return AcceptVoteResult.NoVoting;
+
+                if (_votingProgress.IsCompleted)
+                    return AcceptVoteResult.TheVoteIsOver;
+
+                if (_votingProgress.Voted.Any(x => x.Item1 == discordId))
+                    return AcceptVoteResult.AlreadyVoted;
+
+                if (!RegisteredPlayers.Any(x => x.DiscordId == discordId) || _leftUsers.Contains(discordId))
+                    return AcceptVoteResult.YouCanNotVote;
+
+                _votingProgress = AddVote(_votingProgress, discordId, id);
+
+                return AcceptVoteResult.Accepted;
+            });
+        }
+
+        public Task<CompleteVotingResult> TryCompleteVoting()
+        {
+            return _queue.Async(() =>
+            {
+                if (_votingProgress == null || _currentTournament == null)
+                    return CompleteVotingResult.NoVoting;
+
+                if (_votingProgress.IsCompleted)
+                    return CompleteVotingResult.TheVoteIsOver;
+
+                if (_votingProgress.VotesNeeded >= _votingProgress.Voted.Length)
+                {
+                    return CompleteVotingResult.CompletedPositive;
+                }
+                else
+                {
+                    return CompleteVotingResult.NoEnoughVotes;
+                }
+            });
         }
 
         public bool IsAllPlayersCheckIned()
         {
-            return RegisteredPlayers.All(x => _checkInedUsers.Contains(x.SteamId));
+            return RegisteredPlayers.All(x => _checkInedUsers?.Contains(x.DiscordId) ?? false);
         }
 
         public bool IsAllActiveMatchesCompleted()

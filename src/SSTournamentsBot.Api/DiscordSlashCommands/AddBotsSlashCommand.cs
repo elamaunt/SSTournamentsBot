@@ -31,7 +31,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             {
                 var race = RaceOrRandom.NewRace(GetRaceByIndex(new Random().Next(9)));
                 var botId = (ulong)Interlocked.Increment(ref _botsCounter);
-                _tournamentApi.TryRegisterUser(new UserData()
+                await _tournamentApi.TryRegisterUser(new UserData()
                 {
                     DiscordId = botId,
                     SteamId = botId,
