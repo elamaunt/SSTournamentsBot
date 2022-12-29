@@ -10,5 +10,15 @@ namespace SSTournamentsBot.Api
                 return self.Value;
             return default;
         }
+
+        public static bool IsSome<T>(this FSharpOption<T> self)
+        {
+            return FSharpOption<T>.get_IsSome(self);
+        }
+
+        public static bool IsNone<T>(this FSharpOption<T> self)
+        {
+            return FSharpOption<T>.get_IsNone(self);
+        }
     }
 }

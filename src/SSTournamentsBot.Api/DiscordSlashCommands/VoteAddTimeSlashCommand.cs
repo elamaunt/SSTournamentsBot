@@ -1,32 +1,41 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using System;
+using SSTournamentsBot.Api.Services;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
-    public class VoteSlashCommand : SlashCommandBase
+    public class VoteAddTimeSlashCommand : SlashCommandBase
     {
-        public override string Name => "vote";
+        readonly TournamentApi _api;
 
+        public override string Name => "vote-addtime";
         public override string Description => "Начать голосование";
 
-        public override Task Handle(SocketSlashCommand arg)
+        public VoteAddTimeSlashCommand(TournamentApi api)
         {
-            throw new NotImplementedException();
+            _api = api;
+        }
+
+        public override async Task Handle(SocketSlashCommand arg)
+        {
+            var type = (long?)arg.Data.Options.FirstOrDefault(x => x.Name == "type")?.Value ?? null;
+
+            // _api.TryStartVoting(Voting.)
         }
 
         protected override void Configure(SlashCommandBuilder builder)
         {
             builder
               .AddOption(new SlashCommandOptionBuilder()
-                  .WithName("type")
+                  /*.WithName("type")
                   .WithDescription("Тип вопроса")
                       .AddChoice("kick", 0)
                       .AddChoice("ban", 1)
                       .AddChoice("add-time", 2)
                   .WithType(ApplicationCommandOptionType.Integer)
-                  .WithRequired(true));
+                  .WithRequired(true)*/);
         }
     }
 }

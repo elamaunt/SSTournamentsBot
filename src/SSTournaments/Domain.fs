@@ -55,7 +55,8 @@ module Domain =
         SteamId: uint64
         DiscordId: uint64
         Race: RaceOrRandom
-        IsBot: bool }
+        IsBot: bool
+        Seed: int}
         
     type Stage = 
         | Brackets of Player option array
@@ -124,7 +125,7 @@ module Domain =
         GameType: GameType
         Duration: int32
         Map: MapInfo
-        Mod: ModInfo
+        UsedMod: ModInfo
         ReplayLink: string
     }
 
@@ -267,12 +268,13 @@ module Domain =
 
     let GetOrGenerateRace (player: Player option) seed = 
         let random = System.Random(seed)
-
         let race = GetRaceByIndex (random.Next(9))
         
         match player with 
-        | Some v -> match v.Race with 
-            | Random -> Some(race)
+        | Some v -> 
+            match v.Race with 
+            | RandomEveryMatch -> Some(race)
+            | RandomOnTournament -> Some(GetRaceByIndex(System.Random(v.Seed).Next(9)))
             | Race r -> Some r
         | None -> None
 
@@ -426,7 +428,8 @@ module Domain =
             Brackets [|
                 for block in blocks do
                     match block with 
-                    | Match m -> match m.Result with
+                    | Match m -> 
+                        match m.Result with
                         | Winner (w, _) -> Some w
                         | TechnicalWinner (w, _) -> Some w
                         | _ -> None

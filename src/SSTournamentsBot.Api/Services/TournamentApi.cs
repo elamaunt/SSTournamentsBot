@@ -52,11 +52,10 @@ namespace SSTournamentsBot.Api.Services
                     _currentStageMatches = new Match[0];
                 }
 
-
                 if (IsPlayerRegisteredInTournament(_currentTournament, userData.SteamId, userData.DiscordId))
                     return RegistrationResult.AlreadyRegistered;
 
-                var player = new Player(name, userData.SteamId, userData.DiscordId, userData.Race, isBot);
+                var player = new Player(name, userData.SteamId, userData.DiscordId, userData.Race, isBot, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
                 _currentTournament = RegisterPlayerInTournament(_currentTournament, player);
 
                 return RegistrationResult.Ok;
@@ -78,10 +77,9 @@ namespace SSTournamentsBot.Api.Services
 
         public bool IsTounamentStarted => _isStarted;
         public Player[] RegisteredPlayers => _currentTournament?.RegisteredPlayers ?? new Player[0];
-
         public TournamentType TournamentType => _currentTournament?.Type;
-
         public Match[] ActiveMatches => _currentStageMatches ?? new Match[0];
+        public VotingProgress VotingProgress => _votingProgress;
 
         public Task<bool> TryLeaveUser(ulong discordId, ulong steamId)
         {
@@ -146,10 +144,10 @@ namespace SSTournamentsBot.Api.Services
                     return;
 
                 // TODO: other mods
-                if (!info.Mod.IsMod)
+                if (!info.UsedMod.IsMod)
                     return;
 
-                var mod = ((ModInfo.Mod)info.Mod).Item;
+                var mod = ((ModInfo.Mod)info.UsedMod).Item;
 
                 if (mod != Mod.Soulstorm)
                     return;
@@ -258,6 +256,53 @@ namespace SSTournamentsBot.Api.Services
             ApplyLeftUsers();
         }
 
+        public Task<(StartVotingResult, VotingProgress)> TryStartVoting(Voting voting, GuildRole role)
+        {
+            return _queue.Async(() =>
+            {
+                if (_votingProgress != null)
+                    return (StartVotingResult.AlreadyHasVoting, null);
+
+                if (voting.IsAddTime)
+                {
+                    if (role != GuildRole.Administrator)
+                        return (StartVotingResult.NoPermission, null);
+
+                    _votingProgress = StartVoting(voting, RegisteredPlayers.Length / 2, new[]
+                    {
+                        Tuple.Create("Добавить время", "1", BotButtonStyle.Secondary),
+                        Tuple.Create("Не добавлять время", "0", BotButtonStyle.Secondary)
+                    }, false);
+                    return (StartVotingResult.Completed, _votingProgress);
+                }
+
+                if (voting.IsBan)
+                {
+                    if (role == GuildRole.Everyone)
+                        return (StartVotingResult.NoPermission, null);
+
+                    _votingProgress = StartVoting(voting, 10, new[]
+                    {
+                        Tuple.Create("Забанить!", "1", BotButtonStyle.Danger),
+                        Tuple.Create("Не банить", "0", BotButtonStyle.Secondary)
+                    }, true);
+                    return (StartVotingResult.Completed, _votingProgress);
+                }
+
+                if (voting.IsKick)
+                {
+                    _votingProgress = StartVoting(voting, RegisteredPlayers.Length / 2, new[]
+                    {
+                        Tuple.Create("Выгнать из турнира", "1", BotButtonStyle.Danger),
+                        Tuple.Create("Оставить", "0", BotButtonStyle.Secondary)
+                    }, true);
+                    return (StartVotingResult.Completed, _votingProgress);
+                }
+
+                return (StartVotingResult.NotAllowed, null);
+            });
+        }
+
         private void ApplyLeftUsers()
         {
             for (int i = 0; i < _currentStageMatches.Length; i++)
@@ -310,7 +355,7 @@ namespace SSTournamentsBot.Api.Services
                     return;
 
                 var player = _currentTournament.RegisteredPlayers.First(x => x.DiscordId == userData.DiscordId);
-                var updatedPlayer = new Player(player.Name, userData.SteamId, userData.DiscordId, userData.Race, player.IsBot);
+                var updatedPlayer = new Player(player.Name, userData.SteamId, userData.DiscordId, userData.Race, player.IsBot, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
                 _currentTournament = UpdatePlayerInTournament(_currentTournament, updatedPlayer);
             });
         }
@@ -371,46 +416,47 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
-        public Task<AcceptVoteResult> TryAcceptVote(ulong discordId, string id)
+        public Task<(AcceptVoteResult, VotingProgress)> TryAcceptVote(ulong discordId, string id, GuildRole role)
         {
             return _queue.Async(() =>
             {
                 if (_votingProgress == null || _currentTournament == null)
-                    return AcceptVoteResult.NoVoting;
+                    return (AcceptVoteResult.NoVoting, null);
 
-                if (_votingProgress.IsCompleted)
-                    return AcceptVoteResult.TheVoteIsOver;
+                if (_votingProgress.CompletedWithResult.IsSome())
+                    return (AcceptVoteResult.TheVoteIsOver, _votingProgress);
 
                 if (_votingProgress.Voted.Any(x => x.Item1 == discordId))
-                    return AcceptVoteResult.AlreadyVoted;
+                    return (AcceptVoteResult.AlreadyVoted, _votingProgress);
 
-                if (!RegisteredPlayers.Any(x => x.DiscordId == discordId) || _leftUsers.Contains(discordId))
-                    return AcceptVoteResult.YouCanNotVote;
+                if (role == GuildRole.Everyone && !RegisteredPlayers.Any(x => x.DiscordId == discordId) || _leftUsers.Contains(discordId))
+                    return (AcceptVoteResult.YouCanNotVote, _votingProgress);
 
-                _votingProgress = AddVote(_votingProgress, discordId, id);
-
-                return AcceptVoteResult.Accepted;
-            });
-        }
-
-        public Task<CompleteVotingResult> TryCompleteVoting()
-        {
-            return _queue.Async(() =>
-            {
-                if (_votingProgress == null || _currentTournament == null)
-                    return CompleteVotingResult.NoVoting;
-
-                if (_votingProgress.IsCompleted)
-                    return CompleteVotingResult.TheVoteIsOver;
-
-                if (_votingProgress.VotesNeeded >= _votingProgress.Voted.Length)
+                if (role == GuildRole.Everyone || !_votingProgress.AdminForcingEnabled)
                 {
-                    return CompleteVotingResult.CompletedPositive;
+                    _votingProgress = AddVote(_votingProgress, discordId, id);
+                    return (AcceptVoteResult.Accepted, _votingProgress);
                 }
                 else
                 {
-                    return CompleteVotingResult.NoEnoughVotes;
+                    _votingProgress = ForceCompleteVote(_votingProgress, id);
+                    return (AcceptVoteResult.CompletedByThisVote, _votingProgress);
                 }
+            });
+        }
+
+        public Task<(CompleteVotingResult, VotingProgress)> TryCompleteVoting()
+        {
+            return _queue.Async(() =>
+            {
+                if (_votingProgress == null || _currentTournament == null)
+                    return (CompleteVotingResult.NoVoting, null);
+
+                if (_votingProgress.CompletedWithResult.IsSome())
+                    return (CompleteVotingResult.TheVoteIsOver, _votingProgress);
+
+                _votingProgress = CompleteVote(_votingProgress);
+                return (CompleteVotingResult.Completed, _votingProgress);
             });
         }
 

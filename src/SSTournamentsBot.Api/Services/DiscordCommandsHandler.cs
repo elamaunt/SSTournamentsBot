@@ -42,7 +42,9 @@ namespace SSTournamentsBot.Api.Services
                 new TimelineSlashCommand(timeline),
                 new TimeSlashCommand(timeline),
                 new ViewSlashCommand(api),
-                new VoteSlashCommand(),
+                new VoteAddTimeSlashCommand(api),
+                new VoteBanSlashCommand(api),
+                new VoteKickSlashCommand(api),
                 new MatchesSlashCommand(api)
             }.ToDictionary(x => x.Name);
         }

@@ -2,7 +2,9 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using SSTournamentsBot.Api.Domain;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SSTournaments.SecondaryDomain;
@@ -37,7 +39,12 @@ namespace SSTournamentsBot.Api.Services
                 Console.WriteLine(s);
 
                 if (_isReady)
-                    await _botApi.SendMessage(s, GuildThread.Logging);
+                {
+                    if (msg.Severity == LogSeverity.Error || msg.Severity == LogSeverity.Critical)
+                        await _botApi.SendMessage(s, GuildThread.Logging, 272710324484833281);
+                    else
+                        await _botApi.SendMessage(s, GuildThread.Logging);
+                }
             };
 
             _client.Ready += OnReady;
@@ -47,9 +54,24 @@ namespace SSTournamentsBot.Api.Services
             await _client.StartAsync();
         }
 
+        private Task OnReady()
+        {
+            _isReady = true;
+            _timeLine.AddPeriodicalEventWithPeriod(Event.StartPreCheckingTimeVote, TimeSpan.FromSeconds(20));
+            return Task.CompletedTask;
+        }
+
         private async Task OnButtonExecuted(SocketMessageComponent arg)
         {
-            var result = await _tournamentApi.TryAcceptVote(arg.Data.CustomId);
+            var main = _client.GetGuild(_options.MainGuildId);
+            var role = main.GetRole(arg.User.Id);
+
+            var guildRole = GuildRole.Everyone;
+
+            if (role.Permissions.KickMembers)
+                guildRole = GuildRole.Moderator;
+
+            var (result, progress) = await _tournamentApi.TryAcceptVote(arg.User.Id, arg.Data.CustomId, guildRole);
 
             if (result == AcceptVoteResult.Accepted)
             {
@@ -71,7 +93,7 @@ namespace SSTournamentsBot.Api.Services
 
             if (result == AcceptVoteResult.YouCanNotVote)
             {
-                await arg.RespondAsync("Вы не имеет права участвовать в этом голосовании");
+                await arg.RespondAsync("Вы не имеете права участвовать в этом голосовании");
                 return;
             }
 
@@ -81,13 +103,41 @@ namespace SSTournamentsBot.Api.Services
                 return;
             }
 
+            if (result == AcceptVoteResult.CompletedByThisVote)
+            {
+                await arg.RespondAsync($"{arg.User.Mention} завершает голосование своим голосом.");
+                var players = _tournamentApi.RegisteredPlayers;
+
+                var (_, option) = progress.CompletedWithResult.Value;
+
+                var value = option.ValueOrDefault();
+
+                if (value == null)
+                    await _botApi.SendMessage("Результат голосования не был принят: недостаточно проголосовавших, либо голоса разделились поровну.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                else
+                {
+                    switch (value)
+                    {
+                        case "0":
+                            await _botApi.SendMessage("Результат голосования: ОТКЛОНЕН.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                            break;
+                        case "1":
+                            await _botApi.SendMessage("Результат голосования: ПРИНЯТ.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                            await ApplyVotingResult(progress.Voting);
+                            break;
+                        default:
+                            await _botApi.SendMessage("Ошибка обработки результата.", GuildThread.EventsTape);
+                            break;
+                    }
+                }
+                return; 
+            }
+
             await arg.RespondAsync("Ошибка во время обработка запроса");
         }
 
-        private Task OnReady()
+        private Task ApplyVotingResult(Voting voting)
         {
-            _isReady = true;
-            _timeLine.AddPeriodicalEventWithPeriod(Event.StartCheckIn, TimeSpan.FromSeconds(20));
             return Task.CompletedTask;
         }
 

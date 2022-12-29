@@ -54,10 +54,10 @@ module SecondaryDomain =
         | StageCompletion
 
     type Voting = 
-        | Kick of Player
-        | Ban of Player
+        | Kick of uint64*string
+        | Ban of uint64*string
         | AddTime of VoteAddTimeType*System.TimeSpan
-        | RevertMatchResult of Match
+        | RevertMatchResult of int
 
     type AcceptVoteResult = 
         | NoVoting
@@ -65,29 +65,36 @@ module SecondaryDomain =
         | Accepted
         | YouCanNotVote
         | AlreadyVoted
+        | CompletedByThisVote
+
+    type StartVotingResult = 
+        | NotAllowed
+        | NoPermission
+        | AlreadyHasVoting
+        | Completed
 
     type CompleteVotingResult = 
         | NoVoting
         | NoEnoughVotes
-        | CompletedPositive
-        | CompletedNegative
+        | Completed
         | TheVoteIsOver
 
     type IVoteHandler =
-        abstract HandleVoteKick : Player -> Unit
-        abstract HandleVoteBan : Player -> Unit
+        abstract HandleVoteKick : uint64*string -> Unit
+        abstract HandleVoteBan : uint64*string -> Unit
         abstract HandleVoteAddTime : VoteAddTimeType*System.TimeSpan -> Unit
-        abstract HandleVoteRevertMatchResult : Match -> Unit
+        abstract HandleVoteRevertMatchResult : int -> Unit
 
     let SwitchVote ev (handler: IVoteHandler) = 
         match ev with
-        | Kick p -> handler.HandleVoteKick p
-        | Ban p -> handler.HandleVoteBan p
+        | Kick (id, name) -> handler.HandleVoteKick (id, name)
+        | Ban (id, name) -> handler.HandleVoteBan (id, name)
         | AddTime (r, t) -> handler.HandleVoteAddTime (r, t)
-        | RevertMatchResult m -> handler.HandleVoteRevertMatchResult m
+        | RevertMatchResult matchId -> handler.HandleVoteRevertMatchResult matchId
 
     type Event = 
         | StartCurrentTournament
+        | StartPreCheckingTimeVote
         | StartCheckIn
         | CompleteVoting
         | StartNextStage
@@ -95,6 +102,7 @@ module SecondaryDomain =
 
     type IEventsHandler =
         abstract DoStartCurrentTournament : Unit -> Unit
+        abstract DoStartPreCheckingTimeVote : Unit -> Unit
         abstract DoStartCheckIn : Unit -> Unit
         abstract DoCompleteVoting : Unit -> Unit
         abstract DoStartNextStage : Unit -> Unit
@@ -103,24 +111,66 @@ module SecondaryDomain =
     let SwitchEvent ev (handler: IEventsHandler) = 
         match ev with
         | StartCurrentTournament -> handler.DoStartCurrentTournament()
+        | StartPreCheckingTimeVote -> handler.DoStartPreCheckingTimeVote()
         | StartCheckIn -> handler.DoStartCheckIn()
         | CompleteVoting -> handler.DoCompleteVoting()
         | StartNextStage -> handler.DoStartNextStage()
         | CompleteStage -> handler.DoCompleteStage()
 
+    type BotButtonStyle = 
+        | Primary = 1
+        | Secondary = 2
+        | Success = 3
+        | Danger = 4
+        | Link = 5
+
     type VotingProgress = {
         Voting: Voting
         VotesNeeded: int32
-        VoteOptions: (string*string) array
+        VoteOptions: (string*string*BotButtonStyle) array
         Voted: (uint64*string) array
         AdminForcingEnabled: bool
-        IsCompleted: bool
+        CompletedWithResult: (bool*(string option)) option
     }
 
+    type GuildRole = 
+        | Everyone = 1
+        | Moderator = 2
+        | Administrator = 3
+
+    let StartVoting voting votesNeeded options forcingEnabled =
+        {
+            Voting = voting
+            VotesNeeded = votesNeeded
+            VoteOptions = options
+            Voted = [||]
+            AdminForcingEnabled = forcingEnabled
+            CompletedWithResult = None
+        }
+
     let AddVote progress (dicordId, selectedOptionId) =
-        if progress.IsCompleted then
+        if progress.CompletedWithResult.IsSome then
             progress 
         else
             { progress with Voted = progress.Voted |> Array.append([|(dicordId, selectedOptionId)|]); }
 
-    let CompleteVOte progress = { progress with IsCompleted = true }
+    let CompleteVote progress =
+        if progress.CompletedWithResult.IsSome then
+            progress
+        else
+            if progress.VotesNeeded > progress.Voted.Length then
+                { progress with CompletedWithResult = Some (false, None) }
+            else
+                let groups = progress.Voted |> Array.groupBy(fun (_, id) -> id)
+
+                let (mostVotedId, votes) = groups |> Array.maxBy(fun (_, values) -> values.Length)
+
+                let sameVotesGroupCount = groups |> Array.filter(fun (_, values) -> values.Length = votes.Length) |> Array.length
+
+                if sameVotesGroupCount > 1 then
+                    { progress with CompletedWithResult = Some (false, None) }
+                else
+                    { progress with CompletedWithResult = Some (false, Some mostVotedId) }
+
+    let ForceCompleteVote progress id =
+        { progress with CompletedWithResult = Some (true, Some id) }

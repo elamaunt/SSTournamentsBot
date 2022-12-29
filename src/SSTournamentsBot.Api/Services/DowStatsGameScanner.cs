@@ -101,15 +101,17 @@ namespace SSTournamentsBot.Api.Services
                                 ResolveModInfo(game.modification),
                                 game.replayDownloadLink);
 
-                            _api.SubmitGame(info);
+                            _api.SubmitGame(info)
+                            .ContinueWith(submitTask => 
+                            {
+                                _logger.LogError(submitTask.Exception, "Error on submitting the gameInfo");
+                            }, TaskContinuationOptions.OnlyOnFaulted);
                         }
                         catch (Exception ex)
                         {
                             _logger.LogError(ex, "Error on processing of the gameInfo");
                         }
                     }
-
-
                 }, TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
