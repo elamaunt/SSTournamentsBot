@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Threading.Tasks;
@@ -38,6 +39,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     await _api.TryLeaveUser(p1.DiscordId, p1.SteamId);
                 }
             }
+        }
+
+        protected override void Configure(SlashCommandBuilder builder)
+        {
+            builder.WithDefaultPermission(true)
+                .WithDefaultMemberPermissions(GuildPermission.Administrator)
+                .WithDMPermission(true);
         }
     }
 }

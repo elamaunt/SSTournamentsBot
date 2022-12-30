@@ -2,9 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using SSTournamentsBot.Api.Domain;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SSTournaments.SecondaryDomain;
@@ -18,14 +16,22 @@ namespace SSTournamentsBot.Api.Services
         readonly IBotApi _botApi;
         readonly DiscordBotOptions _options;
         readonly IEventsTimeline _timeLine;
+        readonly ITournamentEventsHandler _eventsHandler;
+
         private volatile bool _isReady;
 
-        public DiscordBot(DiscordSocketClient client, TournamentApi tournamentApi, IBotApi botApi, IEventsTimeline timeLine, IOptions<DiscordBotOptions> options)
+        public DiscordBot(DiscordSocketClient client,
+            TournamentApi tournamentApi,
+            IBotApi botApi,
+            IEventsTimeline timeLine,
+            ITournamentEventsHandler eventsHandler, 
+            IOptions<DiscordBotOptions> options)
         {
             _client = client;
             _tournamentApi = tournamentApi;
             _botApi = botApi;
             _timeLine = timeLine;
+            _eventsHandler = eventsHandler;
             _options = options.Value;
         }
 
@@ -57,21 +63,21 @@ namespace SSTournamentsBot.Api.Services
         private Task OnReady()
         {
             _isReady = true;
-            _timeLine.AddPeriodicalEventWithPeriod(Event.StartPreCheckingTimeVote, TimeSpan.FromSeconds(20));
+            _timeLine.AddOneTimeEventAfterTime(Event.StartPreCheckingTimeVote, TimeSpan.FromSeconds(30));
             return Task.CompletedTask;
         }
 
         private async Task OnButtonExecuted(SocketMessageComponent arg)
         {
-            var main = _client.GetGuild(_options.MainGuildId);
-            var role = main.GetRole(arg.User.Id);
+            var guildUser = (SocketGuildUser)arg.User;
 
             var guildRole = GuildRole.Everyone;
-
-            if (role.Permissions.KickMembers)
+            if (guildUser.GuildPermissions.KickMembers)
                 guildRole = GuildRole.Moderator;
+            if (guildUser.GuildPermissions.Administrator)
+                guildRole = GuildRole.Administrator;
 
-            var (result, progress) = await _tournamentApi.TryAcceptVote(arg.User.Id, arg.Data.CustomId, guildRole);
+            var (result, _) = await _tournamentApi.TryAcceptVote(arg.User.Id, arg.Data.CustomId, guildRole);
 
             if (result == AcceptVoteResult.Accepted)
             {
@@ -81,7 +87,7 @@ namespace SSTournamentsBot.Api.Services
 
             if (result == AcceptVoteResult.NoVoting)
             {
-                await arg.RespondAsync("Голосования сейчас не проводится");
+                await arg.RespondAsync("Голосование сейчас не проводится");
                 return;
             }
 
@@ -105,40 +111,12 @@ namespace SSTournamentsBot.Api.Services
 
             if (result == AcceptVoteResult.CompletedByThisVote)
             {
+                _eventsHandler.DoCompleteVoting();
                 await arg.RespondAsync($"{arg.User.Mention} завершает голосование своим голосом.");
-                var players = _tournamentApi.RegisteredPlayers;
-
-                var (_, option) = progress.CompletedWithResult.Value;
-
-                var value = option.ValueOrDefault();
-
-                if (value == null)
-                    await _botApi.SendMessage("Результат голосования не был принят: недостаточно проголосовавших, либо голоса разделились поровну.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
-                else
-                {
-                    switch (value)
-                    {
-                        case "0":
-                            await _botApi.SendMessage("Результат голосования: ОТКЛОНЕН.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
-                            break;
-                        case "1":
-                            await _botApi.SendMessage("Результат голосования: ПРИНЯТ.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
-                            await ApplyVotingResult(progress.Voting);
-                            break;
-                        default:
-                            await _botApi.SendMessage("Ошибка обработки результата.", GuildThread.EventsTape);
-                            break;
-                    }
-                }
                 return; 
             }
 
             await arg.RespondAsync("Ошибка во время обработка запроса");
-        }
-
-        private Task ApplyVotingResult(Voting voting)
-        {
-            return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

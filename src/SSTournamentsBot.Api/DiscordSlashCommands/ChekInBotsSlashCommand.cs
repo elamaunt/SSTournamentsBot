@@ -22,22 +22,24 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             var players = _tournamentApi.RegisteredPlayers;
             var count = (long?)arg.Data.Options.FirstOrDefault(x => x.Name == "count")?.Value ?? null;
 
+            await arg.DeferAsync();
+
             if (!count.HasValue)
                 for (int i = 0; i < players.Length; i++)
                 {
                     var p = players[i];
                     if (p.IsBot)
-                        _tournamentApi.TryCheckInUser(p.SteamId);
+                        await _tournamentApi.TryCheckInUser(p.SteamId);
                 }
             else
                 for (int i = 0; i < count.Value; i++)
                 {
                     var p = players.Where(x => x.IsBot).ElementAtOrDefault(i);
                     if (p?.IsBot ?? false)
-                        _tournamentApi.TryCheckInUser(p.SteamId);
+                        await _tournamentApi.TryCheckInUser(p.SteamId);
                 }
 
-            await arg.RespondAsync("Все боты зачекинелись.");
+            await arg.ModifyOriginalResponseAsync(x => x.Content = "Все боты зачекинелись.");
         }
 
         protected override void Configure(SlashCommandBuilder builder)

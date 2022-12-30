@@ -26,6 +26,8 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override async Task Handle(SocketSlashCommand arg)
         {
             var count = (long)arg.Data.Options.First(x => x.Name == "count").Value;
+            
+            await arg.DeferAsync();
 
             for (int i = 0; i < count; i++)
             {
@@ -40,7 +42,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 }, "Bot_" + botId, true);
             }
 
-            await arg.RespondAsync($"Боты зарегистрированы.");
+            await arg.ModifyOriginalResponseAsync(x => x.Content = $"Боты зарегистрированы.");
         }
 
         protected override void Configure(SlashCommandBuilder builder)

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using SSTournamentsBot.Api.Services;
 using SSTournamentsBot.Services;
 using static SSTournaments.SecondaryDomain;
+using Microsoft.Extensions.Logging;
 
 #if DEBUG
 using SSTournamentsBot.Api.Services.Debug;
@@ -38,7 +39,7 @@ namespace SSTournamentsBot.Api
             services.Configure<DowStatsApiOptions>(Configuration.GetSection("DowStatsApiOptions"));
             services.Configure<DiscordBotOptions>(Configuration.GetSection("DiscordBotOptions"));
             services.Configure<DowStatsGameScannerOptions>(Configuration.GetSection("DowStatsReplayScannerOptions"));
-            
+
             services.AddControllers();
             services.AddHttpClient()
                 .AddSingleton(config)
@@ -46,7 +47,7 @@ namespace SSTournamentsBot.Api
                 .AddSingleton<HttpService, CustomHttpService>()
                 //.AddSingleton<CommandService>()
                 .AddSingleton<IEventsTimeline, InMemoryEventsTimeline>()
-                .AddSingleton<IEventsHandler, TournamentEventsHandler>()
+                .AddSingleton<ITournamentEventsHandler, TournamentEventsHandler>()
                 .AddSingleton<IGameScanner, DowStatsGameScanner>()
                 .AddTransient<IStatsApi, DowStatsApi>()
 #if DEBUG

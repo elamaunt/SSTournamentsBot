@@ -2,19 +2,34 @@
 using SSTournamentsBot.Api.Domain;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.Services
 {
-    public class TournamentEventsHandler : IEventsHandler
+    public class TournamentEventsHandler : ITournamentEventsHandler, IVoteHandler
     {
         readonly ILogger<TournamentEventsHandler> _logger;
         readonly IBotApi _botApi;
         readonly IGameScanner _scanner;
         readonly IEventsTimeline _timeline;
         readonly TournamentApi _tournamentApi;
+
+        IButtonsController _activeVotingButtons;
+        IButtonsController ActiveVotingButtons
+        {
+            get => _activeVotingButtons;
+            set
+            {
+                var oldValue = Interlocked.CompareExchange(ref _activeVotingButtons, value, _activeVotingButtons);
+
+                oldValue?.DisableButtons("Голосование завершено.");
+            }
+        }
+
+        ulong[] Mentions => _tournamentApi.RegisteredPlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
 
         public TournamentEventsHandler(ILogger<TournamentEventsHandler> logger, IBotApi botApi, IGameScanner scanner, IEventsTimeline timeline, TournamentApi tournamentApi)
         {
@@ -27,22 +42,23 @@ namespace SSTournamentsBot.Api.Services
 
         public async void DoCompleteStage()
         {
-            _logger.LogInformation("An attempt to complete the stage..");
+            await Log("An attempt to complete the stage..");
+            _timeline.RemoveAllEventsWithType(Event.CompleteStage);
 
             var result = await _tournamentApi.TryCompleteCurrentStage();
 
             if (result.IsNoTournament)
             {
-                _logger.LogInformation("No a planned tournament");
+                await Log("No a planned tournament");
                 return;
             }
 
             if (result.IsNotAllMatchesFinished)
             {
-                _logger.LogInformation("Not all matches finished");
+                await Log("Not all matches finished");
                 await _botApi.SendMessage("Не все матчи текущей стадии были завершены за указанное время. Для установления результатов по каждому матчу будет запущено голосование, либо решение будет принято модераторами.", GuildThread.EventsTape | GuildThread.TournamentChat);
 
-                // TODO: start voting. 
+                // TODO: start voting. Remove the line below: 
                 _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(30));
                 return;
             }
@@ -50,80 +66,78 @@ namespace SSTournamentsBot.Api.Services
             if (result.IsCompleted)
             {
                 _scanner.Active = false;
-                _logger.LogInformation("The stage has been completed");
+                await Log("The stage has been completed");
                 await _botApi.SendMessage("Стадия была успешно завершена! Следующая стадия начнется после 5-минутного перерыва.", GuildThread.EventsTape | GuildThread.TournamentChat);
 
                 _timeline.AddOneTimeEventAfterTime(Event.StartNextStage, TimeSpan.FromSeconds(10));
                 return;
             }
 
-            _logger.LogError("Broken state");
+            await Log("Broken state");
         }
 
         public async void DoStartCheckIn()
         {
-            _logger.LogInformation("An attempt to start checkin stage..");
+            await Log("An attempt to start checkin stage..");
 
             var result = await _tournamentApi.TryStartTheCheckIn();
 
             if (result.IsNoTournament)
             {
-                _logger.LogInformation("No a planned tournament");
+                await Log("No a planned tournament");
+                await _botApi.SendMessage("Без турниров сегодня :)", GuildThread.EventsTape | GuildThread.TournamentChat);
                 return;
             }
 
             if (result.IsAlreadyStarted)
             {
-                _logger.LogInformation("Tournament is running");
+                await Log("Tournament is running");
                 return;
             }
 
             if (result.IsNotEnoughPlayers)
             {
-                var players = _tournamentApi.RegisteredPlayers;
-
-                _logger.LogInformation("Not enough players.");
+                await Log("Not enough players.");
                 await _tournamentApi.DropTournament();
-                await _botApi.SendMessage("В данный момент турнир невозможно начать, так как участников недостаточно. Список зарегистрированных был обнулен.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                await _botApi.SendMessage("Турнир отменяется, так как участников недостаточно. Список зарегистрированных был обнулен. ", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
                 return;
             }
 
             if (result.IsDone)
             {
-                _logger.LogInformation("Checkin stage starting..");
+                await Log("Checkin stage starting..");
 
-                var players = _tournamentApi.RegisteredPlayers;
-
-                await _botApi.SendMessage("Внимание! Началась стадия чекина на турнир. Всем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.", GuildThread.EventsTape, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                await _botApi.SendMessage("Внимание! Началась стадия чекина на турнир. Всем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
                 
                 _timeline.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromSeconds(30));
                 return;
             }
 
-            _logger.LogError("Broken state");
+            await Log("Broken state");
         }
 
         public async void DoStartCurrentTournament()
         {
             _logger.LogInformation("An attempt to start the tournament..");
+            _timeline.RemoveAllEventsWithType(Event.StartCurrentTournament);
 
             var result = await _tournamentApi.TryStartTheTournament();
 
             if (result.IsNoTournament)
             {
-                _logger.LogInformation("No a planned tournament");
+                await Log("No a planned tournament");
                 return;
             }
 
             if (result.IsAlreadyStarted)
             {
-                _logger.LogInformation("Tournament is running");
+                await Log("Tournament is running");
                 return;
             }
 
             if (result.IsDone)
             {
-                _logger.LogInformation("Starting the tournament..");
+                await Log("Starting the tournament..");
 
                 var players = _tournamentApi.RegisteredPlayers;
 
@@ -144,12 +158,12 @@ namespace SSTournamentsBot.Api.Services
                 return;
             }
 
-            _logger.LogError("Broken state");
+            await Log("Broken state");
         }
 
         public async void DoStartNextStage()
         {
-            _logger.LogInformation("An attempt to start the next stage..");
+            await Log("An attempt to start the next stage..");
 
             var result = await _tournamentApi.TryStartNextStage();
 
@@ -158,14 +172,14 @@ namespace SSTournamentsBot.Api.Services
 
             if (result.IsNoTournament)
             {
-                _logger.LogInformation("No a planned tournament");
+                await Log("No a planned tournament");
                 return;
             }
 
             if (result.IsTheStageIsTerminal)
             {
-                _logger.LogInformation("The stage is terminal.");
-                await _botApi.SendMessage("Определился победитель!", GuildThread.EventsTape | GuildThread.TournamentChat);
+                await Log("The stage is terminal.");
+                await _botApi.SendMessage("Определился победитель турнира!", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
 
                 var tournamentImage = await _tournamentApi.RenderTournamentImage();
 
@@ -180,73 +194,103 @@ namespace SSTournamentsBot.Api.Services
             {
                 _scanner.Active = true;
 
-                _logger.LogInformation("The stage has been started..");
-                await _botApi.SendMessage("Начинается следующая стадия турнира! Генерация сетки..", GuildThread.EventsTape);
+                await Log("The stage has been started..");
+                await _botApi.SendMessage(">>> Начинается следующая стадия турнира! Генерация сетки..", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
                 await  _botApi.SendFile(await _tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира", GuildThread.EventsTape | GuildThread.TournamentChat);
                 return;
             }
 
-            _logger.LogError("Broken state");
+            await Log("Broken state");
         }
 
         public async void DoStartPreCheckingTimeVote()
         {
-            _logger.LogInformation("An attempt to start the pre checking time vote..");
+            await Log("An attempt to start the pre checking time vote..");
 
-            var (result, progress) = await _tournamentApi.TryStartVoting(Voting.NewAddTime(VoteAddTimeType.CheckinStart, TimeSpan.FromMinutes(30)), GuildRole.Administrator);
+            var (result, progress) = await _tournamentApi.TryStartVoting(Voting.NewAddTime(VoteAddTimeType.CheckinStart, TimeSpan.FromMinutes(1)), GuildRole.Administrator);
 
             if (result.IsCompleted)
             {
-                _logger.LogInformation("The PreCheckingTime voting has been started..");
+                await Log("The PreCheckingTime voting has been started..");
 
                 if (progress == null)
                 {
-                    _logger.LogWarning("No voting progress to publish the message.");
+                    await Log("No voting progress to publish the message.");
                     return;
                 }
 
                 var players = _tournamentApi.RegisteredPlayers;
                 var buttonInfos = progress.VoteOptions.Select(x => (x.Item1, x.Item2, BotButtonStyle.Secondary)).ToArray();
-                await _botApi.SendButtons("До начала чек-ина в турнире осталось 10 минут.\nСтоит ли отложить чекин турнира на 30 минут?\nГолосовать могут только участники, зарегистрированные на следующий турнир и администрация сервера.", buttonInfos, GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
-                _timeline.AddOneTimeEventAfterTime(Event.CompleteVoting, TimeSpan.FromMinutes(10));
-
+                ActiveVotingButtons = await _botApi.SendVotingButtons(">>> **До начала чек-ина в турнире осталось 10 минут.**\nСтоит ли отложить чекин турнира на 30 минут?\n\nГолосовать могут только участники, зарегистрированные на следующий турнир и администрация сервера.", buttonInfos, GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                _timeline.AddOneTimeEventAfterTime(Event.CompleteVoting, TimeSpan.FromSeconds(30));
+                _timeline.AddOneTimeEventAfterTime(Event.StartCheckIn, TimeSpan.FromMinutes(1));
                 return;
             }
 
-            _logger.LogError("Broken state");
+            await Log("Broken state");
         }
 
         public async void DoCompleteVoting()
         {
-            _logger.LogInformation("An attempt to complete the voting..");
+            _timeline.RemoveAllEventsWithType(Event.CompleteVoting);
+            ActiveVotingButtons = null;
+            await Log("An attempt to complete the voting..");
 
             var (result, progress) = await _tournamentApi.TryCompleteVoting();
 
             if (result.IsCompleted)
             {
-                _logger.LogInformation("The voting is completed");
+                await Log("The voting is completed");
+
+                var players = _tournamentApi.RegisteredPlayers;
+
+                var (_, option) = progress.CompletedWithResult.Value;
+
+                var value = option.ValueOrDefault();
+
+                if (value == null)
+                    await _botApi.SendMessage("Результат голосования не был принят: недостаточно проголосовавших, либо голоса разделились поровну.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                else
+                {
+                    switch (value)
+                    {
+                        case "0":
+                            await _botApi.SendMessage("> Результат голосования: ОТКЛОНЕН.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                            break;
+                        case "1":
+                            await _botApi.SendMessage("> Результат голосования: ПРИНЯТ.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+
+                            await Log("Handling voting effect..");
+                            SwitchVote(progress.Voting, this);
+                            break;
+                        default:
+                            await _botApi.SendMessage("Ошибка обработки результата.", GuildThread.EventsTape);
+                            break;
+                    }
+                }
+
                 return;
             }
 
-            if (result.IsNoEnoughVotes)
+            if (result.IsCompletedWithNoEnoughVotes)
             {
-                _logger.LogInformation("The voting has no enough votes");
+                await Log("The voting has no enough votes");
                 return;
             }
 
             if (result.IsNoVoting)
             {
-                _logger.LogInformation("There is no voting now");
+                await Log("There is no voting now");
                 return;
             }
 
             if (result.IsTheVoteIsOver)
             {
-                _logger.LogInformation("The voting is over");
+                await Log("The voting is over");
                 return;
             }
 
-            _logger.LogError("Broken state");
+            await Log("Broken state");
         }
 
         private Task UpdateLeaderboard()
@@ -257,6 +301,63 @@ namespace SSTournamentsBot.Api.Services
         private Task UploadTournamentToHistory(byte[] tournamentImage)
         {
             return Task.CompletedTask;
+        }
+
+        public void HandleVoteKick(ulong discrodId, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleVoteBan(ulong discrodId, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async void HandleVoteAddTime(VoteAddTimeType timeType, TimeSpan time)
+        {
+            if (timeType.IsCheckinStart)
+            {
+                _timeline.AddTimeToNextEventWithType(Event.StartCheckIn, time);
+                await _botApi.SendMessage($"Стадия чек-ина и старт турнира отложены на время {time}.", GuildThread.TournamentChat | GuildThread.EventsTape, Mentions);
+
+                var moscowTime = GetMoscowTime();
+                var nextEvent = _timeline.GetNextEventInfo();
+
+                if (nextEvent.HasValue)
+                {
+                    var e = nextEvent.Value;
+                    await _botApi.SendMessage($"Московское время {moscowTime}\nСледующее событие {e.Item1} наступит через {(e.Date + (e.Period ?? TimeSpan.Zero)) - moscowTime}", GuildThread.TournamentChat | GuildThread.EventsTape);
+                }
+                return;
+            }
+
+            if (timeType.IsStageCompletion)
+            {
+                _timeline.AddTimeToNextEventWithType(Event.CompleteStage, time);
+                await _botApi.SendMessage($"Стадия турнира продлена на время {time}.", GuildThread.TournamentChat | GuildThread.EventsTape, Mentions);
+
+                var moscowTime = GetMoscowTime();
+                var nextEvent = _timeline.GetNextEventInfo();
+
+                if (nextEvent.HasValue)
+                {
+                    var e = nextEvent.Value;
+                    await _botApi.SendMessage($"Московское время {moscowTime}\nСледующее событие {e.Item1} наступит через {(e.Date + (e.Period ?? TimeSpan.Zero)) - moscowTime}", GuildThread.TournamentChat | GuildThread.EventsTape);
+                }
+
+                return;
+            }
+        }
+
+        public void HandleVoteRevertMatchResult(int matchId)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Task Log(string message)
+        {
+            _logger.LogInformation(message);
+            return _botApi.Log(message);
         }
     }
 }

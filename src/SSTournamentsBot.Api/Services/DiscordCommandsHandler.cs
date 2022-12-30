@@ -1,6 +1,7 @@
 ﻿using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using SSTournamentsBot.Api.DiscordSlashCommands;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace SSTournamentsBot.Api.Services
     public class DiscordCommandsHandler : IHostedService
     {
         readonly DiscordSocketClient _client;
-
+        readonly DiscordBotOptions _options;
         readonly Dictionary<string, SlashCommandBase> _commands;
 
         public DiscordCommandsHandler(
@@ -21,9 +22,11 @@ namespace SSTournamentsBot.Api.Services
             TournamentApi api,
             IDataService dataService,
             IStatsApi statsApi,
-            IEventsTimeline timeline)
+            IEventsTimeline timeline,
+            IOptions<DiscordBotOptions> options)
         {
             _client = client;
+            _options = options.Value;
 
             _commands = new SlashCommandBase[]
             {
@@ -34,6 +37,7 @@ namespace SSTournamentsBot.Api.Services
                 new CheckOpponentSlashCommand(),
                 new InfoSlashCommand(api),
                 new KickBotsSlashCommand(api),
+                new KickPlayerSlashCommand(dataService, api),
                 new LeaveSlashCommand(dataService, api),
                 new MyIdSlashCommand(),
                 new PlayersShashCommand(api),
@@ -42,9 +46,9 @@ namespace SSTournamentsBot.Api.Services
                 new TimelineSlashCommand(timeline),
                 new TimeSlashCommand(timeline),
                 new ViewSlashCommand(api),
-                new VoteAddTimeSlashCommand(api),
-                new VoteBanSlashCommand(api),
-                new VoteKickSlashCommand(api),
+               // new VoteAddTimeSlashCommand(api),
+               // new VoteBanSlashCommand(api),
+               // new VoteKickSlashCommand(api),
                 new MatchesSlashCommand(api)
             }.ToDictionary(x => x.Name);
         }
@@ -105,11 +109,11 @@ namespace SSTournamentsBot.Api.Services
                 }
 
 #if DEBUG
-                await (guild.Channels.First(x => x.Name == "основной") as SocketTextChannel).SendMessageAsync(@"Привет, друзья! 
+                await guild.GetTextChannel(_options.TournamentThreadId).SendMessageAsync(@"Привет, друзья! 
 SS Tournaments Bot к вашим услугам и готов устраивать для Вас автоматические турниры.
 Тестовый режим активирован. Для регистрации на турнир используйте команду play.");
 #else
-                await guild.DefaultChannel.SendMessageAsync(@"Привет, друзья! 
+                await guild.GetTextChannel(_options.MainGuildId).SendMessageAsync(@"Привет, друзья! 
 SS Tournaments Bot к вашим услугам и готов устраивать для Вас автоматические турниры.
 Они организуются ежедневно в 18:00 по Мск.
 Окончание регистрации и начало чекина за 15 минут до начала. Генерация сетки ровно в 18, никаких исключений, успевайте :)

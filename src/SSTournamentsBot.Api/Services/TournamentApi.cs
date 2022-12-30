@@ -420,7 +420,7 @@ namespace SSTournamentsBot.Api.Services
         {
             return _queue.Async(() =>
             {
-                if (_votingProgress == null || _currentTournament == null)
+                if (_votingProgress == null)
                     return (AcceptVoteResult.NoVoting, null);
 
                 if (_votingProgress.CompletedWithResult.IsSome())
@@ -429,7 +429,7 @@ namespace SSTournamentsBot.Api.Services
                 if (_votingProgress.Voted.Any(x => x.Item1 == discordId))
                     return (AcceptVoteResult.AlreadyVoted, _votingProgress);
 
-                if (role == GuildRole.Everyone && !RegisteredPlayers.Any(x => x.DiscordId == discordId) || _leftUsers.Contains(discordId))
+                if (role == GuildRole.Everyone && !RegisteredPlayers.Any(x => x.DiscordId == discordId) || (_leftUsers?.Contains(discordId) ?? false))
                     return (AcceptVoteResult.YouCanNotVote, _votingProgress);
 
                 if (role == GuildRole.Everyone || !_votingProgress.AdminForcingEnabled)
@@ -455,8 +455,7 @@ namespace SSTournamentsBot.Api.Services
                 if (_votingProgress.CompletedWithResult.IsSome())
                     return (CompleteVotingResult.TheVoteIsOver, _votingProgress);
 
-                _votingProgress = CompleteVote(_votingProgress);
-                return (CompleteVotingResult.Completed, _votingProgress);
+                return (CompleteVotingResult.Completed, _votingProgress = CompleteVote(_votingProgress));
             });
         }
 

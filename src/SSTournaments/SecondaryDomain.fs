@@ -75,7 +75,7 @@ module SecondaryDomain =
 
     type CompleteVotingResult = 
         | NoVoting
-        | NoEnoughVotes
+        | CompletedWithNoEnoughVotes
         | Completed
         | TheVoteIsOver
 
@@ -100,7 +100,7 @@ module SecondaryDomain =
         | StartNextStage
         | CompleteStage
 
-    type IEventsHandler =
+    type ITournamentEventsHandler =
         abstract DoStartCurrentTournament : Unit -> Unit
         abstract DoStartPreCheckingTimeVote : Unit -> Unit
         abstract DoStartCheckIn : Unit -> Unit
@@ -108,7 +108,7 @@ module SecondaryDomain =
         abstract DoStartNextStage : Unit -> Unit
         abstract DoCompleteStage : Unit -> Unit
 
-    let SwitchEvent ev (handler: IEventsHandler) = 
+    let SwitchEvent ev (handler: ITournamentEventsHandler) = 
         match ev with
         | StartCurrentTournament -> handler.DoStartCurrentTournament()
         | StartPreCheckingTimeVote -> handler.DoStartPreCheckingTimeVote()
@@ -158,7 +158,7 @@ module SecondaryDomain =
         if progress.CompletedWithResult.IsSome then
             progress
         else
-            if progress.VotesNeeded > progress.Voted.Length then
+            if  progress.Voted.Length = 0 || progress.VotesNeeded > progress.Voted.Length then
                 { progress with CompletedWithResult = Some (false, None) }
             else
                 let groups = progress.Voted |> Array.groupBy(fun (_, id) -> id)

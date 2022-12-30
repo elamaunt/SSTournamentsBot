@@ -11,12 +11,12 @@ namespace SSTournamentsBot.Api.Services
     public class TimeSchedulerService : IHostedService, IDisposable
     {
         private readonly ILogger<TimeSchedulerService> _logger;
-        private readonly IEventsHandler _handler;
+        private readonly ITournamentEventsHandler _handler;
         private readonly IEventsTimeline _eventsTimeLine;
         private Timer _timer = null;
 
         DateTime _checkPoint;
-        public TimeSchedulerService(ILogger<TimeSchedulerService> logger, IEventsHandler handler, IEventsTimeline eventsTimeLine)
+        public TimeSchedulerService(ILogger<TimeSchedulerService> logger, ITournamentEventsHandler handler, IEventsTimeline eventsTimeLine)
         {
             _logger = logger;
             _handler = handler;

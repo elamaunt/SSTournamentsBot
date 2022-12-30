@@ -59,7 +59,7 @@ namespace SSTournamentsBot.Api.Services
                 await channels[i].SendMessageAsync(resultedMessage);
         }
 
-        public async Task<IButtonsController> SendButtons(string message, (string Name, string Id, BotButtonStyle Style)[] buttons, GuildThread thread, params ulong[] mentions)
+        public async Task<IButtonsController> SendVotingButtons(string message, (string Name, string Id, BotButtonStyle Style)[] buttons, GuildThread thread, params ulong[] mentions)
         {
             var messageBuilder = new StringBuilder();
 
@@ -85,12 +85,12 @@ namespace SSTournamentsBot.Api.Services
                 builder.WithButton(item.Name, item.Id, style: ConvertStyle(item.Style));
             }
 
-            var restMesages = new List<RestUserMessage>(channels.Length);
+            var restMessages = new List<RestUserMessage>(channels.Length);
 
             for (int i = 0; i < channels.Length; i++)
-                restMesages.Add(await channels[i].SendMessageAsync(resultedMessage, components: builder.Build()));
+                restMessages.Add(await channels[i].SendMessageAsync(resultedMessage, components: builder.Build()));
 
-            return new DiscordButtonsController(Interlocked.Increment(ref _idsCounter), restMesages.ToArray());
+            return new DiscordButtonsController(Interlocked.Increment(ref _idsCounter), restMessages.ToArray());
         }
 
         private ButtonStyle ConvertStyle(BotButtonStyle style)
