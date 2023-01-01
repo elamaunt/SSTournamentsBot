@@ -4,6 +4,6 @@ namespace SSTournamentsBot.Api.Services
 {
     public interface IDrawingService
     {
-        byte[] DrawToImage((Stage, StageBlock[])[] stages);
+        byte[] DrawToImage(Tournament tournament, (Stage, StageBlock[])[] stages);
     }
 }

@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using SSTournamentsBot.Api.DataDomain;
 using SSTournamentsBot.Api.Domain;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
@@ -12,6 +15,7 @@ namespace SSTournamentsBot.Api.Services
     public class TournamentEventsHandler : ITournamentEventsHandler, IVoteHandler
     {
         readonly ILogger<TournamentEventsHandler> _logger;
+        readonly IDataService _dataService;
         readonly IBotApi _botApi;
         readonly IGameScanner _scanner;
         readonly IEventsTimeline _timeline;
@@ -31,9 +35,15 @@ namespace SSTournamentsBot.Api.Services
 
         ulong[] Mentions => _tournamentApi.RegisteredPlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
 
-        public TournamentEventsHandler(ILogger<TournamentEventsHandler> logger, IBotApi botApi, IGameScanner scanner, IEventsTimeline timeline, TournamentApi tournamentApi)
+        public TournamentEventsHandler(ILogger<TournamentEventsHandler> logger,
+            IDataService dataService,
+            IBotApi botApi,
+            IGameScanner scanner,
+            IEventsTimeline timeline, 
+            TournamentApi tournamentApi)
         {
             _logger = logger;
+            _dataService = dataService;
             _botApi = botApi;
             _scanner = scanner;
             _timeline = timeline;
@@ -146,19 +156,46 @@ namespace SSTournamentsBot.Api.Services
                 _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(30));
                 _scanner.GameTypeFilter = GameType.Type1v1;
                 _scanner.Active = true;
+
+                await PrintMatches();
+
                 return;
             }
 
             if (result.IsNotEnoughPlayers)
             {
                 var players = _tournamentApi.RegisteredPlayers;
-                _logger.LogInformation("Not enough players");
+                await Log("Not enough players");
                 await _tournamentApi.DropTournament();
-                await _botApi.SendMessage("В данный момент турнир невозможно начать, так как участников недостаточно. Список зарегистрированных был обнулен.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                await _botApi.SendMessage("В данный момент турнир невозможно начать, так как участников недостаточно. Минимальное количество участников 4.\nСписок зарегистрированных был обнулен.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
                 return;
             }
 
             await Log("Broken state");
+        }
+
+        private async Task PrintMatches()
+        {
+            var builder = new StringBuilder();
+            var matches = _tournamentApi.ActiveMatches;
+
+            builder.AppendLine(">>> **Матчи, которые должны быть сыграны в текущей стадии турнира:**");
+            for (int i = 0; i < matches.Length; i++)
+            {
+                var m = matches[i];
+                builder.AppendLine($"{m.Id + 1}. {m.Player1.Value.Item1.Name} ({m.Player1.Value.Item2})  VS  {m.Player2.Value.Item1.Name} ({m.Player2.Value.Item2})  / {m.Map} / {m.BestOf}");
+            }
+
+            await _botApi.SendMessage(builder.ToString(), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions.Where(x =>
+            {
+                return matches.Any(m => m.Player1.Value.Item1.SteamId == x || m.Player2.Value.Item1.SteamId == x);
+            }).ToArray());
+
+            await _botApi.SendMessage("Игроки, которые отдыхают на этой стадии турнира:", GuildThread.EventsTape | GuildThread.TournamentChat);
+            await _botApi.Mention(GuildThread.EventsTape | GuildThread.TournamentChat, Mentions.Where(x =>
+            {
+                return !matches.Any(m => m.Player1.Value.Item1.SteamId == x || m.Player2.Value.Item1.SteamId == x);
+            }).ToArray());
         }
 
         public async void DoStartNextStage()
@@ -181,12 +218,15 @@ namespace SSTournamentsBot.Api.Services
                 await Log("The stage is terminal.");
                 await _botApi.SendMessage("Определился победитель турнира!", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
 
-                var tournamentImage = await _tournamentApi.RenderTournamentImage();
+                var tournamentBundle = await _tournamentApi.BuildAllData();
 
-                await _botApi.SendFile(tournamentImage, "tournament.png", "Сетка турнира", GuildThread.EventsTape | GuildThread.TournamentChat);
+                await _botApi.SendFile(tournamentBundle.Image, "tournament.png", "Сетка турнира", GuildThread.EventsTape | GuildThread.TournamentChat);
 
-                await UploadTournamentToHistory(tournamentImage);
-                await UpdateLeaderboard();
+                await UploadTournamentToHistory(tournamentBundle);
+                await UpdateLeaderboard(tournamentBundle);
+                await _tournamentApi.DropTournament();
+                await PrintTimeAndNextEvent();
+                await Log("The tournament is finished normally");
                 return;
             }
 
@@ -293,14 +333,111 @@ namespace SSTournamentsBot.Api.Services
             await Log("Broken state");
         }
 
-        private Task UpdateLeaderboard()
+        private async Task UpdateLeaderboard(TournamentBundle bundle)
         {
-            return Task.CompletedTask;
+            await Log("Updating leaderboards");
+            var modifiedUsers = new Dictionary<ulong, (UserData, int)>();
+
+            (UserData Data, int AddedScore) userInfo;
+
+            for (int i = 0; i < bundle.PlayedMatches.Length; i++)
+            {
+                var match = bundle.PlayedMatches[i];
+
+                if (match.Result.IsWinner)
+                {
+                    var matchWinner = ((MatchResult.Winner)match.Result).Item1;
+
+                    if (!modifiedUsers.TryGetValue(matchWinner.SteamId, out userInfo))
+                        userInfo = modifiedUsers[matchWinner.SteamId] = (_dataService.FindUserByDiscordId(matchWinner.DiscordId), 0);
+
+                    modifiedUsers[matchWinner.SteamId] = (userInfo.Data, userInfo.AddedScore + 10);
+                    continue;
+                }
+
+                if (match.Result.IsTechnicalWinner)
+                {
+                    var matchWinner = ((MatchResult.TechnicalWinner)match.Result).Item1;
+
+                    var loser = match.Player1.Value.Item1.SteamId == matchWinner.SteamId ? match.Player2.Value.Item1 : match.Player1.Value.Item1;
+
+                    if (!modifiedUsers.TryGetValue(loser.SteamId, out userInfo))
+                        userInfo = modifiedUsers[loser.SteamId] = (_dataService.FindUserByDiscordId(loser.DiscordId), 0);
+
+                    modifiedUsers[loser.SteamId] = (userInfo.Data, userInfo.AddedScore - 10);
+                    continue;
+                }
+            }
+
+            var tournamentWinner = bundle.Winner.ValueOrDefault();
+
+            if (tournamentWinner != null && modifiedUsers.TryGetValue(tournamentWinner.SteamId, out userInfo))
+            {
+                modifiedUsers[tournamentWinner.SteamId] = (userInfo.Data, userInfo.AddedScore * 2);
+            }
+
+            var builder = new StringBuilder();
+
+            builder.AppendLine("--- Изменения в рейтинге ---");
+            builder.AppendLine();
+
+            foreach (var info in modifiedUsers.Values.OrderByDescending(x => x.Item2))
+            {
+                info.Item1.Score += info.Item2;
+                _dataService.UpdateUser(info.Item1);
+                builder.AppendLine($"{info.Item2}   -   {await _botApi.GetUserName(info.Item1.DiscordId)}");
+            }
+
+            var mentions = modifiedUsers.Values.Select(x => x.Item1.DiscordId).ToArray();
+            await _botApi.SendMessage(builder.ToString(), GuildThread.EventsTape | GuildThread.TournamentChat, mentions);
+
+            builder.Clear();
+
+            var leaders = _dataService.LoadLeaders();
+
+            builder.AppendLine("--- Таблица лидеров ---");
+            builder.AppendLine();
+
+            for (int i = 0; i < leaders.Length; i++)
+            {
+                var user = leaders[i];
+
+                builder.AppendLine($"{i+1}. {user.Score}   {await _botApi.GetUserName(user.DiscordId)}");
+            }
+
+            builder.AppendLine();
+
+            await _botApi.ModifyLastMessage(builder.ToString(), GuildThread.Leaderboard);
+            await _botApi.ModifyLastMessage("Таблица лидеров была обновлена.", GuildThread.EventsTape | GuildThread.TournamentChat);
         }
 
-        private Task UploadTournamentToHistory(byte[] tournamentImage)
+        private async Task UploadTournamentToHistory(TournamentBundle bundle)
         {
-            return Task.CompletedTask;
+            await Log("Uploading the tournament to history");
+            var data = new TournamentData()
+            { 
+                Date = bundle.Tournament.Date,
+                Type = bundle.Tournament.Type,
+                Mod = bundle.Tournament.Mod,
+                Seed = bundle.Tournament.Seed,
+                WinnerSteamId = bundle.Winner.ValueOrDefault()?.SteamId,
+                PlayersSteamIds = bundle.Tournament.RegisteredPlayers.Select(x => x.SteamId).ToArray(),
+                Matches = bundle.PlayedMatches.Select(x => 
+                {
+                    return new MatchData() 
+                    {
+                        Result = x.Result,
+                        Replays = x.Replays.ToArray(),
+                        PlayerSteamId1 = x.Player1.Value.Item1.SteamId,
+                        PlayerSteamId2 = x.Player2.Value.Item1.SteamId
+                    };
+                }).ToArray()
+
+            };
+
+            _dataService.StoreTournament(data);
+            await _botApi.SendMessage($"Daily Tournament завершен!\nПоздравляем с победой {bundle.Winner.Value.Name}.", GuildThread.History, Mentions);
+            await _botApi.SendFile(bundle.Image, "tournament.png", "Сетка турнира", GuildThread.History);
         }
 
         public void HandleVoteKick(ulong discrodId, string name)
@@ -319,15 +456,7 @@ namespace SSTournamentsBot.Api.Services
             {
                 _timeline.AddTimeToNextEventWithType(Event.StartCheckIn, time);
                 await _botApi.SendMessage($"Стадия чек-ина и старт турнира отложены на время {time}.", GuildThread.TournamentChat | GuildThread.EventsTape, Mentions);
-
-                var moscowTime = GetMoscowTime();
-                var nextEvent = _timeline.GetNextEventInfo();
-
-                if (nextEvent.HasValue)
-                {
-                    var e = nextEvent.Value;
-                    await _botApi.SendMessage($"Московское время {moscowTime}\nСледующее событие {e.Item1} наступит через {(e.Date + (e.Period ?? TimeSpan.Zero)) - moscowTime}", GuildThread.TournamentChat | GuildThread.EventsTape);
-                }
+                await PrintTimeAndNextEvent();
                 return;
             }
 
@@ -335,17 +464,20 @@ namespace SSTournamentsBot.Api.Services
             {
                 _timeline.AddTimeToNextEventWithType(Event.CompleteStage, time);
                 await _botApi.SendMessage($"Стадия турнира продлена на время {time}.", GuildThread.TournamentChat | GuildThread.EventsTape, Mentions);
-
-                var moscowTime = GetMoscowTime();
-                var nextEvent = _timeline.GetNextEventInfo();
-
-                if (nextEvent.HasValue)
-                {
-                    var e = nextEvent.Value;
-                    await _botApi.SendMessage($"Московское время {moscowTime}\nСледующее событие {e.Item1} наступит через {(e.Date + (e.Period ?? TimeSpan.Zero)) - moscowTime}", GuildThread.TournamentChat | GuildThread.EventsTape);
-                }
+                await PrintTimeAndNextEvent();
 
                 return;
+            }
+        }
+
+        private async Task PrintTimeAndNextEvent()
+        {
+            var nextEvent = _timeline.GetNextEventInfo();
+
+            if (nextEvent != null)
+            {
+                var e = nextEvent;
+                await _botApi.SendMessage($"Московское время {GetMoscowTime()}\nСледующее событие {e.Event} наступит через {GetTimeBeforeEvent(e).PrettyPrint()}.", GuildThread.TournamentChat | GuildThread.EventsTape);
             }
         }
 

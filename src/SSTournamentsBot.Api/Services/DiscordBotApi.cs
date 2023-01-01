@@ -36,6 +36,24 @@ namespace SSTournamentsBot.Api.Services
                 await channels[i].SendFileAsync(new MemoryStream(file), fileName, text);
         }
 
+        public async Task Mention(GuildThread thread, params ulong[] mentions)
+        {
+            var messageBuilder = new StringBuilder();
+
+            for (int i = 0; i < mentions.Length; i++)
+            {
+                var user = await _client.GetUserAsync(mentions[i]);
+                messageBuilder.Append(user.Mention);
+                messageBuilder.Append(' ');
+            }
+
+            var channels = GetChannels(thread);
+            var resultedMessage = messageBuilder.ToString();
+
+            for (int i = 0; i < channels.Length; i++)
+                await channels[i].SendMessageAsync(resultedMessage);
+        }
+
         public async Task SendMessage(string message, GuildThread thread, params ulong[] mentions)
         {
             var messageBuilder = new StringBuilder();
@@ -129,6 +147,36 @@ namespace SSTournamentsBot.Api.Services
             }
 
             return channels;
+        }
+
+        public async Task ModifyLastMessage(string message, GuildThread thread)
+        {
+            var channels = GetChannels(thread);
+
+            for (int i = 0; i < channels.Length; i++)
+            {
+                var lastMessages = channels[i].GetMessagesAsync(1);
+
+                var first = await lastMessages.FirstOrDefaultAsync();
+                var messageEntry = first.FirstOrDefault();
+
+                if (messageEntry != null)
+                {
+                    await channels[i].ModifyMessageAsync(messageEntry.Id, x =>
+                    {
+                        x.Content = message;
+                    });
+                }
+                else
+                {
+                    await channels[i].SendMessageAsync(message);
+                }
+            }
+        }
+
+        public async Task<string> GetUserName(ulong id)
+        {
+            return (await _client.GetUserAsync(id)).Username;
         }
 
         private class DiscordButtonsController : IButtonsController

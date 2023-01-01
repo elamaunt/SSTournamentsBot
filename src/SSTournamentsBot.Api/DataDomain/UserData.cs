@@ -11,5 +11,6 @@ namespace SSTournamentsBot.Api.DataDomain
         public bool Banned { get; set; }
         public bool VotingDisabled { get; set; }
         public bool HasLowPriority { get; set; }
+        public int Score { get; set; }
     }
 }

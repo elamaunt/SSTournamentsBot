@@ -1,8 +1,8 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.FSharp.Core;
 using SSTournamentsBot.Api.Services;
 using System;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,18 +36,18 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             for (int i = 0; i < events.Length; i++)
             {
                 var e = events[i];
-                builder.AppendLine($"{i + 1}. [{e.Item2.ToString("s")}] {e.Item1} - {GetStringFor(e.Item3)}");
+                builder.AppendLine($"{i + 1}. [{e.StartDate.ToString("s")}] {e.Event} - {GetStringFor(e.Period)}");
             }
 
             await arg.RespondAsync(builder.ToString());
         }
 
-        private string GetStringFor(TimeSpan? preiodicTime)
+        private string GetStringFor(FSharpOption<TimeSpan> preiodicTime)
         {
-            if (!preiodicTime.HasValue)
+            if (!preiodicTime.IsSome())
                 return "одноразовое";
 
-                return $"периодическое через время {preiodicTime.Value}";
+                return $"периодическое через каждые {preiodicTime.Value.PrettyPrint()}";
         }
 
         protected override void Configure(SlashCommandBuilder builder)

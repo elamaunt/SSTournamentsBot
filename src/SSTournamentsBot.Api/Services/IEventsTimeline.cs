@@ -13,8 +13,8 @@ namespace SSTournamentsBot.Api.Services
         void RemoveAllEvents();
 
         Event[] GetEventsRaisedInPeriod(DateTime time, TimeSpan period, bool removeIfOneTime = false);
-        (Event Event, DateTime Date, TimeSpan? Period)? GetNextEventInfo();
-        (Event Event, DateTime Date, TimeSpan? Period)[] GetAllScheduledEvents();
-        void AddTimeToNextEventWithType(Event completeStage, TimeSpan time);
+        EventInfo GetNextEventInfo();
+        EventInfo[] GetAllScheduledEvents();
+        void AddTimeToNextEventWithType(Event ev, TimeSpan time);
     }
 }

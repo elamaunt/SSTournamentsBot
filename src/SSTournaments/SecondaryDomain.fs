@@ -100,6 +100,14 @@ module SecondaryDomain =
         | StartNextStage
         | CompleteStage
 
+    type EventInfo = {
+        Event: Event
+        StartDate: DateTime
+        Period: TimeSpan option
+    }
+
+    let GetTimeBeforeEvent info = info.StartDate - GetMoscowTime()
+
     type ITournamentEventsHandler =
         abstract DoStartCurrentTournament : Unit -> Unit
         abstract DoStartPreCheckingTimeVote : Unit -> Unit

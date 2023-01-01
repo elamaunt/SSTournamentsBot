@@ -7,5 +7,7 @@ namespace SSTournamentsBot.Api.Services
         UserData FindUserByDiscordId(ulong discordId);
         void StoreUsersSteamId(ulong discordId, ulong steamId);
         UserData UpdateUser(UserData userData);
+        void StoreTournament(TournamentData bundle);
+        UserData[] LoadLeaders();
     }
 }

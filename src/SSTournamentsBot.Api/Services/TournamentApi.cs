@@ -185,7 +185,7 @@ namespace SSTournamentsBot.Api.Services
                 if (matchWithIndex.x == null)
                     return;
 
-                _currentStageMatches[matchWithIndex.i] = AddWinToMatch(matchWithIndex.x, p1Info.Item1, info.ReplayLink, mod);
+                _currentStageMatches[matchWithIndex.i] = AddWinToMatch(matchWithIndex.x, p1Info.Item1, info.ReplayLink);
             });
         }
 
@@ -193,6 +193,11 @@ namespace SSTournamentsBot.Api.Services
         {
             return _queue.Async(() =>
             {
+                if (_currentTournament == null)
+                    return StartResult.NoTournament;
+
+                _currentTournament = RemovePlayersInTournamentThanSteamIdNotContainsIn(_currentTournament, _checkInedUsers.ToArray());
+
                 if (!IsEnoughPlayersToPlay(_currentTournament))
                     return StartResult.NotEnoughPlayers;
 
@@ -254,6 +259,15 @@ namespace SSTournamentsBot.Api.Services
             _stages = stages.ToArray();
 
             ApplyLeftUsers();
+        }
+
+        public Task<TournamentBundle> BuildAllData()
+        {
+            return _queue.Async(() =>
+            {
+                var winner = ((StageBlock.Free)_stages.Last().Item2[0]).Item;
+                return new TournamentBundle(_currentTournament, _playedMatches, winner, _renderingService.DrawToImage(_currentTournament, _stages));
+            });
         }
 
         public Task<(StartVotingResult, VotingProgress)> TryStartVoting(Voting voting, GuildRole role)
@@ -329,7 +343,7 @@ namespace SSTournamentsBot.Api.Services
                 if (!_isStarted)
                     return null;
 
-                return _renderingService.DrawToImage(_stages);
+                return _renderingService.DrawToImage(_currentTournament, _stages);
             });
         }
 
@@ -461,7 +475,7 @@ namespace SSTournamentsBot.Api.Services
 
         public bool IsAllPlayersCheckIned()
         {
-            return RegisteredPlayers.All(x => _checkInedUsers?.Contains(x.DiscordId) ?? false);
+            return RegisteredPlayers.All(x => _checkInedUsers?.Contains(x.SteamId) ?? false);
         }
 
         public bool IsAllActiveMatchesCompleted()

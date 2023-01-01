@@ -95,7 +95,7 @@ namespace SSTournamentsBot.Api.Services
             };
         }
 
-        public byte[] DrawToImage((Stage, StageBlock[])[] stages)
+        public byte[] DrawToImage(Tournament tournament, (Stage, StageBlock[])[] stages)
         {
             var count = stages.Length;
             var lastBlocks = stages.Last().Item2;

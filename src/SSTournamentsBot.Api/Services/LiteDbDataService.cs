@@ -62,9 +62,23 @@ namespace SSTournamentsBot.Api.Services
             };
         }
 
+        public UserData[] LoadLeaders()
+        {
+            return _liteDb.GetCollection<UserData>().Query()
+                .Where(x => x.Score != 0)
+                .OrderByDescending(x => x.Score)
+                .Limit(20)
+                .ToArray();
+        }
+
         public UserData FindUserBySteamId(ulong steamId)
         {
             return _liteDb.GetCollection<UserData>().FindOne(x => x.SteamId == steamId);
+        }
+
+        public void StoreTournament(TournamentData data)
+        {
+            _liteDb.GetCollection<TournamentData>().Insert(data);
         }
 
         public void StoreUsersSteamId(ulong discordId, ulong steamId)

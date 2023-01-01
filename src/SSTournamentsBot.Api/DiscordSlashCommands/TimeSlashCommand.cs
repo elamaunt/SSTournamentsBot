@@ -3,6 +3,7 @@ using SSTournamentsBot.Api.Services;
 using System;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
+using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
@@ -21,13 +22,12 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override async Task Handle(SocketSlashCommand arg)
         {
-            var moscowTime = GetMoscowTime();
             var nextEvent = _timeline.GetNextEventInfo();
 
-            if (nextEvent.HasValue)
+            if (nextEvent != null)
             {
-                var e = nextEvent.Value;
-                await arg.RespondAsync($"Московское время {moscowTime}\nСледующее событие {e.Item1} наступит через {(e.Date + (e.Period ?? TimeSpan.Zero)) - moscowTime}");
+                var e = nextEvent;
+                await arg.RespondAsync($"Московское время {GetMoscowTime()}\nСледующее событие {e.Event} наступит через {GetTimeBeforeEvent(e).PrettyPrint()}");
             }
             else
             {

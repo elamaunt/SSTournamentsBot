@@ -88,7 +88,7 @@ module Domain =
         | Draw of Count
         | NotCompleted of Count
 
-    type Replay = { UsedMod: Mod; Url: string }
+    type Replay = { Url: string }
 
     type Match = { 
         Id: int
@@ -134,6 +134,13 @@ module Domain =
         | Group of (Player array) * (Match array)
         | Free of Player option
 
+    type TournamentBundle = {
+        Tournament: Tournament
+        PlayedMatches: Match array
+        Winner: Player option
+        Image: byte array
+    }
+
     let NextDay (day: System.DayOfWeek) = 
         match day with
         | System.DayOfWeek.Monday -> System.DayOfWeek.Tuesday
@@ -159,19 +166,19 @@ module Domain =
         let moscowTime = GetMoscowTime()
         if moscowTime.Hour < tournamentStartHour then moscowTime else moscowTime.AddDays(1.0)
 
-    let GetNextTournamentTypeByDate() = 
+    let GetNextTournamentDayTypeByDate() = 
         let moscowTime = GetMoscowTime()
         let day = moscowTime.DayOfWeek
         if moscowTime.Hour < tournamentStartHour then day else (day |> NextDay)
 
     let CreateTournamentByDate gameMod = { 
         Mod = gameMod
-        Type = GetNextTournamentTypeByDate() |> TournamentTypeByDayOfTheWeek
+        Type = GetNextTournamentDayTypeByDate() |> TournamentTypeByDayOfTheWeek
         RegisteredPlayers = [||]
         Seed = System.Random().Next()
         Date = GetNextTournamentDate()
     }
-
+   
     let Exists x =
         match x with
         | Some(x) -> true
@@ -200,6 +207,9 @@ module Domain =
         match Array.tryFind(fun e -> e.SteamId = playerSteamId) tournament.RegisteredPlayers with
         | Some player -> { tournament with RegisteredPlayers = tournament.RegisteredPlayers |> Array.filter(fun x -> x <> player) }
         | None -> tournament
+
+    let RemovePlayersInTournamentThanSteamIdNotContainsIn tournament playerSteamIds = 
+        { tournament with RegisteredPlayers = tournament.RegisteredPlayers |> Array.filter(fun x -> playerSteamIds |> Array.contains x.SteamId) }
 
     let UpdatePlayerInTournament tournament player = 
         if not (IsPlayerRegisteredInTournament tournament player.SteamId player.DiscordId) then tournament
@@ -486,7 +496,7 @@ module Domain =
         | Five -> w1 > 2 || w2 > 2
         | Seven ->  w1 > 3 || w2 > 3
 
-    let AddWinToMatch m winnerSteamId replayLink usedMod = 
+    let AddWinToMatch m winnerSteamId replayLink = 
         match m.Result with 
         | NotCompleted c -> 
             match (m.Player1, m.Player2) with
@@ -503,9 +513,9 @@ module Domain =
                 | None -> m
                 | Some winner ->
                     if IsEnoughWins m.BestOf updatedCount then 
-                        { m with Replays = m.Replays |> List.append([{ UsedMod = usedMod; Url = replayLink }]); Result = Winner (winner, updatedCount) }
+                        { m with Replays = m.Replays |> List.append([{ Url = replayLink }]); Result = Winner (winner, updatedCount) }
                     else
-                        { m with Replays = m.Replays |> List.append([{ UsedMod = usedMod; Url = replayLink }]); Result = NotCompleted updatedCount }
+                        { m with Replays = m.Replays |> List.append([{ Url = replayLink }]); Result = NotCompleted updatedCount }
             | _ -> m
         | _ -> m
 
