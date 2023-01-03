@@ -94,7 +94,6 @@ namespace SSTournamentsBot.Api.Services
 
             var userByDiscordId = col.FindOne(x => x.DiscordId == discordId) ?? new UserData();
 
-            userByDiscordId.Race = RaceOrRandom.RandomEveryMatch;
             userByDiscordId.DiscordId = discordId;
             userByDiscordId.SteamId = steamId;
 

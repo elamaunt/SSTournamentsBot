@@ -48,16 +48,42 @@ module SecondaryDomain =
         | NoTournament
         | NotAllMatchesFinished
         | Completed
+        | CompletedAndFinishedTheTournament
 
-    type VoteAddTimeType = 
-        | CheckinStart
-        | StageCompletion
+    type SubmitGameResult = 
+        | NoTournament
+        | DifferentRace
+        | DifferentMod
+        | DifferentMap
+        | DifferentGameType
+        | TooShortDuration
+        | MatchNotFound
+        | Completed
+        | CompletedAndFinishedTheStage
 
-    type Voting = 
-        | Kick of uint64*string
-        | Ban of uint64*string
-        | AddTime of VoteAddTimeType*System.TimeSpan
-        | RevertMatchResult of int
+    type MentionSetting =
+        | Default
+        | OnlyCheckin
+
+    type BotButtonStyle = 
+        | Primary
+        | Secondary
+        | Success
+        | Danger
+        | Link
+
+    type VotingOption = {
+        Message: string
+        Style: BotButtonStyle
+    }
+
+    type Voting = {
+        Message: string
+        Options: VotingOption array
+        MinimumVotes: int 
+        AdminForcingEnabled: bool
+        Handler: int option -> unit
+    }
 
     type AcceptVoteResult = 
         | NoVoting
@@ -68,8 +94,6 @@ module SecondaryDomain =
         | CompletedByThisVote
 
     type StartVotingResult = 
-        | NotAllowed
-        | NoPermission
         | AlreadyHasVoting
         | Completed
 
@@ -78,19 +102,6 @@ module SecondaryDomain =
         | CompletedWithNoEnoughVotes
         | Completed
         | TheVoteIsOver
-
-    type IVoteHandler =
-        abstract HandleVoteKick : uint64*string -> Unit
-        abstract HandleVoteBan : uint64*string -> Unit
-        abstract HandleVoteAddTime : VoteAddTimeType*System.TimeSpan -> Unit
-        abstract HandleVoteRevertMatchResult : int -> Unit
-
-    let SwitchVote ev (handler: IVoteHandler) = 
-        match ev with
-        | Kick (id, name) -> handler.HandleVoteKick (id, name)
-        | Ban (id, name) -> handler.HandleVoteBan (id, name)
-        | AddTime (r, t) -> handler.HandleVoteAddTime (r, t)
-        | RevertMatchResult matchId -> handler.HandleVoteRevertMatchResult matchId
 
     type Event = 
         | StartCurrentTournament
@@ -125,20 +136,22 @@ module SecondaryDomain =
         | StartNextStage -> handler.DoStartNextStage()
         | CompleteStage -> handler.DoCompleteStage()
 
-    type BotButtonStyle = 
-        | Primary = 1
-        | Secondary = 2
-        | Success = 3
-        | Danger = 4
-        | Link = 5
+    type VoteCompletionResult = 
+        | NotCompleted
+        | CompletedWithNotEnoughVotes
+        | ForceCompleted of int
+        | Completed of int option
 
     type VotingProgress = {
         Voting: Voting
-        VotesNeeded: int32
-        VoteOptions: (string*string*BotButtonStyle) array
-        Voted: (uint64*string) array
-        AdminForcingEnabled: bool
-        CompletedWithResult: (bool*(string option)) option
+        Voted: (uint64*int) array
+        State: VoteCompletionResult
+    }
+
+    let InitVotingProgress voting = {
+        Voting = voting
+        Voted = Array.empty
+        State = NotCompleted
     }
 
     type GuildRole = 
@@ -146,28 +159,30 @@ module SecondaryDomain =
         | Moderator = 2
         | Administrator = 3
 
-    let StartVoting voting votesNeeded options forcingEnabled =
-        {
-            Voting = voting
-            VotesNeeded = votesNeeded
-            VoteOptions = options
-            Voted = [||]
-            AdminForcingEnabled = forcingEnabled
-            CompletedWithResult = None
-        }
-
     let AddVote progress (dicordId, selectedOptionId) =
-        if progress.CompletedWithResult.IsSome then
+        if progress.State <> NotCompleted then
             progress 
         else
             { progress with Voted = progress.Voted |> Array.append([|(dicordId, selectedOptionId)|]); }
 
+    
+    let AddVoteOption voting message style = 
+        { voting with Options = voting.Options |> Array.append([| { Message = message; Style = style } |]) }
+
+    let CreateVoting message minimumVotes adminForcingEnabled handler = {
+        Message = message
+        Options = Array.empty
+        MinimumVotes = minimumVotes
+        AdminForcingEnabled = adminForcingEnabled
+        Handler = handler
+    }
+
     let CompleteVote progress =
-        if progress.CompletedWithResult.IsSome then
+        if progress.State <> NotCompleted then
             progress
         else
-            if  progress.Voted.Length = 0 || progress.VotesNeeded > progress.Voted.Length then
-                { progress with CompletedWithResult = Some (false, None) }
+            if  progress.Voted.Length = 0 || progress.Voting.MinimumVotes > progress.Voted.Length then
+                { progress with State = CompletedWithNotEnoughVotes }
             else
                 let groups = progress.Voted |> Array.groupBy(fun (_, id) -> id)
 
@@ -176,9 +191,21 @@ module SecondaryDomain =
                 let sameVotesGroupCount = groups |> Array.filter(fun (_, values) -> values.Length = votes.Length) |> Array.length
 
                 if sameVotesGroupCount > 1 then
-                    { progress with CompletedWithResult = Some (false, None) }
+                    { progress with State = Completed None }
                 else
-                    { progress with CompletedWithResult = Some (false, Some mostVotedId) }
+                    { progress with State = Completed(Some(mostVotedId)) }
 
     let ForceCompleteVote progress id =
-        { progress with CompletedWithResult = Some (true, Some id) }
+        if progress.State <> NotCompleted then
+            progress
+        else
+            { progress with State = ForceCompleted id }
+
+    let SharedUnit = ()
+
+    let SwitchVotingResult result notEnoughVotesHandler noResultHandler optionIndexHandler = 
+        match result with 
+        | NotCompleted -> ()
+        | CompletedWithNotEnoughVotes -> notEnoughVotesHandler()
+        | ForceCompleted opt -> optionIndexHandler opt
+        | Completed opt -> if opt |> Option.isSome then optionIndexHandler(Option.get(opt)) else noResultHandler()

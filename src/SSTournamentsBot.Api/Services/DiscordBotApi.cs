@@ -77,7 +77,7 @@ namespace SSTournamentsBot.Api.Services
                 await channels[i].SendMessageAsync(resultedMessage);
         }
 
-        public async Task<IButtonsController> SendVotingButtons(string message, (string Name, string Id, BotButtonStyle Style)[] buttons, GuildThread thread, params ulong[] mentions)
+        public async Task<IButtonsController> SendVotingButtons(string message, VotingOption[] options, GuildThread thread, params ulong[] mentions)
         {
             var messageBuilder = new StringBuilder();
 
@@ -97,10 +97,10 @@ namespace SSTournamentsBot.Api.Services
             var resultedMessage = messageBuilder.ToString();
             var builder = new ComponentBuilder();
 
-            for (int i = 0; i < buttons.Length; i++)
+            for (int i = 0; i < options.Length; i++)
             {
-                var item = buttons[i];
-                builder.WithButton(item.Name, item.Id, style: ConvertStyle(item.Style));
+                var option = options[i];
+                builder.WithButton(option.Message, i.ToString(), style: ConvertStyle(option.Style));
             }
 
             var restMessages = new List<RestUserMessage>(channels.Length);
@@ -113,15 +113,12 @@ namespace SSTournamentsBot.Api.Services
 
         private ButtonStyle ConvertStyle(BotButtonStyle style)
         {
-            switch (style)
-            {
-                case BotButtonStyle.Primary: return ButtonStyle.Primary;
-                case BotButtonStyle.Secondary: return ButtonStyle.Secondary;
-                case BotButtonStyle.Success: return ButtonStyle.Success;
-                case BotButtonStyle.Danger: return ButtonStyle.Danger;
-                case BotButtonStyle.Link: return ButtonStyle.Link;
-                default: return ButtonStyle.Secondary;
-            }
+            if (style.IsPrimary) return ButtonStyle.Primary;
+            if (style.IsSecondary) return ButtonStyle.Secondary;
+            if (style.IsSuccess) return ButtonStyle.Success;
+            if (style.IsDanger) return ButtonStyle.Danger;
+            if (style.IsLink) return ButtonStyle.Link;
+            return ButtonStyle.Secondary;
         }
 
         private SocketTextChannel[] GetChannels(GuildThread thread)

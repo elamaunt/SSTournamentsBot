@@ -1,4 +1,5 @@
-﻿using SSTournamentsBot.Api.DataDomain;
+﻿using Microsoft.FSharp.Core;
+using SSTournamentsBot.Api.DataDomain;
 using SSTournamentsBot.Api.Domain;
 using SSTournamentsBot.Api.Threading;
 using System;
@@ -129,36 +130,39 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
-        public Task SubmitGame(FinishedGameInfo info)
+        public Task<SubmitGameResult> TrySubmitGame(FinishedGameInfo info)
         {
             return _queue.Async(() =>
             {
+                if (_currentTournament == null)
+                    return SubmitGameResult.NoTournament;
+
                 if (info.GameType != GameType.Type1v1)
-                    return;
+                    return SubmitGameResult.MatchNotFound;
 
                 if (info.Duration < 45)
-                    return;
+                    return SubmitGameResult.TooShortDuration;
 
                 // TODO: other gameTypes
                 if (!info.Map.IsMap1v1)
-                    return;
+                    return SubmitGameResult.DifferentMap;
 
                 // TODO: other mods
                 if (!info.UsedMod.IsMod)
-                    return;
+                    return SubmitGameResult.DifferentMod;
 
                 var mod = ((ModInfo.Mod)info.UsedMod).Item;
 
                 if (mod != Mod.Soulstorm)
-                    return;
+                    return SubmitGameResult.DifferentMod;
 
                 var p1Info = info.Winners[0];
                 var p2Info = info.Losers[0];
 
                 if (!p1Info.Item2.IsNormalRace)
-                    return;
+                    return SubmitGameResult.DifferentRace;
                 if (!p2Info.Item2.IsNormalRace)
-                    return;
+                    return SubmitGameResult.DifferentRace;
 
                 var map = ((MapInfo.Map1v1)info.Map).Item1;
 
@@ -183,9 +187,14 @@ namespace SSTournamentsBot.Api.Services
                  });
 
                 if (matchWithIndex.x == null)
-                    return;
+                    return SubmitGameResult.MatchNotFound;
 
                 _currentStageMatches[matchWithIndex.i] = AddWinToMatch(matchWithIndex.x, p1Info.Item1, info.ReplayLink);
+
+                if (_currentStageMatches.All(x => !x.Result.IsNotCompleted))
+                    return SubmitGameResult.CompletedAndFinishedTheStage;
+
+                return SubmitGameResult.Completed;
             });
         }
 
@@ -270,50 +279,15 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
-        public Task<(StartVotingResult, VotingProgress)> TryStartVoting(Voting voting, GuildRole role)
+        public Task<StartVotingResult> TryStartVoting(Voting voting)
         {
             return _queue.Async(() =>
             {
                 if (_votingProgress != null)
-                    return (StartVotingResult.AlreadyHasVoting, null);
+                    return (StartVotingResult.AlreadyHasVoting);
 
-                if (voting.IsAddTime)
-                {
-                    if (role != GuildRole.Administrator)
-                        return (StartVotingResult.NoPermission, null);
-
-                    _votingProgress = StartVoting(voting, RegisteredPlayers.Length / 2, new[]
-                    {
-                        Tuple.Create("Добавить время", "1", BotButtonStyle.Secondary),
-                        Tuple.Create("Не добавлять время", "0", BotButtonStyle.Secondary)
-                    }, false);
-                    return (StartVotingResult.Completed, _votingProgress);
-                }
-
-                if (voting.IsBan)
-                {
-                    if (role == GuildRole.Everyone)
-                        return (StartVotingResult.NoPermission, null);
-
-                    _votingProgress = StartVoting(voting, 10, new[]
-                    {
-                        Tuple.Create("Забанить!", "1", BotButtonStyle.Danger),
-                        Tuple.Create("Не банить", "0", BotButtonStyle.Secondary)
-                    }, true);
-                    return (StartVotingResult.Completed, _votingProgress);
-                }
-
-                if (voting.IsKick)
-                {
-                    _votingProgress = StartVoting(voting, RegisteredPlayers.Length / 2, new[]
-                    {
-                        Tuple.Create("Выгнать из турнира", "1", BotButtonStyle.Danger),
-                        Tuple.Create("Оставить", "0", BotButtonStyle.Secondary)
-                    }, true);
-                    return (StartVotingResult.Completed, _votingProgress);
-                }
-
-                return (StartVotingResult.NotAllowed, null);
+                _votingProgress = InitVotingProgress(voting);
+                return StartVotingResult.Completed;
             });
         }
 
@@ -414,7 +388,7 @@ namespace SSTournamentsBot.Api.Services
         {
             return _queue.Async(() =>
             {
-                if (!IsTounamentStarted)
+                if (_currentTournament == null)
                     return UserCheckInResult.NoTournament;
 
                 if (!RegisteredPlayers.Any(x => x.SteamId == steamId))
@@ -430,14 +404,14 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
-        public Task<(AcceptVoteResult, VotingProgress)> TryAcceptVote(ulong discordId, string id, GuildRole role)
+        public Task<(AcceptVoteResult, VotingProgress)> TryAcceptVote(ulong discordId, int id, GuildRole role)
         {
             return _queue.Async(() =>
             {
                 if (_votingProgress == null)
                     return (AcceptVoteResult.NoVoting, null);
 
-                if (_votingProgress.CompletedWithResult.IsSome())
+                if (!_votingProgress.State.IsNotCompleted)
                     return (AcceptVoteResult.TheVoteIsOver, _votingProgress);
 
                 if (_votingProgress.Voted.Any(x => x.Item1 == discordId))
@@ -446,7 +420,7 @@ namespace SSTournamentsBot.Api.Services
                 if (role == GuildRole.Everyone && !RegisteredPlayers.Any(x => x.DiscordId == discordId) || (_leftUsers?.Contains(discordId) ?? false))
                     return (AcceptVoteResult.YouCanNotVote, _votingProgress);
 
-                if (role == GuildRole.Everyone || !_votingProgress.AdminForcingEnabled)
+                if (role == GuildRole.Everyone || !_votingProgress.Voting.AdminForcingEnabled)
                 {
                     _votingProgress = AddVote(_votingProgress, discordId, id);
                     return (AcceptVoteResult.Accepted, _votingProgress);
@@ -459,17 +433,31 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
-        public Task<(CompleteVotingResult, VotingProgress)> TryCompleteVoting()
+        public Task<CompleteVotingResult> TryCompleteVoting()
         {
             return _queue.Async(() =>
             {
                 if (_votingProgress == null || _currentTournament == null)
-                    return (CompleteVotingResult.NoVoting, null);
+                    return (CompleteVotingResult.NoVoting);
 
-                if (_votingProgress.CompletedWithResult.IsSome())
-                    return (CompleteVotingResult.TheVoteIsOver, _votingProgress);
+                if (!_votingProgress.State.IsNotCompleted)
+                    return (CompleteVotingResult.TheVoteIsOver);
 
-                return (CompleteVotingResult.Completed, _votingProgress = CompleteVote(_votingProgress));
+                var progress = CompleteVote(_votingProgress);
+                
+                SwitchVotingResult(progress.State, FSharpFunc<Unit,Unit>.FromConverter(x => {
+                    _votingProgress.Voting.Handler.Invoke(FSharpOption<int>.None);
+                    return SharedUnit;
+                }), FSharpFunc<Unit, Unit>.FromConverter(x => {
+                    _votingProgress.Voting.Handler.Invoke(FSharpOption<int>.None);
+                    return SharedUnit;
+                }), FSharpFunc<int, Unit>.FromConverter(x => {
+                    _votingProgress.Voting.Handler.Invoke(FSharpOption<int>.Some(x));
+                    return SharedUnit;
+                }));
+
+                _votingProgress = null;
+                return CompleteVotingResult.Completed;
             });
         }
 

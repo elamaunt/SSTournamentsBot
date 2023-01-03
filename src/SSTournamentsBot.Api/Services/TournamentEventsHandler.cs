@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.FSharp.Core;
 using SSTournamentsBot.Api.DataDomain;
 using SSTournamentsBot.Api.Domain;
 using System;
@@ -12,7 +13,7 @@ using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.Services
 {
-    public class TournamentEventsHandler : ITournamentEventsHandler, IVoteHandler
+    public class TournamentEventsHandler : ITournamentEventsHandler
     {
         readonly ILogger<TournamentEventsHandler> _logger;
         readonly IDataService _dataService;
@@ -28,7 +29,6 @@ namespace SSTournamentsBot.Api.Services
             set
             {
                 var oldValue = Interlocked.CompareExchange(ref _activeVotingButtons, value, _activeVotingButtons);
-
                 oldValue?.DisableButtons("Голосование завершено.");
             }
         }
@@ -65,12 +65,62 @@ namespace SSTournamentsBot.Api.Services
 
             if (result.IsNotAllMatchesFinished)
             {
-                await Log("Not all matches finished");
-                await _botApi.SendMessage("Не все матчи текущей стадии были завершены за указанное время. Для установления результатов по каждому матчу будет запущено голосование, либо решение будет принято модераторами.", GuildThread.EventsTape | GuildThread.TournamentChat);
+                var activeMatch = _tournamentApi.ActiveMatches.FirstOrDefault(x => x.Result.IsNotCompleted);
 
-                // TODO: start voting. Remove the line below: 
-                _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(30));
-                return;
+                if (activeMatch != null)
+                {
+                    await Log("Not all matches finished");
+
+                    var p1 = activeMatch.Player1.Value.Item1;
+                    var p2 = activeMatch.Player2.Value.Item1;
+
+                    var voting = CreateVoting(">>> Минутное голосование по незавершенному матчу. Кому присудить техническое поражение?", 
+                        1, 
+                        true,
+                        FSharpFunc<FSharpOption<int>, Unit>.FromConverter(x => 
+                        {
+                            Task.Run(async () =>
+                            {
+                                if (x.IsNone())
+                                    return;
+
+                                switch (x.Value)
+                                {
+                                    case 0:
+                                        await _tournamentApi.TryLeaveUser(p1.DiscordId, p1.SteamId);
+                                        await _botApi.SendMessage($"Присуждено техническое поражение игроку под ником **{p1.Name}**.", GuildThread.EventsTape | GuildThread.TournamentChat);
+                                        break;
+                                    case 1:
+                                        await _tournamentApi.TryLeaveUser(p2.DiscordId, p2.SteamId);
+                                        await _botApi.SendMessage($"Присуждено техническое поражение игроку под ником **{p2.Name}**.", GuildThread.EventsTape | GuildThread.TournamentChat);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            });
+
+                            return SharedUnit;
+                    }));
+
+                    voting = AddVoteOption(voting, p1.Name, BotButtonStyle.Primary);
+                    voting = AddVoteOption(voting, p2.Name, BotButtonStyle.Primary);
+
+                    var startVotingResult = await _tournamentApi.TryStartVoting(voting);
+
+                    if (startVotingResult.IsCompleted)
+                    {
+                        ActiveVotingButtons = await _botApi.SendVotingButtons(voting.Message, voting.Options, GuildThread.EventsTape | GuildThread.TournamentChat);
+                        _timeline.AddOneTimeEventAfterTime(Event.CompleteVoting, TimeSpan.FromMinutes(1));
+                    }
+
+                    _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(70));
+                    return;
+                }
+                else
+                {
+                    _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromMinutes(1));
+                    return;
+                }
             }
 
             if (result.IsCompleted)
@@ -79,7 +129,7 @@ namespace SSTournamentsBot.Api.Services
                 await Log("The stage has been completed");
                 await _botApi.SendMessage("Стадия была успешно завершена! Следующая стадия начнется после 5-минутного перерыва.", GuildThread.EventsTape | GuildThread.TournamentChat);
 
-                _timeline.AddOneTimeEventAfterTime(Event.StartNextStage, TimeSpan.FromSeconds(10));
+                _timeline.AddOneTimeEventAfterTime(Event.StartNextStage, TimeSpan.FromSeconds(30));
                 return;
             }
 
@@ -109,7 +159,8 @@ namespace SSTournamentsBot.Api.Services
             {
                 await Log("Not enough players.");
                 await _tournamentApi.DropTournament();
-                await _botApi.SendMessage("Турнир отменяется, так как участников недостаточно. Список зарегистрированных был обнулен. ", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                await _botApi.SendMessage("Турнир отменяется, так как участников недостаточно. Список зарегистрированных был обнулен.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                await PrintTimeAndNextEvent();
                 return;
             }
 
@@ -247,21 +298,44 @@ namespace SSTournamentsBot.Api.Services
         {
             await Log("An attempt to start the pre checking time vote..");
 
-            var (result, progress) = await _tournamentApi.TryStartVoting(Voting.NewAddTime(VoteAddTimeType.CheckinStart, TimeSpan.FromMinutes(1)), GuildRole.Administrator);
+            var voting = CreateVoting(">>> **До начала чек - ина в турнире осталось 10 минут.* *\nСтоит ли отложить чекин турнира на 30 минут ?\n\nГолосовать могут только участники, зарегистрированные на следующий турнир и администрация сервера.",
+                        1,
+                        true,
+                        FSharpFunc<FSharpOption<int>, Unit>.FromConverter(x =>
+                        {
+                            Task.Run(async () =>
+                            {
+                                if (x.IsNone())
+                                    return;
 
-            if (result.IsCompleted)
+                                switch (x.Value)
+                                {
+                                    case 0:
+                                        _timeline.AddTimeToNextEventWithType(Event.StartCheckIn, TimeSpan.FromMinutes(1));
+                                        await _botApi.SendMessage($"Начало турнира отложено еще на 30 минут.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                                        break;
+                                    case 1:
+                                        await _botApi.SendMessage($"Начало турнира будет в стандартное время.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                await PrintTimeAndNextEvent();
+                            });
+
+                            return SharedUnit;
+                        }));
+
+            var startVotingResult = await _tournamentApi.TryStartVoting(voting);
+
+            if (startVotingResult.IsCompleted)
             {
                 await Log("The PreCheckingTime voting has been started..");
 
-                if (progress == null)
-                {
-                    await Log("No voting progress to publish the message.");
-                    return;
-                }
-
                 var players = _tournamentApi.RegisteredPlayers;
-                var buttonInfos = progress.VoteOptions.Select(x => (x.Item1, x.Item2, BotButtonStyle.Secondary)).ToArray();
-                ActiveVotingButtons = await _botApi.SendVotingButtons(">>> **До начала чек-ина в турнире осталось 10 минут.**\nСтоит ли отложить чекин турнира на 30 минут?\n\nГолосовать могут только участники, зарегистрированные на следующий турнир и администрация сервера.", buttonInfos, GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+
+                ActiveVotingButtons = await _botApi.SendVotingButtons(voting.Message, voting.Options, GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
                 _timeline.AddOneTimeEventAfterTime(Event.CompleteVoting, TimeSpan.FromSeconds(30));
                 _timeline.AddOneTimeEventAfterTime(Event.StartCheckIn, TimeSpan.FromMinutes(1));
                 return;
@@ -276,39 +350,11 @@ namespace SSTournamentsBot.Api.Services
             ActiveVotingButtons = null;
             await Log("An attempt to complete the voting..");
 
-            var (result, progress) = await _tournamentApi.TryCompleteVoting();
+            var result = await _tournamentApi.TryCompleteVoting();
 
             if (result.IsCompleted)
             {
                 await Log("The voting is completed");
-
-                var players = _tournamentApi.RegisteredPlayers;
-
-                var (_, option) = progress.CompletedWithResult.Value;
-
-                var value = option.ValueOrDefault();
-
-                if (value == null)
-                    await _botApi.SendMessage("Результат голосования не был принят: недостаточно проголосовавших, либо голоса разделились поровну.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
-                else
-                {
-                    switch (value)
-                    {
-                        case "0":
-                            await _botApi.SendMessage("> Результат голосования: ОТКЛОНЕН.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
-                            break;
-                        case "1":
-                            await _botApi.SendMessage("> Результат голосования: ПРИНЯТ.", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
-
-                            await Log("Handling voting effect..");
-                            SwitchVote(progress.Voting, this);
-                            break;
-                        default:
-                            await _botApi.SendMessage("Ошибка обработки результата.", GuildThread.EventsTape);
-                            break;
-                    }
-                }
-
                 return;
             }
 
@@ -440,36 +486,6 @@ namespace SSTournamentsBot.Api.Services
             await _botApi.SendFile(bundle.Image, "tournament.png", "Сетка турнира", GuildThread.History);
         }
 
-        public void HandleVoteKick(ulong discrodId, string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void HandleVoteBan(ulong discrodId, string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async void HandleVoteAddTime(VoteAddTimeType timeType, TimeSpan time)
-        {
-            if (timeType.IsCheckinStart)
-            {
-                _timeline.AddTimeToNextEventWithType(Event.StartCheckIn, time);
-                await _botApi.SendMessage($"Стадия чек-ина и старт турнира отложены на время {time}.", GuildThread.TournamentChat | GuildThread.EventsTape, Mentions);
-                await PrintTimeAndNextEvent();
-                return;
-            }
-
-            if (timeType.IsStageCompletion)
-            {
-                _timeline.AddTimeToNextEventWithType(Event.CompleteStage, time);
-                await _botApi.SendMessage($"Стадия турнира продлена на время {time}.", GuildThread.TournamentChat | GuildThread.EventsTape, Mentions);
-                await PrintTimeAndNextEvent();
-
-                return;
-            }
-        }
-
         private async Task PrintTimeAndNextEvent()
         {
             var nextEvent = _timeline.GetNextEventInfo();
@@ -479,11 +495,6 @@ namespace SSTournamentsBot.Api.Services
                 var e = nextEvent;
                 await _botApi.SendMessage($"Московское время {GetMoscowTime()}\nСледующее событие {e.Event} наступит через {GetTimeBeforeEvent(e).PrettyPrint()}.", GuildThread.TournamentChat | GuildThread.EventsTape);
             }
-        }
-
-        public void HandleVoteRevertMatchResult(int matchId)
-        {
-            throw new NotImplementedException();
         }
 
         private Task Log(string message)

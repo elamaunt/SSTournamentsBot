@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
+using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.Services
 {
@@ -19,17 +20,27 @@ namespace SSTournamentsBot.Api.Services
         readonly ILogger<DowStatsGameScanner> _logger;
         readonly HttpService _httpService;
         readonly TournamentApi _api;
+        readonly IBotApi _botApi;
+        readonly ITournamentEventsHandler _eventsHandler;
 
         DateTime _lastScan;
         Timer _rescanTimer;
         public GameType GameTypeFilter { get; set; } = GameType.Type1v1;
 
-        public DowStatsGameScanner(ILogger<DowStatsGameScanner> logger, HttpService httpService, TournamentApi api, IOptions<DowStatsGameScannerOptions> options)
+        public DowStatsGameScanner(
+            ILogger<DowStatsGameScanner> logger, 
+            HttpService httpService, 
+            TournamentApi api,
+            IBotApi botApi, 
+            ITournamentEventsHandler eventsHandler,
+            IOptions<DowStatsGameScannerOptions> options)
         {
             _options = options.Value;
             _logger = logger;
             _httpService = httpService;
             _api = api;
+            _botApi = botApi;
+            _eventsHandler = eventsHandler;
         }
 
         public bool Active
@@ -84,8 +95,10 @@ namespace SSTournamentsBot.Api.Services
                             if (game.server != "steam")
                                 continue;
 
-                            var winners = game.players.Where(x => x.result == "win").Select(x => Tuple.Create(ulong.Parse(x.sid), ResolveRace(x.race))).ToArray();
-                            var losers = game.players.Where(x => x.result == "los").Select(x => Tuple.Create(ulong.Parse(x.sid), ResolveRace(x.race))).ToArray();
+                            var winnersSelection = game.players.Where(x => x.result == "win");
+                            var losersSelection = game.players.Where(x => x.result == "los");
+                            var winners = winnersSelection.Select(x => Tuple.Create(ulong.Parse(x.sid), ResolveRace(x.race))).ToArray();
+                            var losers = losersSelection.Select(x => Tuple.Create(ulong.Parse(x.sid), ResolveRace(x.race))).ToArray();
 
                             var gameType = ResolveGameType(winners.Length, losers.Length);
 
@@ -101,11 +114,30 @@ namespace SSTournamentsBot.Api.Services
                                 ResolveModInfo(game.modification),
                                 game.replayDownloadLink);
 
-                            _api.SubmitGame(info)
-                            .ContinueWith(submitTask => 
-                            {
-                                _logger.LogError(submitTask.Exception, "Error on submitting the gameInfo");
-                            }, TaskContinuationOptions.OnlyOnFaulted);
+                            _api.TrySubmitGame(info)
+                                .ContinueWith(async submitTask => 
+                                {
+                                    if (submitTask.IsFaulted)
+                                    {
+                                        _logger.LogError(submitTask.Exception, "Error on submitting the gameInfo");
+                                        return;
+                                    }
+
+                                    if (submitTask.IsCompleted)
+                                    {
+                                        var result = submitTask.Result;
+
+                                        if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
+                                        {
+                                            await _botApi.SendMessage($"> Засчитана победа {string.Join(", ", winnersSelection)} в матче против {string.Join(", ", losersSelection)}.\nСсылка на реплей: {game.replayDownloadLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
+                                        }
+
+                                        if (result.IsCompletedAndFinishedTheStage)
+                                        {
+                                            _eventsHandler.DoCompleteStage();
+                                        }
+                                    }
+                                });
                         }
                         catch (Exception ex)
                         {

@@ -77,7 +77,7 @@ namespace SSTournamentsBot.Api.Services
             if (guildUser.GuildPermissions.Administrator)
                 guildRole = GuildRole.Administrator;
 
-            var (result, _) = await _tournamentApi.TryAcceptVote(arg.User.Id, arg.Data.CustomId, guildRole);
+            var (result, _) = await _tournamentApi.TryAcceptVote(arg.User.Id, int.Parse(arg.Data.CustomId), guildRole);
 
             if (result == AcceptVoteResult.Accepted)
             {
@@ -112,7 +112,7 @@ namespace SSTournamentsBot.Api.Services
             if (result == AcceptVoteResult.CompletedByThisVote)
             {
                 _eventsHandler.DoCompleteVoting();
-                await arg.RespondAsync($"{arg.User.Mention} завершает голосование своим голосом.");
+                await arg.RespondAsync($"{arg.User.Mention} завершает голосование голосом администрации.");
                 return; 
             }
 
