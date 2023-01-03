@@ -404,31 +404,32 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
-        public Task<(AcceptVoteResult, VotingProgress)> TryAcceptVote(ulong discordId, int id, GuildRole role)
+        public Task<AcceptVoteResult> TryAcceptVote(ulong discordId, int id, GuildRole role)
         {
             return _queue.Async(() =>
             {
                 if (_votingProgress == null)
-                    return (AcceptVoteResult.NoVoting, null);
+                    return AcceptVoteResult.NoVoting;
 
                 if (!_votingProgress.State.IsNotCompleted)
-                    return (AcceptVoteResult.TheVoteIsOver, _votingProgress);
+                    return AcceptVoteResult.TheVoteIsOver;
 
                 if (_votingProgress.Voted.Any(x => x.Item1 == discordId))
-                    return (AcceptVoteResult.AlreadyVoted, _votingProgress);
+                    return AcceptVoteResult.AlreadyVoted;
 
                 if (role == GuildRole.Everyone && !RegisteredPlayers.Any(x => x.DiscordId == discordId) || (_leftUsers?.Contains(discordId) ?? false))
-                    return (AcceptVoteResult.YouCanNotVote, _votingProgress);
+                    return AcceptVoteResult.YouCanNotVote;
 
                 if (role == GuildRole.Everyone || !_votingProgress.Voting.AdminForcingEnabled)
                 {
                     _votingProgress = AddVote(_votingProgress, discordId, id);
-                    return (AcceptVoteResult.Accepted, _votingProgress);
+                    return AcceptVoteResult.Accepted;
                 }
                 else
                 {
                     _votingProgress = ForceCompleteVote(_votingProgress, id);
-                    return (AcceptVoteResult.CompletedByThisVote, _votingProgress);
+                    CompleteVotingAndHandleResult();
+                    return AcceptVoteResult.CompletedByThisVote;
                 }
             });
         }
@@ -442,23 +443,31 @@ namespace SSTournamentsBot.Api.Services
 
                 if (!_votingProgress.State.IsNotCompleted)
                     return (CompleteVotingResult.TheVoteIsOver);
-
-                var progress = CompleteVote(_votingProgress);
-                
-                SwitchVotingResult(progress.State, FSharpFunc<Unit,Unit>.FromConverter(x => {
-                    _votingProgress.Voting.Handler.Invoke(FSharpOption<int>.None);
-                    return SharedUnit;
-                }), FSharpFunc<Unit, Unit>.FromConverter(x => {
-                    _votingProgress.Voting.Handler.Invoke(FSharpOption<int>.None);
-                    return SharedUnit;
-                }), FSharpFunc<int, Unit>.FromConverter(x => {
-                    _votingProgress.Voting.Handler.Invoke(FSharpOption<int>.Some(x));
-                    return SharedUnit;
-                }));
-
-                _votingProgress = null;
+                CompleteVotingAndHandleResult();
                 return CompleteVotingResult.Completed;
             });
+        }
+
+        private void CompleteVotingAndHandleResult()
+        {
+            var progress = CompleteVote(_votingProgress);
+
+            var handler = progress.Voting.Handler;
+            SwitchVotingResult(progress.State, FSharpFunc<Unit, Unit>.FromConverter(x =>
+            {
+                handler.Invoke(FSharpOption<int>.None);
+                return SharedUnit;
+            }), FSharpFunc<Unit, Unit>.FromConverter(x =>
+            {
+                handler.Invoke(FSharpOption<int>.None);
+                return SharedUnit;
+            }), FSharpFunc<int, Unit>.FromConverter(x =>
+            {
+                handler.Invoke(FSharpOption<int>.Some(x));
+                return SharedUnit;
+            }));
+
+            _votingProgress = null;
         }
 
         public bool IsAllPlayersCheckIned()

@@ -9,5 +9,7 @@
         public ulong HistoryThreadId { get; set; }
         public ulong LeaderboardThreadId { get; set; }
         public ulong LoggingThreadId { get; set; }
+        public ulong VotingsTapeThreadId { get; set; }
+        
     }
 }

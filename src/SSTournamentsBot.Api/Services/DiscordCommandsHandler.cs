@@ -88,6 +88,7 @@ namespace SSTournamentsBot.Api.Services
         {
             foreach (var guild in _client.Guilds)
             {
+                //await guild.DeleteApplicationCommandsAsync();
                 var currentCommands = (await guild.GetApplicationCommandsAsync()).ToList();
 
                 foreach (var cmd in _commands.Values)

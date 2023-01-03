@@ -30,14 +30,20 @@ namespace SSTournamentsBot.Api.Services
 
         public async Task SendFile(byte[] file, string fileName, string text, GuildThread thread)
         {
+            if (file == null || file.Length == 0)
+                return;
+
             var channels = GetChannels(thread);
 
             for (int i = 0; i < channels.Length; i++)
-                await channels[i].SendFileAsync(new MemoryStream(file), fileName, text);
+                await channels[i].SendFileAsync(new MemoryStream(file), fileName ?? "Image", text ?? "Image");
         }
 
         public async Task Mention(GuildThread thread, params ulong[] mentions)
         {
+            if (mentions.Length == 0)
+                return;
+
             var messageBuilder = new StringBuilder();
 
             for (int i = 0; i < mentions.Length; i++)
@@ -56,6 +62,9 @@ namespace SSTournamentsBot.Api.Services
 
         public async Task SendMessage(string message, GuildThread thread, params ulong[] mentions)
         {
+            if (mentions.Length == 0 && string.IsNullOrWhiteSpace(message))
+                return;
+
             var messageBuilder = new StringBuilder();
 
             for (int i = 0; i < mentions.Length; i++)
@@ -139,6 +148,8 @@ namespace SSTournamentsBot.Api.Services
                     channelsList.Add(main.GetTextChannel(_options.LoggingThreadId));
                 if (thread.HasFlag(GuildThread.TournamentChat))
                     channelsList.Add(main.GetTextChannel(_options.TournamentThreadId));
+                if (thread.HasFlag(GuildThread.VotingsTape))
+                    channelsList.Add(main.GetTextChannel(_options.VotingsTapeThreadId));
 
                 channels = _channels[thread] = channelsList.ToArray();
             }
@@ -174,6 +185,11 @@ namespace SSTournamentsBot.Api.Services
         public async Task<string> GetUserName(ulong id)
         {
             return (await _client.GetUserAsync(id)).Username;
+        }
+
+        public async Task<string> GetMention(ulong id)
+        {
+            return (await _client.GetUserAsync(id)).Mention;
         }
 
         private class DiscordButtonsController : IButtonsController

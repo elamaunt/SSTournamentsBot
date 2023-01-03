@@ -157,10 +157,7 @@ module Domain =
        // | System.DayOfWeek.Saturday -> Weekly
         | _ -> Daily
 
-    let GetMoscowTime() = 
-        let date = System.DateTime.UtcNow
-        let timeZone = System.TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
-        System.TimeZoneInfo.ConvertTime(date, timeZone)
+    let GetMoscowTime() = System.DateTime.UtcNow.AddHours(3.0)
 
     let GetNextTournamentDate() = 
         let moscowTime = GetMoscowTime()

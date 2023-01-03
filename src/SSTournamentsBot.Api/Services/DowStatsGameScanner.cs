@@ -21,7 +21,7 @@ namespace SSTournamentsBot.Api.Services
         readonly HttpService _httpService;
         readonly TournamentApi _api;
         readonly IBotApi _botApi;
-        readonly ITournamentEventsHandler _eventsHandler;
+        readonly IEventsTimeline _timeline;
 
         DateTime _lastScan;
         Timer _rescanTimer;
@@ -31,8 +31,8 @@ namespace SSTournamentsBot.Api.Services
             ILogger<DowStatsGameScanner> logger, 
             HttpService httpService, 
             TournamentApi api,
-            IBotApi botApi, 
-            ITournamentEventsHandler eventsHandler,
+            IBotApi botApi,
+            IEventsTimeline timeline,
             IOptions<DowStatsGameScannerOptions> options)
         {
             _options = options.Value;
@@ -40,7 +40,7 @@ namespace SSTournamentsBot.Api.Services
             _httpService = httpService;
             _api = api;
             _botApi = botApi;
-            _eventsHandler = eventsHandler;
+            _timeline = timeline;
         }
 
         public bool Active
@@ -134,7 +134,7 @@ namespace SSTournamentsBot.Api.Services
 
                                         if (result.IsCompletedAndFinishedTheStage)
                                         {
-                                            _eventsHandler.DoCompleteStage();
+                                            _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(5));
                                         }
                                     }
                                 });

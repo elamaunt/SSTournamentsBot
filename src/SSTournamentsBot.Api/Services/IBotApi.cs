@@ -12,5 +12,6 @@ namespace SSTournamentsBot.Api.Services
         Task<IButtonsController> SendVotingButtons(string message, VotingOption[] buttons, GuildThread thread, params ulong[] mentions);
         Task ModifyLastMessage(string message, GuildThread thread);
         Task<string> GetUserName(ulong id);
+        Task<string> GetMention(ulong id);
     }
 }

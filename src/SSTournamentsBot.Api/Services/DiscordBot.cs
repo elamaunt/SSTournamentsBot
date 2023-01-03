@@ -77,7 +77,7 @@ namespace SSTournamentsBot.Api.Services
             if (guildUser.GuildPermissions.Administrator)
                 guildRole = GuildRole.Administrator;
 
-            var (result, _) = await _tournamentApi.TryAcceptVote(arg.User.Id, int.Parse(arg.Data.CustomId), guildRole);
+            var result = await _tournamentApi.TryAcceptVote(arg.User.Id, int.Parse(arg.Data.CustomId), guildRole);
 
             if (result == AcceptVoteResult.Accepted)
             {

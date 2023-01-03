@@ -12,6 +12,7 @@ module SecondaryDomain =
         | Leaderboard= 4
         | History = 8
         | Logging = 16
+        | VotingsTape = 32
 
     type Stats = {
         SteamId: uint64
@@ -167,7 +168,7 @@ module SecondaryDomain =
 
     
     let AddVoteOption voting message style = 
-        { voting with Options = voting.Options |> Array.append([| { Message = message; Style = style } |]) }
+        { voting with Options = [| { Message = message; Style = style } |] |> Array.append(voting.Options) }
 
     let CreateVoting message minimumVotes adminForcingEnabled handler = {
         Message = message

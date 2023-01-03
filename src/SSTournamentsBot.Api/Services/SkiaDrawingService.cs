@@ -39,6 +39,7 @@ namespace SSTournamentsBot.Api.Services
         Dictionary<Race, string> _races;
         string _logo;
         string _blood;
+        string _font;
         public SkiaDrawingService()
         {
             string PathTo(string fileName)
@@ -48,6 +49,7 @@ namespace SSTournamentsBot.Api.Services
 
             _logo = PathTo("SSTournamentsBot.png");
             _blood = PathTo("Blood.png");
+            _font = PathTo("roboto-medium.ttf");
 
             _maps = new Dictionary<Map, string>() 
             {
@@ -130,6 +132,8 @@ namespace SSTournamentsBot.Api.Services
 
                 canvas.Clear(new SKColor(54, 57, 63));
 
+                var typeface = SKTypeface.FromFile(_font);
+
                 var backPaint = new SKPaint
                 {
                     Color = new SKColor(47, 49, 54),
@@ -148,7 +152,8 @@ namespace SSTournamentsBot.Api.Services
                     IsAntialias = true,
                     Style = SKPaintStyle.StrokeAndFill,
                     TextAlign = SKTextAlign.Left,
-                    TextSize = 14
+                    TextSize = 15,
+                    Typeface = typeface
                 };
 
                 var whitePaint = new SKPaint
@@ -157,7 +162,8 @@ namespace SSTournamentsBot.Api.Services
                     IsAntialias = true,
                     Style = SKPaintStyle.Fill,
                     TextAlign = SKTextAlign.Left,
-                    TextSize = 14
+                    TextSize = 15,
+                    Typeface = typeface
                 };
 
                 var notCompletedTextPaint = new SKPaint
@@ -166,7 +172,8 @@ namespace SSTournamentsBot.Api.Services
                     IsAntialias = true,
                     Style = SKPaintStyle.Fill,
                     TextAlign = SKTextAlign.Left,
-                    TextSize = 14
+                    TextSize = 15,
+                    Typeface = typeface
                 };
 
                 var notActiveTextPaint = new SKPaint
@@ -175,7 +182,8 @@ namespace SSTournamentsBot.Api.Services
                     IsAntialias = true,
                     Style = SKPaintStyle.StrokeAndFill,
                     TextAlign = SKTextAlign.Left,
-                    TextSize = 14
+                    TextSize = 15,
+                    Typeface = typeface
                 };
 
                 var mapTextPaint = new SKPaint
@@ -184,7 +192,8 @@ namespace SSTournamentsBot.Api.Services
                     IsAntialias = true,
                     Style = SKPaintStyle.Fill,
                     TextAlign = SKTextAlign.Center,
-                    TextSize = 12
+                    TextSize = 13,
+                    Typeface = typeface
                 };
 
                 canvas.DrawImage(SKImage.FromEncodedData(_logo), new SKRect(TopHeaderMargin, TopHeaderMargin, LogoSize, LogoSize), whitePaint);
