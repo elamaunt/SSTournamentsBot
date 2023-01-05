@@ -16,26 +16,31 @@ namespace SSTournamentsBot.Api.Services
             mapper.RegisterType
             (
                 serialize: x => x.ToString(),
-                deserialize: x => { switch (x.AsString)
+                deserialize: x => {
+                    switch (x.AsString)
                     {
-                        case "Orks":
+                        case nameof(Race.Orks):
                             return RaceOrRandom.NewRace(Race.Orks);
-                        case "Eldar":
+                        case nameof(Race.Eldar):
                             return RaceOrRandom.NewRace(Race.Eldar);
-                        case "Chaos":
+                        case nameof(Race.Chaos):
                             return RaceOrRandom.NewRace(Race.Chaos);
-                        case "ImperialGuard":
+                        case nameof(Race.ImperialGuard):
                             return RaceOrRandom.NewRace(Race.ImperialGuard);
-                        case "Necrons":
+                        case nameof(Race.Necrons):
                             return RaceOrRandom.NewRace(Race.Necrons);
-                        case "DarkEldar":
+                        case nameof(Race.DarkEldar):
                             return RaceOrRandom.NewRace(Race.DarkEldar);
-                        case "SpaceMarines":
+                        case nameof(Race.SpaceMarines):
                             return RaceOrRandom.NewRace(Race.SpaceMarines);
-                        case "Tau":
+                        case nameof(Race.Tau):
                             return RaceOrRandom.NewRace(Race.Tau);
-                        case "SisterOfBattle":
+                        case nameof(Race.SisterOfBattle):
                             return RaceOrRandom.NewRace(Race.SisterOfBattle);
+                        case nameof(RaceOrRandom.RandomEveryMatch):
+                            return RaceOrRandom.RandomEveryMatch;
+                        case nameof(RaceOrRandom.RandomOnTournament):
+                            return RaceOrRandom.RandomOnTournament;
                         default:
                             return RaceOrRandom.RandomEveryMatch;
                     }
@@ -44,6 +49,18 @@ namespace SSTournamentsBot.Api.Services
 
             mapper.Entity<UserData>()
              .Id(x => x.DiscordId);
+        }
+
+        public void AddPenalty(ulong discordId, int penalty)
+        {
+            var col = _liteDb.GetCollection<UserData>();
+            var user = col.FindOne(x => x.DiscordId == discordId);
+
+            if (user == null)
+                return;
+
+            user.Penalties += penalty;
+            col.Update(user);
         }
 
         public UserData FindUserByDiscordId(ulong discordId)
@@ -81,7 +98,7 @@ namespace SSTournamentsBot.Api.Services
             _liteDb.GetCollection<TournamentData>().Insert(data);
         }
 
-        public void StoreUsersSteamId(ulong discordId, ulong steamId)
+        public bool StoreUsersSteamId(ulong discordId, ulong steamId)
         {
             var col = _liteDb.GetCollection<UserData>();
 
@@ -90,14 +107,14 @@ namespace SSTournamentsBot.Api.Services
             var userBySteam = col.FindOne(x => x.SteamId == steamId);
 
             if (userBySteam != null && userBySteam.DiscordId == discordId)
-                throw new System.Exception("Такой SteamId уже зарегистрирован на другого пользователя.");
+                return false;
 
             var userByDiscordId = col.FindOne(x => x.DiscordId == discordId) ?? new UserData();
 
             userByDiscordId.DiscordId = discordId;
             userByDiscordId.SteamId = steamId;
 
-            col.Upsert(userByDiscordId);
+            return col.Upsert(userByDiscordId);
         }
 
         public UserData UpdateUser(UserData userData)

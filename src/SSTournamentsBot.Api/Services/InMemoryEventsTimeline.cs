@@ -137,18 +137,7 @@ namespace SSTournamentsBot.Api.Services
 
         public EventInfo GetNextEventInfo()
         {
-            return _events.Where(x => x != null).OrderBy(x =>
-            {
-                switch (x.Type)
-                {
-                    case EventType.AfterTime:
-                        return x.Date + x.Time + x.TimeExtension;
-                    case EventType.ExactTime:
-                        return x.Date + x.TimeExtension;
-                    default:
-                        return x.Date + x.TimeExtension;
-                }
-            })
+            return _events.Where(x => x != null).OrderBy(GetEventsDate)
             .Select(x =>
             {
                 var period = x.Periodic ? new FSharpOption<TimeSpan>(x.Time) : FSharpOption<TimeSpan>.None;
@@ -168,18 +157,7 @@ namespace SSTournamentsBot.Api.Services
 
         public EventInfo[] GetAllScheduledEvents()
         {
-            return _events.Where(x => x != null).OrderBy(x =>
-            {
-                switch (x.Type)
-                {
-                    case EventType.AfterTime:
-                        return x.Date + x.Time;
-                    case EventType.ExactTime:
-                        return x.Date;
-                    default:
-                        return x.Date;
-                }
-            })
+            return _events.Where(x => x != null).OrderBy(GetEventsDate)
             .Select(x =>
             {
                 var period = x.Periodic ? new FSharpOption<TimeSpan>(x.Time) : FSharpOption<TimeSpan>.None;
@@ -194,6 +172,19 @@ namespace SSTournamentsBot.Api.Services
                         return new EventInfo(x.Event, x.Date + x.TimeExtension, period);
                 }
             }).ToArray();
+        }
+
+        private DateTime GetEventsDate(ScheduledEventInfo info)
+        {
+            switch (info.Type)
+            {
+                case EventType.AfterTime:
+                    return info.Date + info.Time + info.TimeExtension;
+                case EventType.ExactTime:
+                    return info.Date + info.TimeExtension;
+                default:
+                    return info.Date + info.TimeExtension;
+            }
         }
 
         public void RemoveAllEventsWithType(Event ev)
@@ -219,6 +210,24 @@ namespace SSTournamentsBot.Api.Services
                     break;
                 }
             }
+        }
+
+        public bool HasEventToday(Event ev)
+        {
+            for (int i = 0; i < _events.Length; i++)
+            {
+                var info = _events[i];
+
+                if (info?.Event == ev)
+                {
+                    var date = GetEventsDate(info);
+
+                    if (date.Date == GetMoscowTime().Date)
+                        return true;
+                }
+            }
+
+            return false;
         }
 
         private enum EventType

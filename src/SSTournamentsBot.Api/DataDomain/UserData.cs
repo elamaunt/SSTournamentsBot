@@ -13,6 +13,7 @@ namespace SSTournamentsBot.Api.DataDomain
         public bool VotingDisabled { get; set; }
         public bool HasLowPriority { get; set; }
         public int Score { get; set; }
+        public int Penalties { get; set; }
         public MentionSetting MentionSetting { get; set; } = MentionSetting.Default;
     }
 }

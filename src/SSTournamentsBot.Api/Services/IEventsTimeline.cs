@@ -16,5 +16,6 @@ namespace SSTournamentsBot.Api.Services
         EventInfo GetNextEventInfo();
         EventInfo[] GetAllScheduledEvents();
         void AddTimeToNextEventWithType(Event ev, TimeSpan time);
+        bool HasEventToday(Event ev);
     }
 }

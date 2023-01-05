@@ -57,7 +57,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 await arg.RespondAsync($"Вы успешно подтведили свое участие! Вы будете оповещены через упоминание здесь, как только турнир начнется.");
 
                 if (_api.IsAllPlayersCheckIned())
+                {
+                    _timeLine.RemoveAllEventsWithType(Event.StartCurrentTournament);
                     _timeLine.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromSeconds(10));
+                }
                 return;
             }
         }

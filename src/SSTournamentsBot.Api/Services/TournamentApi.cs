@@ -59,6 +59,9 @@ namespace SSTournamentsBot.Api.Services
                 var player = new Player(name, userData.SteamId, userData.DiscordId, userData.Race, isBot, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
                 _currentTournament = RegisterPlayerInTournament(_currentTournament, player);
 
+                if (_isCheckIn)
+                    _checkInedUsers.Add(player.SteamId);
+
                 return RegistrationResult.Ok;
             });
         }
@@ -332,6 +335,7 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
+        // TODO
         public Task UpdatePlayersRace(UserData userData)
         {
             return _queue.Async(() =>

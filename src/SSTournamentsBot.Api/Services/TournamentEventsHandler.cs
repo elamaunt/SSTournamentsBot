@@ -153,7 +153,7 @@ namespace SSTournamentsBot.Api.Services
                 {
                     await _botApi.SendMessage("Стадия была успешно завершена! Следующая стадия начнется после 5-минутного перерыва.", GuildThread.EventsTape | GuildThread.TournamentChat);
 
-                    _timeline.AddOneTimeEventAfterTime(Event.StartNextStage, TimeSpan.FromSeconds(30));
+                    _timeline.AddOneTimeEventAfterTime(Event.StartNextStage, TimeSpan.FromMinutes(5));
                 }
                 return;
             }
@@ -193,9 +193,9 @@ namespace SSTournamentsBot.Api.Services
             {
                 await Log("Checkin stage starting..");
 
-                await _botApi.SendMessage("Внимание! Началась стадия чекина на турнир. Всем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                await _botApi.SendMessage("Внимание! Началась стадия чекина на турнир.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина 15 минут.\nЕсли все игроки зачекинятся до окончания времени, то турнир начнется немедленно.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
                 
-                _timeline.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromSeconds(30));
+                _timeline.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromMinutes(15));
                 return;
             }
 
@@ -229,7 +229,7 @@ namespace SSTournamentsBot.Api.Services
 
                 await _botApi.SendMessage("Начинается турнир. В процессе генерации сетки..", GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
                 await _botApi.SendFile(await _tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира", GuildThread.EventsTape | GuildThread.TournamentChat);
-                _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(30));
+                _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromMinutes(25));
                 _scanner.GameTypeFilter = GameType.Type1v1;
                 _scanner.Active = true;
 
@@ -256,24 +256,29 @@ namespace SSTournamentsBot.Api.Services
             var matches = _tournamentApi.ActiveMatches;
 
             builder.AppendLine(">>> **Матчи, которые должны быть сыграны в текущей стадии турнира:**");
+            builder.AppendLine();
+
             for (int i = 0; i < matches.Length; i++)
             {
                 var m = matches[i];
 
                 var p1 = m.Player1.Value;
-                var p2 = m.Player1.Value;
+                var p2 = m.Player2.Value;
 
                 var p1Mention = p1.Item1.IsBot ? p1.Item1.Name : await _botApi.GetMention(p1.Item1.DiscordId);
                 var p2Mention = p2.Item1.IsBot ? p2.Item1.Name : await _botApi.GetMention(p2.Item1.DiscordId);
 
-                builder.AppendLine($"{p1Mention} {p2Mention}");
-                builder.AppendLine($"{m.Id + 1}. **{p1.Item1.Name}** ({p1.Item2})  VS  **{p2.Item1.Name}** ({p2.Item2})       -       {m.Map}");
+                builder.AppendLine($"{m.Id + 1}. {p1Mention} {p2Mention}");
+                builder.AppendLine($"**{p1.Item1.Name}** ({p1.Item2})  VS  **{p2.Item1.Name}** ({p2.Item2})       -       {m.Map}");
+                builder.AppendLine();
             }
+
+            builder.AppendLine();
 
             if (remindRules)
             {
-                builder.AppendLine();
                 builder.AppendLine("**Не забывайте использовать DowStats и прикрепленный Steam аккаунт, иначе матч не будет засчитан!**");
+                builder.AppendLine();
             }
 
             await _botApi.SendMessage(builder.ToString(), GuildThread.EventsTape | GuildThread.TournamentChat);
@@ -283,7 +288,8 @@ namespace SSTournamentsBot.Api.Services
                 return matches.Any(m => m.Player1.Value.Item1.DiscordId == x);
             }).ToArray();
 
-            await _botApi.SendMessage("---\nИгру хостят вот эти ребята:", GuildThread.EventsTape | GuildThread.TournamentChat, hostingMentions);
+            await _botApi.SendMessage("---\nИгру хостят вот эти ребята:", GuildThread.EventsTape | GuildThread.TournamentChat);
+            await _botApi.Mention(GuildThread.EventsTape | GuildThread.TournamentChat, hostingMentions);
 
             var relaxingMentions = Mentions.Where(x =>
             {
@@ -336,11 +342,11 @@ namespace SSTournamentsBot.Api.Services
                 await _botApi.SendMessage(">>> Начинается следующая стадия турнира! Генерация сетки..", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
                 await  _botApi.SendFile(await _tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира", GuildThread.EventsTape | GuildThread.TournamentChat);
 
-                _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(60));
+                _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromMinutes(25));
                 _scanner.GameTypeFilter = GameType.Type1v1;
                 _scanner.Active = true;
 
-                await PrintMatches();
+                await PrintMatches(false);
                 return;
             }
 

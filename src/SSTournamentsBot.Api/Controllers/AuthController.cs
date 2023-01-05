@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using SSTournamentsBot.Api.Services;
 using SSTournamentsBot.Services;
-using System;
 using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.Controllers
@@ -36,27 +35,22 @@ namespace SSTournamentsBot.Api.Controllers
                 };
             }
 
-            try
-            {
-                _dataService.StoreUsersSteamId(result.Value.discordId, result.Value.steamId);
-
-                var html = $"<p>Добро пожаловать на участие в турнирах! Выполните команду play повторно в Discord, чтобы зарегистрироваться.</p>";
-
-                return new ContentResult
-                {
-                    Content = html,
-                    ContentType = "text/html; charset=UTF-8"
-                };
-            }
-            catch (Exception ex)
+            if (!_dataService.StoreUsersSteamId(result.Value.discordId, result.Value.steamId))
             {
                 return new ContentResult
                 {
-                    Content = $"<p>{ex.Message}</p>",
+                    Content = "Такой SteamId уже зарегистрирован на другого пользователя.",
                     ContentType = "text/html; charset=UTF-8"
                 };
             }
-        
+
+            var html = $"<p>Добро пожаловать на участие в турнирах! Выполните команду play повторно в Discord, чтобы зарегистрироваться.</p>";
+
+            return new ContentResult
+            {
+                Content = html,
+                ContentType = "text/html; charset=UTF-8"
+            };
         }
     }
 }

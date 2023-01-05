@@ -17,11 +17,13 @@ namespace SSTournamentsBot.Api.Services
         readonly DiscordBotOptions _options;
         readonly Dictionary<string, SlashCommandBase> _commands;
 
+        private volatile bool _firstReadyRecieved;
         public DiscordCommandsHandler(
             DiscordSocketClient client,
             TournamentApi api,
             IDataService dataService,
             IStatsApi statsApi,
+            IBotApi botApi,
             IEventsTimeline timeline,
             IOptions<DiscordBotOptions> options)
         {
@@ -34,7 +36,6 @@ namespace SSTournamentsBot.Api.Services
                 new CallSlashCommand(client, api),
                 new CheckInSlashCommand(dataService, timeline, api),
                 new ChekInBotsSlashCommand(api),
-                new CheckOpponentSlashCommand(),
                 new InfoSlashCommand(api),
                 new KickBotsSlashCommand(api),
                 new KickPlayerSlashCommand(dataService, api),
@@ -46,6 +47,7 @@ namespace SSTournamentsBot.Api.Services
                 new TimelineSlashCommand(timeline),
                 new TimeSlashCommand(timeline),
                 new ViewSlashCommand(api),
+                new StartSlashCommand(timeline, botApi, api),
                // new VoteAddTimeSlashCommand(api),
                // new VoteBanSlashCommand(api),
                // new VoteKickSlashCommand(api),
@@ -86,6 +88,11 @@ namespace SSTournamentsBot.Api.Services
 
         private async Task OnClientReady()
         {
+            if (_firstReadyRecieved)
+                return;
+
+            _firstReadyRecieved = true;
+
             foreach (var guild in _client.Guilds)
             {
                 //await guild.DeleteApplicationCommandsAsync();

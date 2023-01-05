@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using SSTournamentsBot.Api.Helpers;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,7 +64,7 @@ namespace SSTournamentsBot.Api.Services
         private Task OnReady()
         {
             _isReady = true;
-            _timeLine.AddOneTimeEventAfterTime(Event.StartPreCheckingTimeVote, TimeSpan.FromSeconds(30));
+            _timeLine.ScheduleEveryDayTournament();
             return Task.CompletedTask;
         }
 
@@ -81,31 +82,31 @@ namespace SSTournamentsBot.Api.Services
 
             if (result == AcceptVoteResult.Accepted)
             {
-                await arg.RespondAsync("Ваш голос был учтен");
+                await arg.RespondAsync($"{arg.User.Mention} Ваш голос был учтен");
                 return;
             }
 
             if (result == AcceptVoteResult.NoVoting)
             {
-                await arg.RespondAsync("Голосование сейчас не проводится");
+                await arg.RespondAsync($"{arg.User.Mention} Голосование сейчас не проводится");
                 return;
             }
 
             if (result == AcceptVoteResult.TheVoteIsOver)
             {
-                await arg.RespondAsync("Голосования уже завершилось");
+                await arg.RespondAsync($"{arg.User.Mention} Голосования уже завершилось");
                 return;
             }
 
             if (result == AcceptVoteResult.YouCanNotVote)
             {
-                await arg.RespondAsync("Вы не имеете права участвовать в этом голосовании");
+                await arg.RespondAsync($"{arg.User.Mention} Вы не имеете права участвовать в этом голосовании");
                 return;
             }
 
             if (result == AcceptVoteResult.AlreadyVoted)
             {
-                await arg.RespondAsync("Вы уже проголосовали");
+                await arg.RespondAsync($"{arg.User.Mention} Вы уже проголосовали");
                 return;
             }
 
@@ -116,7 +117,7 @@ namespace SSTournamentsBot.Api.Services
                 return; 
             }
 
-            await arg.RespondAsync("Ошибка во время обработка запроса");
+            await arg.RespondAsync($"{arg.User.Mention} Ошибка во время обработка запроса");
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

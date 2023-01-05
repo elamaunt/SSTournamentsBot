@@ -27,6 +27,8 @@ namespace SSTournamentsBot.Api.Services
         Timer _rescanTimer;
         public GameType GameTypeFilter { get; set; } = GameType.Type1v1;
 
+        readonly object _lock = new object();
+
         public DowStatsGameScanner(
             ILogger<DowStatsGameScanner> logger, 
             HttpService httpService, 
@@ -48,23 +50,25 @@ namespace SSTournamentsBot.Api.Services
             get => _active;
             set
             {
-                if (_active == value)
-                    return;
+                lock (_lock)
+                {
+                    if (_active == value)
+                        return;
 
-                _active = value;
+                    _active = value;
 
-                if (value)
-                    StartScan();
-                else
-                    StopScan();
+                    if (value)
+                        StartScan();
+                    else
+                        StopScan();
+                }
             }
         }
-
 
         private void StartScan()
         {
             _lastScan = GetMoscowTime();
-            _rescanTimer = new Timer(OnReScan, null, Timeout.Infinite, _options.ReScanPeriod);
+            _rescanTimer = new Timer(OnReScan, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(_options.ReScanPeriod));
         }
 
         private void OnReScan(object state)
@@ -74,7 +78,7 @@ namespace SSTournamentsBot.Api.Services
             _lastScan = toDate;
 
             _httpService.Build("https://dowstats.ru/api/lastgames.php", UriKind.Absolute)
-                .WithParameter("datetime_from", _lastScan.ToString("s", DateTimeFormatInfo.InvariantInfo))
+                .WithParameter("datetime_from", fromDate.ToString("s", DateTimeFormatInfo.InvariantInfo))
                 .WithParameter("datetime_to", toDate.ToString("s", DateTimeFormatInfo.InvariantInfo))
                 .Get()
                 .Send()
@@ -114,6 +118,8 @@ namespace SSTournamentsBot.Api.Services
                                 ResolveModInfo(game.modification),
                                 game.replayDownloadLink);
 
+                            _logger.LogInformation($"Trying to submit a game:  {string.Join(", ", winnersSelection.Select(x => x.name))} VS {string.Join(", ", losersSelection.Select(x => x.name))}");
+
                             _api.TrySubmitGame(info)
                                 .ContinueWith(async submitTask => 
                                 {
@@ -123,13 +129,15 @@ namespace SSTournamentsBot.Api.Services
                                         return;
                                     }
 
+
                                     if (submitTask.IsCompleted)
                                     {
                                         var result = submitTask.Result;
+                                        _logger.LogInformation(submitTask.Exception, "Game submitted");
 
                                         if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
                                         {
-                                            await _botApi.SendMessage($"> Засчитана победа {string.Join(", ", winnersSelection)} в матче против {string.Join(", ", losersSelection)}.\nСсылка на реплей: {game.replayDownloadLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
+                                            await _botApi.SendMessage($"> Засчитана победа {string.Join(", ", winnersSelection.Select(x => x.name))} в матче против {string.Join(", ", losersSelection.Select(x => x.name))}.\nСсылка на реплей: {game.replayDownloadLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
                                         }
 
                                         if (result.IsCompletedAndFinishedTheStage)
