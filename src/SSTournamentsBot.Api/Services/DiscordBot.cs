@@ -18,6 +18,7 @@ namespace SSTournamentsBot.Api.Services
         readonly DiscordBotOptions _options;
         readonly IEventsTimeline _timeLine;
         readonly ITournamentEventsHandler _eventsHandler;
+        readonly TournamentEventsOptions _tournamentOptions;
 
         private volatile bool _isReady;
 
@@ -26,7 +27,9 @@ namespace SSTournamentsBot.Api.Services
             IBotApi botApi,
             IEventsTimeline timeLine,
             ITournamentEventsHandler eventsHandler, 
-            IOptions<DiscordBotOptions> options)
+            IOptions<DiscordBotOptions> options,
+            IOptions<TournamentEventsOptions> tournamentOptions)
+
         {
             _client = client;
             _tournamentApi = tournamentApi;
@@ -34,6 +37,7 @@ namespace SSTournamentsBot.Api.Services
             _timeLine = timeLine;
             _eventsHandler = eventsHandler;
             _options = options.Value;
+            _tournamentOptions = tournamentOptions.Value;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -64,7 +68,7 @@ namespace SSTournamentsBot.Api.Services
         private Task OnReady()
         {
             _isReady = true;
-            _timeLine.ScheduleEveryDayTournament();
+            _timeLine.ScheduleEveryDayTournament(_tournamentOptions);
             return Task.CompletedTask;
         }
 

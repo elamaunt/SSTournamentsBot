@@ -51,6 +51,8 @@ namespace SSTournamentsBot.Api.Services
                     _initialStage = null;
                     _playedMatches = new Match[0];
                     _currentStageMatches = new Match[0];
+                    TimeAlreadyExtended = false;
+                    SingleMatchTimeAlreadyExtended = false;
                 }
 
                 if (IsPlayerRegisteredInTournament(_currentTournament, userData.SteamId, userData.DiscordId))
@@ -76,6 +78,8 @@ namespace SSTournamentsBot.Api.Services
                 _leftUsers = null;
                 _checkInedUsers = null;
                 _votingProgress = null;
+                TimeAlreadyExtended = false;
+                SingleMatchTimeAlreadyExtended = false;
             });
         }
 
@@ -83,7 +87,18 @@ namespace SSTournamentsBot.Api.Services
         public Player[] RegisteredPlayers => _currentTournament?.RegisteredPlayers ?? new Player[0];
         public TournamentType TournamentType => _currentTournament?.Type;
         public Match[] ActiveMatches => _currentStageMatches ?? new Match[0];
+        public Match[] PlayedMatches => _playedMatches ?? new Match[0];
         public VotingProgress VotingProgress => _votingProgress;
+
+        public bool SingleMatchTimeAlreadyExtended { get; set; }
+        public bool TimeAlreadyExtended { get; set; }
+        public DateTime Date => _currentTournament?.Date ?? DateTime.Today;
+
+        public int PossibleNextStageMatches => RegisteredPlayers
+            .Where(x => !_leftUsers.Contains(x.DiscordId))
+            .Where(x => !_playedMatches.Any(m => IsLoseOf(m, x)))
+            .Where(x => !ActiveMatches.Any(m => IsLoseOf(m, x)))
+            .Count() / 2;
 
         public Task<bool> TryLeaveUser(ulong discordId, ulong steamId)
         {
@@ -216,6 +231,7 @@ namespace SSTournamentsBot.Api.Services
                 if (_isStarted)
                     return StartResult.AlreadyStarted;
 
+                _currentTournament = SetStartDate(_currentTournament);
                 _initialStage = Start(_currentTournament);
 
                 RegenerateStages();
@@ -335,20 +351,25 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
-        // TODO
-        public Task UpdatePlayersRace(UserData userData)
+        public Task<UpdatePlayersRaceResult> UpdatePlayersRace(UserData userData)
         {
             return _queue.Async(() =>
             {
                 if (_isStarted)
-                    return;
+                    return UpdatePlayersRaceResult.NotPossible;
 
                 if (_currentTournament == null)
-                    return;
+                    return UpdatePlayersRaceResult.NoTournament;
 
-                var player = _currentTournament.RegisteredPlayers.First(x => x.DiscordId == userData.DiscordId);
+                var player = _currentTournament.RegisteredPlayers.FirstOrDefault(x => x.DiscordId == userData.DiscordId);
+
+                if (player == null)
+                    return UpdatePlayersRaceResult.NotRegistered;
+
                 var updatedPlayer = new Player(player.Name, userData.SteamId, userData.DiscordId, userData.Race, player.IsBot, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
                 _currentTournament = UpdatePlayerInTournament(_currentTournament, updatedPlayer);
+
+                return UpdatePlayersRaceResult.Completed;
             });
         }
 

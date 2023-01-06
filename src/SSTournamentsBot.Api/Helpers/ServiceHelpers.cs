@@ -6,8 +6,29 @@ namespace SSTournamentsBot.Api.Helpers
 {
     public static class ServiceHelpers
     {
+        public static string BuildStatsUrl(this ulong steamId)
+        {
+            return $"https://dowstats.ru/player.php?sid={steamId}&server=steam#tab0";
+        }
 
-        public static void ScheduleEveryDayTournament(this IEventsTimeline timeline)
+        public static string PrettyPrint(this Event ev)
+        {
+            if (ev.IsCompleteStage)
+                return "Завершение стадии";
+            if (ev.IsCompleteVoting)
+                return "Завершение голосования";
+            if (ev.IsStartCheckIn)
+                return "Открытие чекина";
+            if (ev.IsStartNextStage)
+                return "Начало следующей стадии";
+            if (ev.IsStartCurrentTournament)
+                return "Начало турнира";
+            if (ev.IsStartPreCheckingTimeVote)
+                return "Предтурнирное голосование";
+            return ev.ToString();
+        }
+
+        public static void ScheduleEveryDayTournament(this IEventsTimeline timeline, TournamentEventsOptions options)
         {
             var now = GetMoscowTime();
 
@@ -17,16 +38,16 @@ namespace SSTournamentsBot.Api.Helpers
                 .AddSeconds(-now.Second);
 
             var tournamentStartTime = today.AddHours(18);
-            var checkinStartTime = tournamentStartTime.AddMinutes(-15);
-            var preCheckinVoteStartTime = checkinStartTime.AddMinutes(-15);
+            var checkinStartTime = tournamentStartTime.AddMinutes(-options.CheckInTimeoutMinutes);
+            var preCheckinVoteStartTime = checkinStartTime.AddMinutes(-options.PreCheckinTimeVotingOffsetMinutes);
 
             if (preCheckinVoteStartTime <= now)
             {
                 today = today.AddDays(1);
 
                 tournamentStartTime = today.AddHours(18);
-                checkinStartTime = tournamentStartTime.AddMinutes(-30);
-                preCheckinVoteStartTime = checkinStartTime.AddMinutes(-10);
+                checkinStartTime = tournamentStartTime.AddMinutes(-options.CheckInTimeoutMinutes);
+                preCheckinVoteStartTime = checkinStartTime.AddMinutes(-options.PreCheckinTimeVotingOffsetMinutes);
             }
 
             timeline.RemoveAllEventsWithType(Event.StartPreCheckingTimeVote);

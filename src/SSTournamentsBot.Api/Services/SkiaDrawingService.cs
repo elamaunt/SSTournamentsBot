@@ -156,6 +156,26 @@ namespace SSTournamentsBot.Api.Services
                     Typeface = typeface
                 };
 
+                var titlePaint = new SKPaint
+                {
+                    Color = SKColors.White,
+                    IsAntialias = true,
+                    Style = SKPaintStyle.Fill,
+                    TextAlign = SKTextAlign.Left,
+                    TextSize = 28,
+                    Typeface = typeface
+                };
+
+                var subTitlePaint = new SKPaint
+                {
+                    Color = new SKColor(30, 30, 40),
+                    IsAntialias = true,
+                    Style = SKPaintStyle.Fill,
+                    TextAlign = SKTextAlign.Left,
+                    TextSize = 13,
+                    Typeface = typeface
+                };
+
                 var whitePaint = new SKPaint
                 {
                     Color = SKColors.White,
@@ -197,7 +217,9 @@ namespace SSTournamentsBot.Api.Services
                 };
 
                 canvas.DrawImage(SKImage.FromEncodedData(_logo), new SKRect(TopHeaderMargin, TopHeaderMargin, LogoSize, LogoSize), whitePaint);
-
+                canvas.DrawText($"DAILY TOURNAMENT | {tournament.Date.PrettyShortDatePrint()}", new SKPoint(TopHeaderMargin + LogoSize + TopHeaderMargin, TopHeaderMargin + LogoSize / 2), titlePaint);
+                canvas.DrawText($"SS Tournaments Bot | powered by elamaunt", new SKPoint(TopHeaderMargin + LogoSize + TopHeaderMargin, TopHeaderMargin + LogoSize / 2 + 18), subTitlePaint);
+                
                 var blockPoints = new Dictionary<(int StageIndex, int TargetSlotIndex), (Player Player, SKPoint Point, bool Free)[]>();
 
                 for (int i = 0; i < count; i++)

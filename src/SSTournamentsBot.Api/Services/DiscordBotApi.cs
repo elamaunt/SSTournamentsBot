@@ -163,10 +163,10 @@ namespace SSTournamentsBot.Api.Services
 
             for (int i = 0; i < channels.Length; i++)
             {
-                var lastMessages = channels[i].GetMessagesAsync(1);
+                var lastMessages = channels[i].GetMessagesAsync(2);
 
-                var first = await lastMessages.FirstOrDefaultAsync();
-                var messageEntry = first.FirstOrDefault();
+                var page = await lastMessages.FirstOrDefaultAsync();
+                var messageEntry = page.FirstOrDefault(x => x.Author.IsBot);
 
                 if (messageEntry != null)
                 {

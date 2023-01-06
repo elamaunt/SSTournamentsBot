@@ -4,6 +4,16 @@ namespace SSTournamentsBot
 {
     public static class SystemExtensionMethods
     {
+        public static string PrettyShortDatePrint(this DateTime date)
+        {
+            return date.ToString("dd.MM.yyyy");
+        }
+
+        public static string PrettyShortDateAndTimePrint(this DateTime date)
+        {
+            return date.ToString("dd.MM.yyyy hh:mm");
+        }
+
         public static string PrettyPrint(this TimeSpan time)
         {
             if (time.TotalMinutes < 1.0)

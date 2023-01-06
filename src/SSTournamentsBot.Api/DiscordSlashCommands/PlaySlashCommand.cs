@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Helpers;
 using SSTournamentsBot.Api.Services;
 using System.Linq;
 using System.Threading.Tasks;
@@ -98,12 +99,22 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     await Responce($"Текущий турнир уже начался, изменения в данный момент невозможны.");
                     break;
                 case Domain.RegistrationResult.Ok:
-                    await Responce($"Вы были успешно зарегистрированы на турнир.\nАккаунт на DowStats: https://dowstats.ru/player.php?sid={userData.SteamId}&server=steam#tab0 \nВыбранная раса: {userData.Race}");
+                    await Responce($"Вы были успешно зарегистрированы на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
                     break;
                 case Domain.RegistrationResult.AlreadyRegistered:
                     if (raceOption != null)
-                        await _tournamentApi.UpdatePlayersRace(userData);
-                    await Responce($"Вы уже зарегистрированы на турнир.\nАккаунт на DowStats: https://dowstats.ru/player.php?sid={userData.SteamId}&server=steam#tab0 \nВыбранная раса: {userData.Race}");
+                    {
+                        var updateResult = await _tournamentApi.UpdatePlayersRace(userData);
+
+                        if (!updateResult.IsCompleted)
+                        {
+                            var player = _tournamentApi.RegisteredPlayers.First(x => x.DiscordId == arg.User.Id);
+
+                            await Responce($"Вы уже зарегистрированы на турнир, но смена расы в турнире на данный момент невозможна.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {player.Race}");
+                            return;
+                        }
+                    }
+                    await Responce($"Вы уже зарегистрированы на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
                     break;
                 default:
                     await Responce($"Не удалось выполнить регистрацию.");

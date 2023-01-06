@@ -30,7 +30,7 @@ namespace SSTournamentsBot.Api
         {
             var config = new DiscordSocketConfig()
             {
-                // TODO
+                DefaultRetryMode = Discord.RetryMode.AlwaysRetry
             };
 
             services.Configure<LiteDbOptions>(Configuration.GetSection("LiteDbOptions"));

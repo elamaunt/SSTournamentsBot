@@ -33,7 +33,7 @@ namespace SSTournamentsBot.Api.Services
             _commands = new SlashCommandBase[]
             {
                 new AddBotsSlashCommand(api),
-                new CallSlashCommand(client, api),
+                new CallSlashCommand(client, dataService, botApi, api),
                 new CheckInSlashCommand(dataService, timeline, api),
                 new ChekInBotsSlashCommand(api),
                 new InfoSlashCommand(api),

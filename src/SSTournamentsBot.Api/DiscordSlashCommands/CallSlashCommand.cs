@@ -5,17 +5,22 @@ using SSTournamentsBot.Api.Services;
 using System;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
+using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
     public class CallSlashCommand : SlashCommandBase
     {
         readonly DiscordSocketClient _client;
+        readonly IDataService _dataService;
+        readonly IBotApi _botApi;
         readonly TournamentApi _api;
 
-        public CallSlashCommand(DiscordSocketClient client, TournamentApi api)
+        public CallSlashCommand(DiscordSocketClient client, IDataService dataService, IBotApi botApi, TournamentApi api)
         {
             _client = client;
+            _dataService = dataService;
+            _botApi = botApi;
             _api = api;
         }
 
@@ -48,17 +53,21 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                     try
                     {
-                        await opponentsUser.SendMessageAsync($"Игрок под ником {user.Mention} призывает Вас начать матч. Пожалуйста, свяжитесь с ним в чат канале турниров.");
+                        await opponentsUser.SendMessageAsync($"Игрок под ником {user.Mention} призывает тебя начать матч. Пожалуйста, свяжись с ним в чат канале турниров.");
                     }
                     catch
                     {
-                        // TODO: kick the user
-                        await arg.RespondAsync($"Ваш оппонент под ником {opponent.Name} не может быть вызван. Возможно, он покинул сервер. \nВо всех матчах ему будет присуждено техническое поражение.");
+                        var opponentData =  _dataService.FindUserByDiscordId(opponent.DiscordId);
+                        await arg.RespondAsync($"Твой оппонент под ником {opponent.Name} не может быть вызван. Возможно, он покинул сервер.\nЕму будет присуждено техническое поражение.");
+                        if (await _api.TryLeaveUser(opponentData.DiscordId, opponentData.SteamId))
+                        {
+                            var mention = await _botApi.GetMention(opponent.DiscordId);
+                            await _botApi.SendMessage($"{mention} исключен из турнира, так как недоступен.", GuildThread.EventsTape | GuildThread.TournamentChat);
+                        }
                         return;
                     }
 
-
-                    await arg.RespondAsync($"Ваш оппонент под ником {opponent.Name} вызван.");
+                    await arg.RespondAsync($"Твой оппонент под ником {opponent.Name} вызван через личные сообщения.");
                 }
 
                 if (FSharpOption<Tuple<Player, Race>>.get_IsSome(match.Player1) && match.Player1.Value.Item1.DiscordId != user.Id)

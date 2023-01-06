@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using SSTournamentsBot.Api.Helpers;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             if (nextEvent != null)
             {
                 var e = nextEvent;
-                await arg.RespondAsync($"Московское время {GetMoscowTime()}\nСледующее событие {e.Event} наступит через {GetTimeBeforeEvent(e).PrettyPrint()}");
+                await arg.RespondAsync($"Московское время {GetMoscowTime().PrettyShortDatePrint()}\nСледующее событие '**{e.Event.PrettyPrint()}**' наступит **через {GetTimeBeforeEvent(e).PrettyPrint()}**.");
             }
             else
             {

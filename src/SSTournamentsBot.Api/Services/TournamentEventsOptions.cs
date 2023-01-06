@@ -2,9 +2,11 @@
 {
     public class TournamentEventsOptions
     {
-        public int CheckInTimeoutSeconds { get; set; }
-        public int ReCheckInTimeoutSeconds { get; set; }
+        public int CheckInTimeoutMinutes { get; set; }
         public int VotingTimeoutSeconds { get; set; }
-        public int StageBreakTimeoutSeconds { get; set; }
+        public int StageBreakTimeoutMinutes { get; set; }
+        public int StageTimeoutMinutes { get; set; }
+        public int AdditionalTimeForStageMinutes { get; set; }
+        public int PreCheckinTimeVotingOffsetMinutes { get; set; }
     }
 }

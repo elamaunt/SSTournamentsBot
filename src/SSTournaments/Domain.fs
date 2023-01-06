@@ -233,7 +233,9 @@ module Domain =
             for i in [1..count] do
                 yield elements.[i * groupMaxSize.. (min (i * groupMaxSize) (elements.Length - 1))]
         |]
-        
+       
+    let SetStartDate tournament = 
+        { tournament with Date = GetMoscowTime() }
 
     let Start tournament = 
         match tournament.Type with
@@ -419,6 +421,13 @@ module Domain =
         match stage with
         | Brackets players -> players.Length = 1
         | Groups _ -> false
+
+    let IsLoseOf m player = 
+        match m.Result with
+        | Winner (p, _) -> p.DiscordId <> player.DiscordId
+        | TechnicalWinner (p, _) -> p.DiscordId <> player.DiscordId
+        | Draw _ -> true
+        | NotCompleted _ -> false
 
     let IsReducingStage stage isFirstStage =
         match stage with

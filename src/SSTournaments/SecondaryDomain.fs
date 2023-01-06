@@ -21,6 +21,12 @@ module SecondaryDomain =
         SoloMmr: int32
     }
 
+    type UpdatePlayersRaceResult = 
+        | NoTournament
+        | NotRegistered
+        | Completed
+        | NotPossible
+
     type StartResult = 
         | NoTournament
         | NotEnoughPlayers

@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System.Linq;
 using System.Threading.Tasks;
+using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
@@ -12,10 +13,12 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Description => "Исключить игрока из турнира";
 
         readonly IDataService _dataService;
+        readonly IBotApi _botApi;
         readonly TournamentApi _tournamentApi;
-        public BanPlayerSlashCommand(IDataService dataService, TournamentApi tournamentApi)
+        public BanPlayerSlashCommand(IDataService dataService, IBotApi botApi, TournamentApi tournamentApi)
         {
             _dataService = dataService;
+            _botApi = botApi;
             _tournamentApi = tournamentApi;
         }
 
@@ -32,7 +35,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId);
+            if (await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId))
+            {
+                var mention = await _botApi.GetMention(userData.DiscordId);
+                await _botApi.SendMessage($"{mention} исключен из турнира.", GuildThread.EventsTape | GuildThread.TournamentChat);
+            }
 
             userData.Banned = true;
             _dataService.UpdateUser(userData);
