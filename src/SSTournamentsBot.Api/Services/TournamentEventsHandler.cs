@@ -68,6 +68,12 @@ namespace SSTournamentsBot.Api.Services
                 return;
             }
 
+            if (result.IsNoUncompletedStage)
+            {
+                await Log("No an uncompleted stage");
+                return;
+            }
+
             if (result.IsNotAllMatchesFinished)
             {
                 var matches = _tournamentApi.ActiveMatches;
@@ -340,9 +346,15 @@ namespace SSTournamentsBot.Api.Services
                 return;
             }
 
+            if (result.IsPreviousStageIsNotCompleted)
+            {
+                await Log("The previous stage is not completed");
+                return;
+            }
+
             if (result.IsTheStageIsTerminal)
             {
-                await Log("The stage is terminal.");
+                await Log("The stage is terminal");
 
                 if (!_tournamentApi.PlayedMatches.Any(x => x.Result.IsWinner))
                 {

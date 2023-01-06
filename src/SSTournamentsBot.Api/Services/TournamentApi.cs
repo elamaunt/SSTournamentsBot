@@ -18,6 +18,7 @@ namespace SSTournamentsBot.Api.Services
 
         private volatile bool _isStarted;
         private volatile bool _isCheckIn;
+        private volatile bool _stageCompleted;
 
         private (Stage, StageBlock[])[] _stages;
         private Match[] _playedMatches;
@@ -80,6 +81,7 @@ namespace SSTournamentsBot.Api.Services
                 _votingProgress = null;
                 TimeAlreadyExtended = false;
                 SingleMatchTimeAlreadyExtended = false;
+                _stageCompleted = false;
             });
         }
 
@@ -382,10 +384,13 @@ namespace SSTournamentsBot.Api.Services
                 if (!IsTounamentStarted || matches == null)
                     return CompleteStageResult.NoTournament;
 
+                if (_stageCompleted)
+                    return CompleteStageResult.NoUncompletedStage;
+
                 if (matches.All(x => x.Result.IsTechnicalWinner || x.Result.IsWinner))
                 {
                     _playedMatches = _playedMatches.Concat(matches).ToArray();
-
+                    _stageCompleted = true;
                     return CompleteStageResult.Completed;
                 }
 
@@ -400,6 +405,10 @@ namespace SSTournamentsBot.Api.Services
                 if (!IsTounamentStarted)
                     return StartNextStageResult.NoTournament;
 
+                if (!_stageCompleted)
+                    return StartNextStageResult.PreviousStageIsNotCompleted;
+
+                _stageCompleted = false;
                 RegenerateStages();
 
                 if (_currentStageMatches.Length == 0)

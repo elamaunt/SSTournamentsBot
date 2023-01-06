@@ -1,17 +1,20 @@
 ﻿using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System.Threading.Tasks;
+using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
     public class LeaveSlashCommand : SlashCommandBase
     {
         readonly IDataService _dataService;
+        readonly ITournamentEventsHandler _eventsHandler;
         readonly TournamentApi _api;
 
-        public LeaveSlashCommand(IDataService dataService, TournamentApi api)
+        public LeaveSlashCommand(IDataService dataService, ITournamentEventsHandler tournamentEventsHandler, TournamentApi api)
         {
             _dataService = dataService;
+            _eventsHandler = tournamentEventsHandler;
             _api = api;
         }
 
@@ -29,7 +32,12 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             }
 
             if (await _api.TryLeaveUser(userData.DiscordId, userData.SteamId))
+            {
                 await arg.RespondAsync($"Вы успешно покинули турнир.");
+
+                if (_api.ActiveMatches.All(x => !x.Result.IsNotCompleted))
+                    _eventsHandler.DoCompleteStage();
+            }
             else
                 await arg.RespondAsync($"Вы не были зарегистрированы в следующем турнире.");
         }

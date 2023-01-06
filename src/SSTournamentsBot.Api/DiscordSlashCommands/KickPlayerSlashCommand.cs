@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System.Linq;
 using System.Threading.Tasks;
+using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
@@ -12,10 +13,12 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Description => "Исключить игрока из турнира";
 
         readonly IDataService _dataService;
+        readonly ITournamentEventsHandler _eventsHandler;
         readonly TournamentApi _tournamentApi;
-        public KickPlayerSlashCommand(IDataService dataService, TournamentApi tournamentApi)
+        public KickPlayerSlashCommand(IDataService dataService, ITournamentEventsHandler tournamentEventsHandler, TournamentApi tournamentApi)
         {
             _dataService = dataService;
+            _eventsHandler = tournamentEventsHandler;
             _tournamentApi = tournamentApi;
         }
 
@@ -32,7 +35,12 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             }
 
             if (await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId))
+            {
                 await arg.RespondAsync($"Игрок {user.Username} покинул турнир.");
+
+                if (_tournamentApi.ActiveMatches.All(x => !x.Result.IsNotCompleted))
+                    _eventsHandler.DoCompleteStage();
+            }
             else
                 await arg.RespondAsync("Не удалось исключить игрока из турнира.");
         }

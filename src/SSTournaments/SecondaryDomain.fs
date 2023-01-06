@@ -49,11 +49,13 @@ module SecondaryDomain =
     type StartNextStageResult = 
         | NoTournament
         | TheStageIsTerminal
+        | PreviousStageIsNotCompleted
         | Done
 
     type CompleteStageResult = 
         | NoTournament
         | NotAllMatchesFinished
+        | NoUncompletedStage
         | Completed
         | CompletedAndFinishedTheTournament
 
