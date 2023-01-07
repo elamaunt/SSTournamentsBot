@@ -1,6 +1,7 @@
 ﻿using LiteDB;
 using SSTournamentsBot.Api.DataDomain;
 using static SSTournaments.Domain;
+using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.Services
 {
@@ -16,6 +17,32 @@ namespace SSTournamentsBot.Api.Services
             mapper.RegisterType
             (
                 serialize: x => x.ToString(),
+                deserialize: x => {
+                    switch (x.AsString)
+                    {
+                        case nameof(MentionSetting.Default):
+                            return MentionSetting.Default;
+                        case nameof(MentionSetting.OnlyCheckin):
+                            return MentionSetting.OnlyCheckin;
+                        default:
+                            return MentionSetting.Default;
+                    }
+                }
+            );
+
+            mapper.RegisterType
+            (
+                serialize: x =>
+                {
+                    if (x.IsRandomEveryMatch) return nameof(RaceOrRandom.RandomEveryMatch);
+                    if (x.IsRandomOnTournament) return nameof(RaceOrRandom.RandomOnTournament);
+                    if (x.IsRace)
+                    {
+                        var race = ((RaceOrRandom.Race)x).Item;
+                        return race.ToString();
+                    }
+                    return null;
+                },
                 deserialize: x => {
                     switch (x.AsString)
                     {
@@ -47,8 +74,7 @@ namespace SSTournamentsBot.Api.Services
                 }
             );
 
-            mapper.Entity<UserData>()
-             .Id(x => x.DiscordId);
+            mapper.Entity<UserData>().Id(x => x.DiscordId);
         }
 
         public void AddPenalty(ulong discordId, int penalty)

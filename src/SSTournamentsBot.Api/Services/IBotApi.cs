@@ -13,5 +13,6 @@ namespace SSTournamentsBot.Api.Services
         Task ModifyLastMessage(string message, GuildThread thread);
         Task<string> GetUserName(ulong id);
         Task<string> GetMention(ulong id);
+        Task SendMessageToUser(string message, ulong id);
     }
 }

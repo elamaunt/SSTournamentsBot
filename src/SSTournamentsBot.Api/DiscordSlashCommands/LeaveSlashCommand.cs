@@ -1,5 +1,6 @@
 ﻿using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
+using System.Linq;
 using System.Threading.Tasks;
 using static SSTournaments.SecondaryDomain;
 

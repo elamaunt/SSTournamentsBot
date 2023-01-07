@@ -19,6 +19,13 @@
   <ItemGroup>
     <ProjectReference Include="..\SSTournaments\SSTournaments.fsproj" />
   </ItemGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+	<EnvironmentName>Development</EnvironmentName>
+  </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+	<EnvironmentName>Production</EnvironmentName>
+  </PropertyGroup>
 
 </Project>

@@ -1,5 +1,4 @@
-﻿using Discord.Net;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SSTournamentsBot.Api.DiscordSlashCommands;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.Services
 {
@@ -24,6 +24,7 @@ namespace SSTournamentsBot.Api.Services
             IDataService dataService,
             IStatsApi statsApi,
             IBotApi botApi,
+            ITournamentEventsHandler eventsHandler,
             IEventsTimeline timeline,
             IOptions<DiscordBotOptions> options)
         {
@@ -38,8 +39,8 @@ namespace SSTournamentsBot.Api.Services
                 new ChekInBotsSlashCommand(api),
                 new InfoSlashCommand(api),
                 new KickBotsSlashCommand(api),
-                new KickPlayerSlashCommand(dataService, api),
-                new LeaveSlashCommand(dataService, api),
+                new KickPlayerSlashCommand(dataService, eventsHandler, api),
+                new LeaveSlashCommand(dataService, eventsHandler, api),
                 new MyIdSlashCommand(),
                 new PlayersShashCommand(api),
                 new PlaySlashCommand(dataService, statsApi, api),
@@ -108,6 +109,12 @@ namespace SSTournamentsBot.Api.Services
                     else
                     {
                         currentCommands.Remove(sameCommand);
+
+                        if (sameCommand.Description != cmd.Description)
+                        {
+                            await sameCommand.DeleteAsync();
+                            await guild.CreateApplicationCommandAsync(cmd.MakeBuilder().Build());
+                        }
                     }
                 }
 
@@ -119,13 +126,13 @@ namespace SSTournamentsBot.Api.Services
 #if DEBUG
                 await guild.GetTextChannel(_options.TournamentThreadId).SendMessageAsync(@"Привет, друзья! 
 SS Tournaments Bot к вашим услугам и готов устраивать для Вас автоматические турниры.
-Тестовый режим активирован. Для регистрации на турнир используйте команду play.");
+Тестовый режим активирован. Для регистрации на турнир используйте команду /play.");
 #else
-                await guild.GetTextChannel(_options.MainGuildId).SendMessageAsync(@"Привет, друзья! 
-SS Tournaments Bot к вашим услугам и готов устраивать для Вас автоматические турниры.
-Они организуются ежедневно в 18:00 по Мск.
-Окончание регистрации и начало чекина за 15 минут до начала. Генерация сетки ровно в 18, никаких исключений, успевайте :)
-Для регистрации на турнир используйте команду play.");
+                await guild.GetTextChannel(_options.TournamentThreadId).SendMessageAsync(@"Привет, друзья! 
+**SS Tournaments Bot** к вашим услугам и готов устраивать для Вас автоматические турниры.
+Они организуются ежедневно в __**18:00 по Мск**__.
+*Начало чекина за 15 минут до начала.* Генерация сетки ровно в 18, либо сразу после чекина всех игроков, успевайте :)
+Для регистрации на турнир используйте команду **/play.**");
 #endif
             }
         }

@@ -192,6 +192,11 @@ namespace SSTournamentsBot.Api.Services
             return (await _client.GetUserAsync(id)).Mention;
         }
 
+        public async Task SendMessageToUser(string message, ulong id)
+        {
+            await (await _client.GetUserAsync(id)).SendMessageAsync(message);
+        }
+
         private class DiscordButtonsController : IButtonsController
         {
             private readonly RestUserMessage[] _messages;
@@ -202,7 +207,6 @@ namespace SSTournamentsBot.Api.Services
                 Id = id;
                 _messages = messages;
             }
-
 
             public Task<bool> ContainsMessageId(ulong id)
             {

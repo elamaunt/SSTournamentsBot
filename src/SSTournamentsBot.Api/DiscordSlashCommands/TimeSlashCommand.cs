@@ -1,7 +1,6 @@
 ﻿using Discord.WebSocket;
 using SSTournamentsBot.Api.Helpers;
 using SSTournamentsBot.Api.Services;
-using System;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
@@ -28,7 +27,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             if (nextEvent != null)
             {
                 var e = nextEvent;
-                await arg.RespondAsync($"Московское время {GetMoscowTime().PrettyShortDatePrint()}\nСледующее событие '**{e.Event.PrettyPrint()}**' наступит **через {GetTimeBeforeEvent(e).PrettyPrint()}**.");
+                await arg.RespondAsync($"Московское время {GetMoscowTime().PrettyShortDatePrint()}\nСледующее событие '**{e.Event.PrettyPrint()}**' наступит через **{GetTimeBeforeEvent(e).PrettyPrint()}**.");
             }
             else
             {

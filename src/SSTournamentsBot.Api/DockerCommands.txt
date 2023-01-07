@@ -1,0 +1,11 @@
+docker volume create tournaments-db
+
+docker build -t ss_tournaments_bot:1.0 -f SSTournamentsBot.Api/Dockerfile .
+
+docker tag ss_tournaments_bot:1.0 ss_tournaments_bot:latest
+
+docker exec -it <hash> sh
+
+docker save ss_tournaments_bot:latest | ssh -C user@my.remote.host.com docker load
+
+docker run -d --name=ss_tournaments_bot -p 0.0.0.0:80:80 --mount source=tournaments-db,destination=/volume ss_tournaments_bot:latest

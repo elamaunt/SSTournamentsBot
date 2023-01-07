@@ -1,6 +1,5 @@
 ﻿using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
-using System;
 using System.Text;
 using System.Threading.Tasks;
 

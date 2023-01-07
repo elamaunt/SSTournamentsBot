@@ -40,16 +40,17 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            var deffered = !userData.StatsVerified;
+            await arg.DeferAsync();
+
+            Task Responce(string message) => arg.ModifyOriginalResponseAsync(x => { x.Content = new Optional<string>(message); });
 
             if (!userData.StatsVerified)
             {
-                await arg.DeferAsync();
                 var stats = await _statsApi.LoadPlayerStats(userData.SteamId);
 
                 if (stats.Games < 300)
                 {
-                    await arg.RespondAsync("Недостаточно игр на аккаунте Steam.\nРегистрироваться на турнирах могут только Steam аккаунты, имеющие не менее 300 сыгранных игр всего в сервисе DowStats.\nВозвращайтесь, когда наиграете больше игр :)");
+                    await Responce("Недостаточно игр на аккаунте Steam.\nРегистрироваться на турнирах могут только Steam аккаунты, имеющие не менее **300 сыгранных игр** всего в сервисе DowStats.\nВозвращайтесь, когда наиграете больше игр :)");
                     return;
                 }
 
@@ -84,14 +85,6 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             }
 
             var result = await _tournamentApi.TryRegisterUser(userData, user.Username);
-
-            async Task Responce(string message)
-            {
-                if (deffered)
-                    await arg.ModifyOriginalResponseAsync(x => { x.Content = new Optional<string>(message); });
-                else
-                    await arg.RespondAsync(message);
-            }
 
             switch (result)
             {
