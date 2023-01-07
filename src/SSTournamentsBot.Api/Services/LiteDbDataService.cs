@@ -41,7 +41,7 @@ namespace SSTournamentsBot.Api.Services
                         var race = ((RaceOrRandom.Race)x).Item;
                         return race.ToString();
                     }
-                    return null;
+                    return string.Empty;
                 },
                 deserialize: x => {
                     switch (x.AsString)
