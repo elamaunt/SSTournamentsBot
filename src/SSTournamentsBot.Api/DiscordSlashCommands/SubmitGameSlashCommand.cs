@@ -70,7 +70,8 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("winner-Id")
                     .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.Integer))
+                    .WithType(ApplicationCommandOptionType.Integer)
+                    .WithDescription("Id победителя"))
                 .WithDefaultMemberPermissions(GuildPermission.Administrator)
                 .WithDMPermission(true);
         }

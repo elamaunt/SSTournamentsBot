@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using SSTournamentsBot.Api.Helpers;
 using SSTournamentsBot.Api.Services;
 using System;
@@ -33,6 +34,18 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             {
                 await arg.RespondAsync("Сейчас нет запланированных событий.");
             }
+        }
+
+        protected override void Configure(SlashCommandBuilder builder)
+        {
+            builder.WithDefaultPermission(true)
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("minutes")
+                    .WithDescription("Время")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.User))
+                .WithDefaultMemberPermissions(GuildPermission.Administrator)
+                .WithDMPermission(true);
         }
     }
 }

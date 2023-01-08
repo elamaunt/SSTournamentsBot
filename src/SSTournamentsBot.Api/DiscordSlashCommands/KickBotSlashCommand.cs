@@ -59,11 +59,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("botId")
                     .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.Integer))
+                    .WithType(ApplicationCommandOptionType.Integer)
+                    .WithDescription("Id пользователя"))
+                    
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("reason")
                     .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.Integer))
+                    .WithType(ApplicationCommandOptionType.Integer)
+                    .WithDescription("Id причины"))
                 .WithDefaultMemberPermissions(GuildPermission.Administrator)
                 .WithDMPermission(true);
         }
