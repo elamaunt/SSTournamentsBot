@@ -24,7 +24,7 @@ namespace SSTournamentsBot.Api.Services
         private Match[] _playedMatches;
         private Match[] _currentStageMatches;
         private HashSet<ulong> _checkInedUsers;
-        private HashSet<ulong> _leftUsers;
+        private Dictionary<ulong, TechnicalWinReason> _excludedUsers;
         private Stage _initialStage;
         readonly IDrawingService _renderingService;
 
@@ -47,7 +47,7 @@ namespace SSTournamentsBot.Api.Services
                 if (_currentTournament == null)
                 {
                     _currentTournament = CreateTournamentByDate(Mod.Soulstorm);
-                    _leftUsers = new HashSet<ulong>();
+                    _excludedUsers = new Dictionary<ulong, TechnicalWinReason>();
                     _checkInedUsers = new HashSet<ulong>();
                     _initialStage = null;
                     _playedMatches = new Match[0];
@@ -76,7 +76,7 @@ namespace SSTournamentsBot.Api.Services
                 _currentTournament = null;
                 _isCheckIn = false;
                 _isStarted = false;
-                _leftUsers = null;
+                _excludedUsers = null;
                 _checkInedUsers = null;
                 _votingProgress = null;
                 TimeAlreadyExtended = false;
@@ -99,30 +99,30 @@ namespace SSTournamentsBot.Api.Services
         public DateTime Date => _currentTournament?.Date ?? DateTime.Today;
 
         public int PossibleNextStageMatches => RegisteredPlayers
-            .Where(x => !_leftUsers.Contains(x.DiscordId))
+            .Where(x => !_excludedUsers.ContainsKey(x.DiscordId))
             .Where(x => !_playedMatches.Any(m => IsLoseOf(m, x)))
             .Where(x => !ActiveMatches.Any(m => IsLoseOf(m, x)))
             .Count() / 2;
 
         public bool IsCheckinStage => _isCheckIn;
 
-        public Task<bool> TryLeaveUser(ulong discordId, ulong steamId, TechnicalWinReason reason)
+        public Task<LeaveUserResult> TryLeaveUser(ulong discordId, ulong steamId, TechnicalWinReason reason)
         {
             return _queue.Async(() =>
             {
                 if (_currentTournament == null)
-                    return false;
+                    return LeaveUserResult.NoTournament;
 
                 if (!IsPlayerRegisteredInTournament(_currentTournament, steamId, discordId))
-                    return false;
+                    return LeaveUserResult.NotRegistered;
 
                 if (_isStarted)
                 {
-                    if (_leftUsers.Contains(discordId))
-                        return false;
+                    if (_excludedUsers.ContainsKey(discordId))
+                        return LeaveUserResult.NewAlreadyLeftBy(_excludedUsers[discordId]);
 
                     _checkInedUsers.Remove(steamId);
-                    _leftUsers.Add(discordId);
+                    _excludedUsers.Add(discordId, reason);
 
                     for (int i = 0; i < _currentStageMatches.Length; i++)
                         _currentStageMatches[i] = AddTechicalLoseToMatch(_currentStageMatches[i], steamId, reason);
@@ -132,7 +132,7 @@ namespace SSTournamentsBot.Api.Services
                     _currentTournament = RemovePlayerFromTournament(_currentTournament, steamId);
                 }
 
-                return true;
+                return LeaveUserResult.Done;
             });
         }
 
@@ -219,8 +219,8 @@ namespace SSTournamentsBot.Api.Services
                 {
                     if (match.Result.IsTechnicalWinner && ((MatchResult.TechnicalWinner)match.Result).Item2.IsVoting)
                     {
-                        _leftUsers.Remove(match.Player1.Value.Item1.DiscordId);
-                        _leftUsers.Remove(match.Player2.Value.Item1.DiscordId);
+                        _excludedUsers.Remove(match.Player1.Value.Item1.DiscordId);
+                        _excludedUsers.Remove(match.Player2.Value.Item1.DiscordId);
 
                         _currentStageMatches[matchWithIndex.i] = ForceAddWinToMatch(match, p1Info.Item1, info.ReplayLink);
                         return SubmitGameResult.Completed;
@@ -346,9 +346,9 @@ namespace SSTournamentsBot.Api.Services
                 if (p1 == null || p2 == null)
                     continue;
 
-                if (_leftUsers.Contains(p1.DiscordId))
+                if (_excludedUsers.ContainsKey(p1.DiscordId))
                     _currentStageMatches[i] = AddTechicalLoseToMatch(m, p1.SteamId, TechnicalWinReason.OpponentsLeft);
-                else if (_leftUsers.Contains(p2.DiscordId))
+                else if (_excludedUsers.ContainsKey(p2.DiscordId))
                     _currentStageMatches[i] = AddTechicalLoseToMatch(m, p2.SteamId, TechnicalWinReason.OpponentsLeft);
             }
         }
@@ -473,7 +473,7 @@ namespace SSTournamentsBot.Api.Services
                 if (_votingProgress.Voted.Any(x => x.Item1 == discordId))
                     return AcceptVoteResult.AlreadyVoted;
 
-                if (role == GuildRole.Everyone && !RegisteredPlayers.Any(x => x.DiscordId == discordId) || (_leftUsers?.Contains(discordId) ?? false))
+                if (role == GuildRole.Everyone && !CanUserVote(discordId))
                     return AcceptVoteResult.YouCanNotVote;
 
                 if (role == GuildRole.Everyone || !_votingProgress.Voting.AdminForcingEnabled)
@@ -488,6 +488,29 @@ namespace SSTournamentsBot.Api.Services
                     return AcceptVoteResult.CompletedByThisVote;
                 }
             });
+        }
+
+        private bool CanUserVote(ulong discordId)
+        {
+            if (!RegisteredPlayers.Any(x => x.DiscordId == discordId))
+                return false;
+
+            if (_excludedUsers == null)
+                return false;
+
+            if (_excludedUsers.TryGetValue(discordId, out var reason))
+            {
+                if (reason.IsVoting)
+                    return true;
+                if (reason.IsOpponentsLeft)
+                    return false;
+                if (reason.IsOpponentsKicked)
+                    return false;
+                if (reason.IsOpponentsBan)
+                    return false;
+            }
+
+            return true;
         }
 
         public Task<CompleteVotingResult> TryCompleteVoting()

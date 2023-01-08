@@ -47,7 +47,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             }
 
-            if (await _tournamentApi.TryLeaveUser(id, id, reason))
+            if ((await _tournamentApi.TryLeaveUser(id, id, reason)).IsDone)
                 await arg.RespondAsync("Бот исключен.");
             else
                 await arg.RespondAsync("Не удалось исключить бота.");

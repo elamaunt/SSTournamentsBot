@@ -36,7 +36,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            if (await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsBan))
+            if ((await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsBan)).IsDone)
             {
                 var mention = await _botApi.GetMention(userData.DiscordId);
                 await _botApi.SendMessage($"{mention} исключен из турнира.", GuildThread.EventsTape | GuildThread.TournamentChat);

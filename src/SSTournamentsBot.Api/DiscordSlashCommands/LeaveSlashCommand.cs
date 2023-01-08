@@ -33,15 +33,58 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            if (await _api.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsLeft))
+            var result = await _api.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsLeft);
+
+            if (result.IsDone)
             {
                 await arg.RespondAsync($"Вы успешно покинули турнир.");
 
-                if (_api.ActiveMatches.All(x => !x.Result.IsNotCompleted))
+                if (_api.IsTounamentStarted && _api.ActiveMatches.All(x => !x.Result.IsNotCompleted))
                     _eventsHandler.DoCompleteStage();
+
+                return;
             }
-            else
+
+            if (result.IsNotRegistered)
+            {
                 await arg.RespondAsync($"Вы не были зарегистрированы в следующем турнире.");
+                return;
+            }
+
+            if (result.IsNoTournament)
+            {
+                await arg.RespondAsync($"В данный момент нет турнира.");
+                return;
+            }
+
+            if (result.IsAlreadyLeftBy)
+            {
+                var reason = ((LeaveUserResult.AlreadyLeftBy)result).Item;
+
+                if (reason.IsVoting)
+                {
+                    await arg.RespondAsync("Вы не можете покинуть турнир, так как вы уже покинули его путем голосования.");
+                    return;
+                }
+
+                if (reason.IsOpponentsLeft)
+                {
+                    await arg.RespondAsync("Вы уже покинули этот турнир.");
+                    return;
+                }
+
+                if (reason.IsOpponentsBan)
+                {
+                    await arg.RespondAsync("Вы не можете покинуть турнир, так как вы были забанены.");
+                    return;
+                }
+
+                if (reason.IsOpponentsKicked)
+                {
+                    await arg.RespondAsync("Вы не можете покинуть турнир, так как вы были исключены из него администрацией.");
+                    return;
+                }
+            }
         }
     }
 }

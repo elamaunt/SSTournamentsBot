@@ -198,7 +198,7 @@ namespace SSTournamentsBot.Api.Services
 
                 var notActiveTextPaint = new SKPaint
                 {
-                    Color = new SKColor(37, 9, 13),
+                    Color = new SKColor(223, 16, 24),
                     IsAntialias = true,
                     Style = SKPaintStyle.StrokeAndFill,
                     TextAlign = SKTextAlign.Left,

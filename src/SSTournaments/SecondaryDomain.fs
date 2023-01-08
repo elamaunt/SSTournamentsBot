@@ -33,6 +33,12 @@ module SecondaryDomain =
         | AlreadyStarted
         | Done
 
+    type LeaveUserResult = 
+        | NoTournament
+        | Done
+        | NotRegistered
+        | AlreadyLeftBy of TechnicalWinReason
+
     type CheckInResult = 
         | NoTournament
         | NotEnoughPlayers

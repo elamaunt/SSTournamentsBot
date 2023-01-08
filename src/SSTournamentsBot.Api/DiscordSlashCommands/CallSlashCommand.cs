@@ -58,8 +58,8 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     catch
                     {
                         var opponentData =  _dataService.FindUserByDiscordId(opponent.DiscordId);
-                        await arg.RespondAsync($"Твой оппонент под ником {opponent.Name} не может быть вызван. Возможно, он покинул сервер.\nЕму будет присуждено техническое поражение.");
-                        if (await _api.TryLeaveUser(opponentData.DiscordId, opponentData.SteamId, TechnicalWinReason.OpponentsLeft))
+                        await arg.RespondAsync($"Твой оппонент под ником **{opponent.Name}** не может быть вызван. Возможно, он покинул сервер.\nЕму будет присуждено техническое поражение.");
+                        if ((await _api.TryLeaveUser(opponentData.DiscordId, opponentData.SteamId, TechnicalWinReason.OpponentsKicked)).IsDone)
                         {
                             var mention = await _botApi.GetMention(opponent.DiscordId);
                             await _botApi.SendMessage($"{mention} исключен из турнира, так как недоступен.", GuildThread.EventsTape | GuildThread.TournamentChat);
@@ -67,7 +67,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                         return;
                     }
 
-                    await arg.RespondAsync($"Твой оппонент под ником {opponent.Name} вызван через личные сообщения.");
+                    await arg.RespondAsync($"Твой оппонент под ником **{opponent.Name}** вызван через личные сообщения.");
                 }
 
                 if (FSharpOption<Tuple<Player, Race>>.get_IsSome(match.Player1) && match.Player1.Value.Item1.DiscordId != user.Id)

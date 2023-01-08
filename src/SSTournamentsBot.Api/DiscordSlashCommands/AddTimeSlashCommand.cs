@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using SSTournamentsBot.Api.Helpers;
 using SSTournamentsBot.Api.Services;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
@@ -18,17 +19,31 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Name => "add-time";
 
-        public override string Description => "Откладывает следующее событие на +5 минут";
+        public override string Description => "Откладывает или ускоряет следующее событие";
 
         public override async Task Handle(SocketSlashCommand arg)
         {
+            var minutesOption = arg.Data.Options.FirstOrDefault(x => x.Name == "minutes");
+            var minutes = (long)minutesOption.Value;
+
+            if (minutes == 0)
+            {
+                await arg.RespondAsync("Нет изменений во времени следующего события, так как указано 0 минут.");
+                return;
+            }
+
             var nextEvent = _timeline.GetNextEventInfo();
 
             if (nextEvent != null)
             {
+                var time = TimeSpan.FromMinutes(minutes);
                 var e = nextEvent;
-                _timeline.AddTimeToNextEventWithType(e.Event, TimeSpan.FromMinutes(5));
-                await arg.RespondAsync($"Следующее событие '**{e.Event.PrettyPrint()}**' отложено на **5 минут**");
+                _timeline.AddTimeToNextEventWithType(e.Event, time);
+
+                if (minutes < 0)
+                    await arg.RespondAsync($"Следующее событие '**{e.Event.PrettyPrint()}**' ускорено на **{time.Negate().PrettyPrint()}**");
+                else
+                    await arg.RespondAsync($"Следующее событие '**{e.Event.PrettyPrint()}**' отложено на **{time.PrettyPrint()}**");
             }
             else
             {

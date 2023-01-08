@@ -35,7 +35,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            if (await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsKicked))
+            var result = await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsKicked);
+
+            if (result.IsDone)
             {
                 await arg.RespondAsync($"Игрок **{user.Username}** покинул турнир.");
 
@@ -49,9 +51,51 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     if (_tournamentApi.IsCheckinStage && _tournamentApi.IsAllPlayersCheckIned())
                         _eventsHandler.DoStartCurrentTournament();
                 }
+                return;
             }
-            else
-                await arg.RespondAsync("Не удалось исключить игрока из турнира.");
+
+            if (result.IsNoTournament)
+            {
+                await arg.RespondAsync("Нет активного турнира");
+                return;
+            }
+
+            if (result.IsNotRegistered)
+            {
+                await arg.RespondAsync("Нельзя исключить игрока из турнира, в котором он не зарегистрирован.");
+                return;
+            }
+
+            if (result.IsAlreadyLeftBy)
+            {
+                var reason = ((LeaveUserResult.AlreadyLeftBy)result).Item;
+
+                if (reason.IsVoting)
+                {
+                    await arg.RespondAsync("Вы не можете покинуть турнир, так как вы уже покинули его путем голосования.");
+                    return;
+                }
+
+                if (reason.IsOpponentsLeft)
+                {
+                    await arg.RespondAsync("Вы уже покинули этот турнир.");
+                    return;
+                }
+
+                if (reason.IsOpponentsBan)
+                {
+                    await arg.RespondAsync("Вы не можете покинуть турнир, так как вы были забанены.");
+                    return;
+                }
+
+                if (reason.IsOpponentsKicked)
+                {
+                    await arg.RespondAsync("Вы не можете покинуть турнир, так как вы были исключены из него администрацией.");
+                    return;
+                }
+            }
+
+            await arg.RespondAsync("Не удалось исключить игрока из турнира.");
         }
 
         protected override void Configure(SlashCommandBuilder builder)
