@@ -90,10 +90,10 @@ namespace SSTournamentsBot.Api.Services
                         return;
                     }
 
-                    if (countForNotCompleted > matches.Length / 2 && !_tournamentApi.TimeAlreadyExtended)
+                    if (countForNotCompleted >= matches.Length / 2 && !_tournamentApi.TimeAlreadyExtended)
                     {
                         _tournamentApi.TimeAlreadyExtended = true;
-                        await _botApi.SendMessage("> Больше половины матчей еще не сыграно. Завершение стадии отложено на __**5 минут**__.", GuildThread.EventsTape | GuildThread.TournamentChat);
+                        await _botApi.SendMessage("> Половина или более матчей еще не доиграны. Завершение стадии отложено на __**5 минут**__.", GuildThread.EventsTape | GuildThread.TournamentChat);
                         _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromMinutes(_options.AdditionalTimeForStageMinutes));
                         return;
                     }
@@ -107,7 +107,7 @@ namespace SSTournamentsBot.Api.Services
                         var p1 = activeMatch.Player1.Value.Item1;
                         var p2 = activeMatch.Player2.Value.Item1;
 
-                        var voting = CreateVoting(">>> Минутное голосование по незавершенному матчу. Кому присудить техническое поражение?",
+                        var voting = CreateVoting(">>> Быстрое голосование по незавершенному матчу. Кому присудить техническое поражение?",
                             2,
                             true,
                             FSharpFunc<FSharpOption<int>, Unit>.FromConverter(x =>
@@ -132,11 +132,11 @@ namespace SSTournamentsBot.Api.Services
                                     switch (x.Value)
                                     {
                                         case 0:
-                                            await _tournamentApi.TryLeaveUser(p1.DiscordId, p1.SteamId);
+                                            await _tournamentApi.TryLeaveUser(p1.DiscordId, p1.SteamId, TechnicalWinReason.Voting);
                                             await _botApi.SendMessage($"> Присуждено техническое поражение игроку под ником **{p1.Name}**.", GuildThread.EventsTape | GuildThread.TournamentChat, p1.DiscordId);
                                             break;
                                         case 1:
-                                            await _tournamentApi.TryLeaveUser(p2.DiscordId, p2.SteamId);
+                                            await _tournamentApi.TryLeaveUser(p2.DiscordId, p2.SteamId, TechnicalWinReason.Voting);
                                             await _botApi.SendMessage($"> Присуждено техническое поражение игроку под ником **{p2.Name}**.", GuildThread.EventsTape | GuildThread.TournamentChat, p2.DiscordId);
                                             break;
                                         default:
@@ -145,7 +145,7 @@ namespace SSTournamentsBot.Api.Services
 
                                     if (_tournamentApi.IsAllActiveMatchesCompleted())
                                     {
-                                        _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(5));
+                                        _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(10));
                                     }
                                 });
 
@@ -159,7 +159,7 @@ namespace SSTournamentsBot.Api.Services
 
                         if (startVotingResult.IsCompleted)
                         {
-                            ActiveVotingButtons = await _botApi.SendVotingButtons(voting.Message, voting.Options, GuildThread.VotingsTape | GuildThread.TournamentChat);
+                            ActiveVotingButtons = await _botApi.SendVotingButtons(voting.Message, voting.Options, GuildThread.VotingsTape | GuildThread.TournamentChat, Mentions);
                             _timeline.AddOneTimeEventAfterTime(Event.CompleteVoting, TimeSpan.FromSeconds(_options.VotingTimeoutSeconds));
                         }
 
@@ -175,7 +175,6 @@ namespace SSTournamentsBot.Api.Services
 
                 if (result.IsCompleted)
                 {
-                    _scanner.Active = false;
                     await Log("The stage has been completed");
 
                     if (_tournamentApi.PossibleNextStageMatches == 0)
@@ -233,7 +232,7 @@ namespace SSTournamentsBot.Api.Services
                 {
                     await Log("Checkin stage starting..");
 
-                    await _botApi.SendMessage("Внимание! Началась стадия чекина на турнир.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина 15 минут.\nЕсли все игроки зачекинятся до окончания времени, то турнир начнется немедленно.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                    await _botApi.SendMessage("Внимание! Началась стадия чекина на турнир.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина 15 минут.\nЕсли все игроки зачекинятся до окончания времени, то турнир начнется немедленно.\nКто не успел зарегистрироваться, самое время.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
 
                     _timeline.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromMinutes(_options.CheckInTimeoutMinutes));
                     return;
@@ -377,6 +376,8 @@ namespace SSTournamentsBot.Api.Services
 
                 if (result.IsTheStageIsTerminal)
                 {
+                    _scanner.Active = false;
+
                     await Log("The stage is terminal");
 
                     if (!_tournamentApi.PlayedMatches.Any(x => x.Result.IsWinner))
@@ -434,7 +435,7 @@ namespace SSTournamentsBot.Api.Services
             {
                 await Log("An attempt to start the pre checking time vote..");
 
-                var voting = CreateVoting($">>> *До начала чек-ина в турнире осталось __**{_options.PreCheckinTimeVotingOffsetMinutes} минут**__.*\nСтоит ли отложить чекин турнира и его начало на **30 минут**?\n\nГолосовать могут только участники, зарегистрированные на следующий турнир, и администрация сервера.",
+                var voting = CreateVoting($">>> @here *До начала чек-ина в турнире осталось __**{_options.PreCheckinTimeVotingOffsetMinutes} минут**__.*\nСтоит ли отложить чекин турнира и его начало на **30 минут**?\n\nГолосовать могут только участники, зарегистрированные на следующий турнир, и администрация сервера.",
                             1,
                             false,
                             FSharpFunc<FSharpOption<int>, Unit>.FromConverter(x =>
@@ -659,6 +660,31 @@ namespace SSTournamentsBot.Api.Services
             _dataService.StoreTournament(data);
             await _botApi.SendMessage($"__**Daily Tournament {bundle.Tournament.Date.PrettyShortDatePrint()}**__ благополучно завершен!\nПоздравляем с победой игрока под ником __**{bundle.Winner.Value.Name}**__. Всем остальным желаем удачи на следующих турнирах!", GuildThread.History, Mentions);
             await _botApi.SendFile(bundle.Image, "tournament.png", "Сетка:", GuildThread.History);
+
+            var builder = new StringBuilder();
+
+            builder.AppendLine(">>> Сыгранные матчи:");
+            builder.AppendLine();
+
+            int k = 0;
+            for (int i = 0; i < bundle.PlayedMatches.Length; i++)
+            {
+                var match = bundle.PlayedMatches[i];
+
+                if (match.Result.IsWinner)
+                {
+                    builder.AppendLine($"{k + 1}. **{match.Player1.Value.Item1.Name}** ({match.Player1.Value.Item2}) VS **{match.Player2.Value.Item1.Name}** ({match.Player2.Value.Item2}) | {match.Map}");
+
+                    for (int j = 0; j < match.Replays.Length; j++)
+                        builder.AppendLine($"{ match.Replays[j].Url}");
+
+                    builder.AppendLine();
+                    k++;
+                }
+            }
+
+            builder.AppendLine();
+            await _botApi.SendMessage(builder.ToString(), GuildThread.History);
         }
 
         private async Task PrintTimeAndNextEvent()
@@ -668,7 +694,7 @@ namespace SSTournamentsBot.Api.Services
             if (nextEvent != null)
             {
                 var e = nextEvent;
-                await _botApi.SendMessage($"Московское время {GetMoscowTime().PrettyShortDateAndTimePrint()}\nСледующее событие '**{e.Event.PrettyPrint()}**' наступит **через {GetTimeBeforeEvent(e).PrettyPrint()}**.", GuildThread.TournamentChat | GuildThread.EventsTape);
+                await _botApi.SendMessage($"Московское время {GetMoscowTime().PrettyShortDateAndTimePrint()}\nСледующее событие '**{e.Event.PrettyPrint()}**' наступит через **{GetTimeBeforeEvent(e).PrettyPrint()}**.", GuildThread.TournamentChat | GuildThread.EventsTape);
             }
         }
 

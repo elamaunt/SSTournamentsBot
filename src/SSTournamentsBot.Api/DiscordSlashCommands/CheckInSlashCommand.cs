@@ -54,7 +54,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsDone)
             {
-                await arg.RespondAsync($"Вы успешно подтведили свое участие! Вы будете оповещены через упоминание здесь, как только турнир начнется.");
+                await arg.RespondAsync($"Вы успешно подтведили свое участие!");
 
                 if (_api.IsAllPlayersCheckIned())
                 {

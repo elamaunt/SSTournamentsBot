@@ -6,7 +6,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
 
@@ -86,6 +85,12 @@ namespace SSTournamentsBot.Api.Services
                 .Json<DowStatsGameDTO[]>(JsonSerializer.CreateDefault())
                 .Task.ContinueWith(t =>
                 {
+                    if (t.IsFaulted)
+                    {
+                        _logger.LogError(t.Exception, "Error on the DowStats lastgames request");
+                        return;
+                    }
+
                     _lastScan = toDate;
 
                     var games = t.Result;
@@ -137,12 +142,12 @@ namespace SSTournamentsBot.Api.Services
 
                                         if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
                                         {
-                                            await _botApi.SendMessage($"> Засчитана победа {string.Join(", ", winnersSelection.Select(x => x.name))} в матче против {string.Join(", ", losersSelection.Select(x => x.name))}.\nСсылка на реплей: {game.replayDownloadLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
+                                            await _botApi.SendMessage($"> Засчитана победа **{string.Join(", ", winnersSelection.Select(x => x.name))}** в матче против **{string.Join(", ", losersSelection.Select(x => x.name))}**.\nСсылка на реплей: {game.replayDownloadLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
                                         }
 
                                         if (result.IsCompletedAndFinishedTheStage)
                                         {
-                                            _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(5));
+                                            _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(10));
                                         }
                                     }
                                 });
@@ -152,7 +157,7 @@ namespace SSTournamentsBot.Api.Services
                             _logger.LogError(ex, "Error on processing of the gameInfo");
                         }
                     }
-                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                });
         }
 
         private RaceInfo ResolveRace(string race)

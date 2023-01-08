@@ -59,7 +59,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     {
                         var opponentData =  _dataService.FindUserByDiscordId(opponent.DiscordId);
                         await arg.RespondAsync($"Твой оппонент под ником {opponent.Name} не может быть вызван. Возможно, он покинул сервер.\nЕму будет присуждено техническое поражение.");
-                        if (await _api.TryLeaveUser(opponentData.DiscordId, opponentData.SteamId))
+                        if (await _api.TryLeaveUser(opponentData.DiscordId, opponentData.SteamId, TechnicalWinReason.OpponentsLeft))
                         {
                             var mention = await _botApi.GetMention(opponent.DiscordId);
                             await _botApi.SendMessage($"{mention} исключен из турнира, так как недоступен.", GuildThread.EventsTape | GuildThread.TournamentChat);

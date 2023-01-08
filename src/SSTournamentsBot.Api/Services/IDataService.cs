@@ -10,5 +10,6 @@ namespace SSTournamentsBot.Api.Services
         void StoreTournament(TournamentData bundle);
         UserData[] LoadLeaders();
         void AddPenalty(ulong discordId, int penalty);
+        bool DeleteUser(ulong discordId);
     }
 }

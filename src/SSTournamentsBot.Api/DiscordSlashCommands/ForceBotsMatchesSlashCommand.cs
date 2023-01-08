@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Threading.Tasks;
+using static SSTournaments.Domain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
@@ -29,14 +30,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 var p2 = match.Player2.Value.Item1;
                 if (random.Next(2) == 0 && p1.IsBot)
                 {
-                    await _api.TryLeaveUser(p1.DiscordId, p1.SteamId);
+                    await _api.TryLeaveUser(p1.DiscordId, p1.SteamId, TechnicalWinReason.OpponentsLeft);
                 } else if (p2.IsBot)
                 {
-                    await _api.TryLeaveUser(p2.DiscordId, p2.SteamId);
+                    await _api.TryLeaveUser(p2.DiscordId, p2.SteamId, TechnicalWinReason.OpponentsLeft);
                 }
                 else if (p1.IsBot)
                 {
-                    await _api.TryLeaveUser(p1.DiscordId, p1.SteamId);
+                    await _api.TryLeaveUser(p1.DiscordId, p1.SteamId, TechnicalWinReason.OpponentsLeft);
                 }
             }
         }

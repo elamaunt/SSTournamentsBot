@@ -82,6 +82,8 @@ namespace SSTournamentsBot.Api.Services
                 TimeAlreadyExtended = false;
                 SingleMatchTimeAlreadyExtended = false;
                 _stageCompleted = false;
+                _currentStageMatches = null;
+                _playedMatches = null;
             });
         }
 
@@ -102,7 +104,9 @@ namespace SSTournamentsBot.Api.Services
             .Where(x => !ActiveMatches.Any(m => IsLoseOf(m, x)))
             .Count() / 2;
 
-        public Task<bool> TryLeaveUser(ulong discordId, ulong steamId)
+        public bool IsCheckinStage => _isCheckIn;
+
+        public Task<bool> TryLeaveUser(ulong discordId, ulong steamId, TechnicalWinReason reason)
         {
             return _queue.Async(() =>
             {
@@ -121,7 +125,7 @@ namespace SSTournamentsBot.Api.Services
                     _leftUsers.Add(discordId);
 
                     for (int i = 0; i < _currentStageMatches.Length; i++)
-                        _currentStageMatches[i] = AddTechicalLoseToMatch(_currentStageMatches[i], steamId, TechnicalWinReason.OpponentsLeft);
+                        _currentStageMatches[i] = AddTechicalLoseToMatch(_currentStageMatches[i], steamId, reason);
                 }
                 else
                 {
@@ -206,13 +210,31 @@ namespace SSTournamentsBot.Api.Services
                          x.Player2.Value.Item2 == p1Race);
                  });
 
-                if (matchWithIndex.x == null)
+                var match = matchWithIndex.x;
+
+                if (match == null)
                     return SubmitGameResult.MatchNotFound;
+               
+                if (_stageCompleted)
+                {
+                    if (match.Result.IsTechnicalWinner && ((MatchResult.TechnicalWinner)match.Result).Item2.IsVoting)
+                    {
+                        _leftUsers.Remove(match.Player1.Value.Item1.DiscordId);
+                        _leftUsers.Remove(match.Player2.Value.Item1.DiscordId);
 
-                _currentStageMatches[matchWithIndex.i] = AddWinToMatch(matchWithIndex.x, p1Info.Item1, info.ReplayLink);
+                        _currentStageMatches[matchWithIndex.i] = ForceAddWinToMatch(match, p1Info.Item1, info.ReplayLink);
+                        return SubmitGameResult.Completed;
+                    }
+                    else
+                        return SubmitGameResult.MatchNotFound;
+                }
+                else
+                {
+                    _currentStageMatches[matchWithIndex.i] = AddWinToMatch(match, p1Info.Item1, info.ReplayLink);
 
-                if (_currentStageMatches.All(x => !x.Result.IsNotCompleted))
-                    return SubmitGameResult.CompletedAndFinishedTheStage;
+                    if (_currentStageMatches.All(x => !x.Result.IsNotCompleted))
+                        return SubmitGameResult.CompletedAndFinishedTheStage;
+                }
 
                 return SubmitGameResult.Completed;
             });
@@ -236,14 +258,14 @@ namespace SSTournamentsBot.Api.Services
                 _currentTournament = SetStartDate(_currentTournament);
                 _initialStage = Start(_currentTournament);
 
-                RegenerateStages();
+                RegenerateStagesAndCurrentStageMatches();
 
                 _isStarted = true;
                 return StartResult.Done;
             });
         }
 
-        private void RegenerateStages()
+        private void RegenerateStagesAndCurrentStageMatches()
         {
             var stage = _initialStage;
 
@@ -389,7 +411,6 @@ namespace SSTournamentsBot.Api.Services
 
                 if (matches.All(x => x.Result.IsTechnicalWinner || x.Result.IsWinner))
                 {
-                    _playedMatches = _playedMatches.Concat(matches).ToArray();
                     _stageCompleted = true;
                     return CompleteStageResult.Completed;
                 }
@@ -408,8 +429,9 @@ namespace SSTournamentsBot.Api.Services
                 if (!_stageCompleted)
                     return StartNextStageResult.PreviousStageIsNotCompleted;
 
+                _playedMatches = _playedMatches.Concat(_currentStageMatches).ToArray();
                 _stageCompleted = false;
-                RegenerateStages();
+                RegenerateStagesAndCurrentStageMatches();
 
                 if (_currentStageMatches.Length == 0)
                     return StartNextStageResult.TheStageIsTerminal;

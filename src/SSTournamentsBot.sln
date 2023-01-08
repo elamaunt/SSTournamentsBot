@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.33027.164
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SSTournaments", "SSTournaments\SSTournaments.fsproj", "{D3F45242-19D1-47A2-A217-ACE987BC880B}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "SSTournaments", "SSTournaments\SSTournaments.fsproj", "{D3F45242-19D1-47A2-A217-ACE987BC880B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSTournamentsBot.Api", "SSTournamentsBot.Api\SSTournamentsBot.Api.csproj", "{3343A8E2-BE89-4676-9FC4-6BDF66584C74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SSTournamentsBot.Api", "SSTournamentsBot.Api\SSTournamentsBot.Api.csproj", "{3343A8E2-BE89-4676-9FC4-6BDF66584C74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSTournamentsBot.Api.Tests", "SSTournamentsBot.Api.Tests\SSTournamentsBot.Api.Tests.csproj", "{D0F54CAA-F759-46CC-9F52-AAB834673A5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{3343A8E2-BE89-4676-9FC4-6BDF66584C74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3343A8E2-BE89-4676-9FC4-6BDF66584C74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3343A8E2-BE89-4676-9FC4-6BDF66584C74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0F54CAA-F759-46CC-9F52-AAB834673A5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0F54CAA-F759-46CC-9F52-AAB834673A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0F54CAA-F759-46CC-9F52-AAB834673A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0F54CAA-F759-46CC-9F52-AAB834673A5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

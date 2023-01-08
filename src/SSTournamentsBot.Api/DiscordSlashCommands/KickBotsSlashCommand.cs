@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System.Threading.Tasks;
+using static SSTournaments.Domain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
@@ -24,7 +25,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             {
                 var p = players[i];
                 if (p.IsBot)
-                    await _tournamentApi.TryLeaveUser(p.DiscordId, p.SteamId);
+                    await _tournamentApi.TryLeaveUser(p.DiscordId, p.SteamId, TechnicalWinReason.OpponentsLeft);
             }
 
             await arg.RespondAsync("Все боты покинули игру.");

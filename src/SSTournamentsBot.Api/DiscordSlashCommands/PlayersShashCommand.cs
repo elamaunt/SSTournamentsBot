@@ -26,7 +26,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             for (int i = 0; i < players.Length; i++)
             {
                 var player = players[i];
-                builder.AppendLine($"{i + 1}. {player.DiscordId}/{player.SteamId} :   {player.Name} | {player.Race}");
+                builder.AppendLine($"{i + 1}. **{player.Name}** ({player.Race})");
             }
 
             if (builder.Length > 0)

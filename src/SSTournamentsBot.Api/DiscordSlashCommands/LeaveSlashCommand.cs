@@ -2,6 +2,7 @@
 using SSTournamentsBot.Api.Services;
 using System.Linq;
 using System.Threading.Tasks;
+using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
@@ -32,7 +33,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            if (await _api.TryLeaveUser(userData.DiscordId, userData.SteamId))
+            if (await _api.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsLeft))
             {
                 await arg.RespondAsync($"Вы успешно покинули турнир.");
 

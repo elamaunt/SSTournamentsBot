@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System.Linq;
 using System.Threading.Tasks;
+using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
@@ -35,7 +36,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            if (await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId))
+            if (await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsBan))
             {
                 var mention = await _botApi.GetMention(userData.DiscordId);
                 await _botApi.SendMessage($"{mention} исключен из турнира.", GuildThread.EventsTape | GuildThread.TournamentChat);

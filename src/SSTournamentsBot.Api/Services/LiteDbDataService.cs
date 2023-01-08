@@ -150,5 +150,10 @@ namespace SSTournamentsBot.Api.Services
 
             return FindUserBySteamId(userData.SteamId);
         }
+
+        public bool DeleteUser(ulong discordId)
+        {
+            return _liteDb.GetCollection<UserData>().Delete(discordId);
+        }
     }
 }

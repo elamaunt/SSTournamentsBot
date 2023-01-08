@@ -1,24 +1,23 @@
 ﻿using Discord.WebSocket;
 using SSTournamentsBot.Api.Helpers;
 using SSTournamentsBot.Api.Services;
+using System;
 using System.Threading.Tasks;
-using static SSTournaments.Domain;
-using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
-    public class TimeSlashCommand : SlashCommandBase
+    public class AddTimeSlashCommand : SlashCommandBase
     {
         readonly IEventsTimeline _timeline;
 
-        public TimeSlashCommand(IEventsTimeline timeline)
+        public AddTimeSlashCommand(IEventsTimeline timeline)
         {
             _timeline = timeline;
         }
 
-        public override string Name => "time";
+        public override string Name => "add-time";
 
-        public override string Description => "Выводит текущее московское время и оставшееся время до следующего события";
+        public override string Description => "Откладывает следующее событие на +5 минут";
 
         public override async Task Handle(SocketSlashCommand arg)
         {
@@ -27,7 +26,8 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             if (nextEvent != null)
             {
                 var e = nextEvent;
-                await arg.RespondAsync($"Московское время {GetMoscowTime().PrettyShortDateAndTimePrint()}\nСледующее событие '**{e.Event.PrettyPrint()}**' наступит через **{GetTimeBeforeEvent(e).PrettyPrint()}**.");
+                _timeline.AddTimeToNextEventWithType(e.Event, TimeSpan.FromMinutes(5));
+                await arg.RespondAsync($"Следующее событие '**{e.Event.PrettyPrint()}**' отложено на **5 минут**");
             }
             else
             {

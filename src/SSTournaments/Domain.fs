@@ -80,7 +80,7 @@ module Domain =
         | OpponentsLeft
         | OpponentsBan
         | Voting
-        | Custom of string
+        | OpponentsKicked
 
     type MatchResult = 
         | Winner of Player * Count
@@ -423,11 +423,16 @@ module Domain =
         | Groups _ -> false
 
     let IsLoseOf m player = 
-        match m.Result with
-        | Winner (p, _) -> p.DiscordId <> player.DiscordId
-        | TechnicalWinner (p, _) -> p.DiscordId <> player.DiscordId
-        | Draw _ -> true
-        | NotCompleted _ -> false
+        match (m.Player1, m.Player2) with 
+        | (Some (p1, _), Some (p2, _)) ->
+            if (p1.DiscordId = player.DiscordId || p2.DiscordId = player.DiscordId) then 
+                match m.Result with
+                | Winner (p, _) -> p.DiscordId <> player.DiscordId
+                | TechnicalWinner (p, _) -> p.DiscordId <> player.DiscordId
+                | Draw _ -> true
+                | NotCompleted _ -> false
+            else false
+        | _ -> false
 
     let IsReducingStage stage isFirstStage =
         match stage with
@@ -501,6 +506,30 @@ module Domain =
         | Three -> w1 > 1 || w2 > 1
         | Five -> w1 > 2 || w2 > 2
         | Seven ->  w1 > 3 || w2 > 3
+
+    let ForceAddWinToMatch m winnerSteamId replayLink = 
+        let c = match m.Result with // TODO: Handle not only BO1 matches in the future updates
+        | NotCompleted x -> x
+        | _ -> (0, 0)
+
+        match (m.Player1, m.Player2) with
+        | (Some (p1, _), Some (p2, _)) ->
+            let (p1c, p2c) = c
+
+            let (winner, updatedCount) =
+                match (p1.SteamId, p2.SteamId) with
+                | (id, _) when id = winnerSteamId -> (Some p1, (p1c + 1, p2c))
+                | (_, id) when id = winnerSteamId -> (Some p2, (p1c, p2c + 1))
+                | _ -> (None, c)
+             
+            match winner with 
+            | None -> m
+            | Some winner ->
+                if IsEnoughWins m.BestOf updatedCount then 
+                    { m with Replays = m.Replays |> List.append([{ Url = replayLink }]); Result = Winner (winner, updatedCount) }
+                else
+                    { m with Replays = m.Replays |> List.append([{ Url = replayLink }]); Result = NotCompleted updatedCount }
+        | _ -> m
 
     let AddWinToMatch m winnerSteamId replayLink = 
         match m.Result with 

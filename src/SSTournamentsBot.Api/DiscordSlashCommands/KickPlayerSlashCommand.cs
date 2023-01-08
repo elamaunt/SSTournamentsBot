@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System.Linq;
 using System.Threading.Tasks;
+using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
@@ -34,12 +35,20 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            if (await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId))
+            if (await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsKicked))
             {
-                await arg.RespondAsync($"Игрок {user.Username} покинул турнир.");
+                await arg.RespondAsync($"Игрок **{user.Username}** покинул турнир.");
 
-                if (_tournamentApi.ActiveMatches.All(x => !x.Result.IsNotCompleted))
-                    _eventsHandler.DoCompleteStage();
+                if (_tournamentApi.IsTounamentStarted)
+                {
+                    if (_tournamentApi.ActiveMatches.All(x => !x.Result.IsNotCompleted))
+                        _eventsHandler.DoCompleteStage();
+                }
+                else
+                {
+                    if (_tournamentApi.IsCheckinStage && _tournamentApi.IsAllPlayersCheckIned())
+                        _eventsHandler.DoStartCurrentTournament();
+                }
             }
             else
                 await arg.RespondAsync("Не удалось исключить игрока из турнира.");
