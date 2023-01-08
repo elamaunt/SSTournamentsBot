@@ -92,17 +92,7 @@ namespace SSTournamentsBot.Api.Services
         public UserData FindUserByDiscordId(ulong discordId)
         {
             var col = _liteDb.GetCollection<UserData>();
-            var user = col.FindOne(x => x.DiscordId == discordId);
-
-            if (user == null)
-                return null;
-
-            return new UserData() 
-            { 
-                DiscordId = user.DiscordId,
-                SteamId = user.SteamId,
-                Race = user.Race
-            };
+            return col.FindOne(x => x.DiscordId == discordId);
         }
 
         public UserData[] LoadLeaders()
@@ -153,7 +143,7 @@ namespace SSTournamentsBot.Api.Services
 
         public bool DeleteUser(ulong discordId)
         {
-            return _liteDb.GetCollection<UserData>().Delete(discordId);
+            return _liteDb.GetCollection<UserData>().DeleteMany(x => x.DiscordId == discordId) > 0;
         }
     }
 }
