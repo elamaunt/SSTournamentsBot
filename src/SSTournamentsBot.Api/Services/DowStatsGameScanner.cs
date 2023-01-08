@@ -74,7 +74,6 @@ namespace SSTournamentsBot.Api.Services
         {
             var fromDate = _lastScan;
             var toDate = GetMoscowTime();
-            _lastScan = toDate;
 
             _httpService.Build("https://dowstats.ru/api/lastgames.php", UriKind.Absolute)
                 .WithParameter("datetime_from", fromDate.ToString("s", DateTimeFormatInfo.InvariantInfo))
