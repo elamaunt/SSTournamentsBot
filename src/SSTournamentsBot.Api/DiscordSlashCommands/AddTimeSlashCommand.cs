@@ -41,7 +41,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             builder.WithDefaultPermission(true)
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("minutes")
-                    .WithDescription("Время")
+                    .WithDescription("Время в минутах")
                     .WithRequired(true)
                     .WithType(ApplicationCommandOptionType.User))
                 .WithDefaultMemberPermissions(GuildPermission.Administrator)

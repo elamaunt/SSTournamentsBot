@@ -25,7 +25,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override async Task Handle(SocketSlashCommand arg)
         {
-            var botIdOption = arg.Data.Options.FirstOrDefault(x => x.Name == "winner-Id");
+            var botIdOption = arg.Data.Options.FirstOrDefault(x => x.Name == "winner-id");
             var id = (ulong)(long)botIdOption.Value;
 
             var match = _tournamentApi.ActiveMatches.FirstOrDefault(x => x.Player1.ValueOrDefault()?.Item1.DiscordId == id || x.Player2.ValueOrDefault()?.Item1.DiscordId == id);
@@ -68,7 +68,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         {
             builder.WithDefaultPermission(true)
                 .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("winner-Id")
+                    .WithName("winner-id")
                     .WithRequired(true)
                     .WithType(ApplicationCommandOptionType.Integer)
                     .WithDescription("Id победителя"))
