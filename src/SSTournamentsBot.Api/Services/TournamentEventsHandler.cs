@@ -538,7 +538,7 @@ namespace SSTournamentsBot.Api.Services
         private async Task UpdateLeaderboard(TournamentBundle bundle)
         {
             await Log("Updating leaderboards");
-            var modifiedUsers = new Dictionary<ulong, (UserData, int, int)>();
+            var modifiedUsers = new Dictionary<ulong, (UserData Data, int AddedScore, int Penalties)>();
 
             (UserData Data, int AddedScore, int Penalties) userInfo;
 
@@ -595,42 +595,38 @@ namespace SSTournamentsBot.Api.Services
 
             var builder = new StringBuilder();
 
+            await PrintChangesAndUpdateUsersInDataService(modifiedUsers, builder);
+            await ServiceHelpers.RefreshLeaders(_botApi, _dataService);
+        }
+
+        private async Task PrintChangesAndUpdateUsersInDataService(Dictionary<ulong, (UserData Data, int AddedScore, int Penalties)> modifiedUsers, StringBuilder builder)
+        {
             if (modifiedUsers.Values.Count > 0)
             {
                 builder.AppendLine("--- __**Изменения в рейтинге**__ ---");
                 builder.AppendLine();
 
-                foreach (var info in modifiedUsers.Values.OrderByDescending(x => x.Item2))
+                foreach (var info in modifiedUsers.Values.OrderByDescending(x => x.AddedScore))
                 {
-                    info.Item1.Score += info.Item2;
-                    info.Item1.Penalties = info.Item3;
-                    _dataService.UpdateUser(info.Item1);
+                    var data = info.Data;
+                    data.Score = data.Score + info.AddedScore;
+                    data.Penalties = info.Penalties;
 
+                    if (!_dataService.UpdateUser(data))
+                        Log($"WARNING! Unable to update the users rating. User Steamid = {data.SteamId}. Rating = {data.Score}. Penalties = {data.Penalties}");
+                }
+
+                int i = 1;
+                foreach (var info in modifiedUsers.Values.OrderByDescending(x => x.AddedScore))
+                {
                     if (info.Item2 != 0)
-                        builder.AppendLine($"{await _botApi.GetMention(info.Item1.DiscordId)} : {info.Item2}");
+                        builder.AppendLine($"{i++}. {info.AddedScore}  {await _botApi.GetMention(info.Data.DiscordId)}");
                 }
 
                 await _botApi.SendMessage(builder.ToString(), GuildThread.EventsTape | GuildThread.TournamentChat);
 
                 builder.Clear();
             }
-
-            var leaders = _dataService.LoadLeaders();
-
-            builder.AppendLine("--- __**Таблица лидеров**__ ---");
-            builder.AppendLine();
-
-            for (int i = 0; i < leaders.Length; i++)
-            {
-                var user = leaders[i];
-
-                builder.AppendLine($"{i + 1}. {user.Score}   {await _botApi.GetUserName(user.DiscordId)}");
-            }
-
-            builder.AppendLine();
-
-            await _botApi.ModifyLastMessage(builder.ToString(), GuildThread.Leaderboard);
-            await _botApi.SendMessage("Таблица лидеров была обновлена.", GuildThread.EventsTape | GuildThread.TournamentChat);
         }
 
         private async Task UploadTournamentToHistory(TournamentBundle bundle)

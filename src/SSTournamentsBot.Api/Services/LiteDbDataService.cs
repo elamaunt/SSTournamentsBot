@@ -1,5 +1,6 @@
 ﻿using LiteDB;
 using SSTournamentsBot.Api.DataDomain;
+using System.Collections.Generic;
 using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
 
@@ -74,7 +75,7 @@ namespace SSTournamentsBot.Api.Services
                 }
             );
 
-            mapper.Entity<UserData>().Id(x => x.DiscordId);
+            mapper.Entity<UserData>().Id(x => x.DiscordId, false);
         }
 
         public void AddPenalty(ulong discordId, int penalty)
@@ -93,6 +94,18 @@ namespace SSTournamentsBot.Api.Services
         {
             var col = _liteDb.GetCollection<UserData>();
             return col.FindOne(x => x.DiscordId == discordId);
+        }
+
+        public IEnumerable<UserData> EnumerateAllUsers()
+        {
+            return _liteDb.GetCollection<UserData>().FindAll();
+        }
+
+        public UserData[] LoadAllsUsersWithScore()
+        {
+            return _liteDb.GetCollection<UserData>().Query()
+              .Where(x => x.Score != 0)
+              .ToArray();
         }
 
         public UserData[] LoadLeaders()
@@ -133,12 +146,9 @@ namespace SSTournamentsBot.Api.Services
             return col.Upsert(userByDiscordId);
         }
 
-        public UserData UpdateUser(UserData userData)
+        public bool UpdateUser(UserData userData)
         {
-            if (_liteDb.GetCollection<UserData>().Update(userData))
-                return userData;
-
-            return FindUserBySteamId(userData.SteamId);
+            return _liteDb.GetCollection<UserData>().Update(userData);
         }
 
         public bool DeleteUser(ulong discordId)

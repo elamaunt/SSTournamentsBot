@@ -1,8 +1,8 @@
 docker volume create tournaments-db
 
-docker build -t ss_tournaments_bot:1.1 -f SSTournamentsBot.Api/Dockerfile .
+docker build -t ss_tournaments_bot:1.2 -f SSTournamentsBot.Api/Dockerfile .
 
-docker tag ss_tournaments_bot:1.1 ss_tournaments_bot:latest
+docker tag ss_tournaments_bot:1.2 ss_tournaments_bot:latest
 
 docker exec -it <hash> sh
 

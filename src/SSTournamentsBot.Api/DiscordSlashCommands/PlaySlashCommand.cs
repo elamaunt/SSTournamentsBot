@@ -55,7 +55,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 }
 
                 userData.StatsVerified = true;
-                userData = _dataService.UpdateUser(userData);
+                if (_dataService.UpdateUser(userData))
+                {
+                    await Responce($"Не удалось обновить данные в базе. @Admin");
+                    return;
+                }
             }
 
             var race = RaceOrRandom.RandomEveryMatch;
@@ -81,7 +85,12 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 }
 
                 userData.Race = race;
-                userData = _dataService.UpdateUser(userData);
+
+                if (_dataService.UpdateUser(userData))
+                {
+                    await Responce($"Не удалось обновить данные в базе. @Admin");
+                    return;
+                }
             }
 
             var result = await _tournamentApi.TryRegisterUser(userData, user.Username);
