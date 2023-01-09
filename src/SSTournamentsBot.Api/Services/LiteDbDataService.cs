@@ -135,7 +135,7 @@ namespace SSTournamentsBot.Api.Services
 
             var userBySteam = col.FindOne(x => x.SteamId == steamId);
 
-            if (userBySteam != null && userBySteam.DiscordId == discordId)
+            if (userBySteam != null)
                 return false;
 
             var userByDiscordId = col.FindOne(x => x.DiscordId == discordId) ?? new UserData();
