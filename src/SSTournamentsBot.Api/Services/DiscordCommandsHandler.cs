@@ -64,7 +64,7 @@ namespace SSTournamentsBot.Api.Services
                 new SetUsersScoreSlashCommand(dataService),
                 new RegisterUserSlashCommand(dataService),
                 new RebuildCommandsSlashCommand(this),
-                new SetWaitingRoleEnabledSlashCommand(botApi),
+                new WaitSlashCommand(botApi),
                // new VoteAddTimeSlashCommand(api),
                // new VoteBanSlashCommand(api),
                // new VoteKickSlashCommand(api),

@@ -6,29 +6,29 @@ using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
-    public class SetWaitingRoleEnabledSlashCommand : SlashCommandBase
+    public class WaitSlashCommand : SlashCommandBase
     {
-        public override string Name => "set-waiting-role-enabled";
+        public override string Name => "wait";
         public override string Description => "Получить/Убрать у себя роль 'Жду турниров'";
 
         readonly IBotApi _botApi;
-        public SetWaitingRoleEnabledSlashCommand(IBotApi botApi)
+        public WaitSlashCommand(IBotApi botApi)
         {
             _botApi = botApi;
         }
 
         public override async Task Handle(SocketSlashCommand arg)
         {
-            var valueOption = arg.Data.Options.First(x => x.Name == "value");
+            var valueOption = arg.Data.Options.FirstOrDefault(x => x.Name == "value");
 
             await arg.DeferAsync();
 
             bool enabled;
 
             if (valueOption != null)
-                enabled = await _botApi.ToggleWaitingRole((bool)valueOption.Value);
+                enabled = await _botApi.ToggleWaitingRole(arg.User.Id, (bool)valueOption.Value);
             else
-                enabled = await _botApi.ToggleWaitingRole(null);
+                enabled = await _botApi.ToggleWaitingRole(arg.User.Id, null);
 
             if (enabled)
                 await arg.ModifyOriginalResponseAsync(x => x.Content = $"Вы будете получать уведомления о начинающихся турнирах");

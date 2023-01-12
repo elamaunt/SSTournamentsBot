@@ -108,13 +108,23 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 case Domain.RegistrationResult.TournamentAlreadyStarted:
                     await Responce($"Текущий турнир уже начался, изменения в данный момент невозможны.");
                     break;
-                case Domain.RegistrationResult.Ok:
-                    await Responce($"Вы были успешно зарегистрированы на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
+                    
+                case Domain.RegistrationResult.Registered:
+                case Domain.RegistrationResult.RegisteredAndCheckIned:
 
-                    if (_tournamentApi.RegisteredPlayers.Length >= _options.MinimumPlayersToStartCheckin)
+                    if (result == Domain.RegistrationResult.Registered)
                     {
-                        _timeLine.RemoveAllEventsWithType(Event.StartCheckIn);
-                        _timeLine.AddOneTimeEventAfterTime(Event.StartCheckIn, TimeSpan.FromSeconds(10));
+                        await Responce($"Вы были успешно зарегистрированы на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
+
+                        if (_tournamentApi.RegisteredPlayers.Length >= _options.MinimumPlayersToStartCheckin)
+                        {
+                            _timeLine.RemoveAllEventsWithType(Event.StartCheckIn);
+                            _timeLine.AddOneTimeEventAfterTime(Event.StartCheckIn, TimeSpan.FromSeconds(10));
+                        }
+                    }
+                    else
+                    {
+                        await Responce($"Вы были успешно зарегистрированы и зачекинены на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
                     }
 
                     break;

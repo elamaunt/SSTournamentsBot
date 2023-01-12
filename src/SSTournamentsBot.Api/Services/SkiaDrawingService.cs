@@ -232,7 +232,7 @@ namespace SSTournamentsBot.Api.Services
                 };
 
                 canvas.DrawImage(SKImage.FromEncodedData(_logo), SKRect.Create(TopHeaderMargin, TopHeaderMargin, LogoSize, LogoSize), whitePaint);
-                canvas.DrawText($"REGULAR TOURNAMENT  {tournament.Id}  |  {tournament.StartDate.Value.PrettyShortDatePrint()}", new SKPoint(TopHeaderMargin + LogoSize + TopHeaderMargin, TopHeaderMargin + LogoSize / 2), titlePaint);
+                canvas.DrawText($"{tournament.Type.ToString().ToUpperInvariant()} AUTOCUP  {tournament.Id}  |  {tournament.StartDate.Value.PrettyShortDatePrint()}", new SKPoint(TopHeaderMargin + LogoSize + TopHeaderMargin, TopHeaderMargin + LogoSize / 2), titlePaint);
                 canvas.DrawText($"SS Tournaments Bot | powered by elamaunt", new SKPoint(TopHeaderMargin + LogoSize + TopHeaderMargin, TopHeaderMargin + LogoSize / 2 + 18), subTitlePaint);
                 
                 var blockPoints = new Dictionary<(int StageIndex, int TargetSlotIndex), (Player Player, SKPoint Point, bool Free)[]>();

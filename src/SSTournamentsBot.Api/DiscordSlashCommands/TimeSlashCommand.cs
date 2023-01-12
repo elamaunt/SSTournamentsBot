@@ -25,7 +25,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         {
             var nextEvent = _timeline.GetNextEventInfo();
 
-            var time = $"Ваше время *<t:{GetUnixTimeStamp()}:t>**\nМосковское время **{GetMoscowTime().PrettyShortTimePrint()}**";
+            var time = $">>>Ваше время **<t:{GetUnixTimeStamp()}:t>**\nМосковское время **{GetMoscowTime().PrettyShortTimePrint()}**";
 
             if (nextEvent != null)
             {

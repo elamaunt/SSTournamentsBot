@@ -233,7 +233,7 @@ namespace SSTournamentsBot.Api.Services
                     await Log("Checkin stage starting..");
 
                     await _botApi.MentionWaitingRole(GuildThread.EventsTape | GuildThread.TournamentChat);
-                    await _botApi.SendMessage($"Внимание! Началась стадия чекина на турнир *{_tournamentApi.TournamentType} AutoCup {_tournamentApi.Id}*.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина {_options.CheckInTimeoutMinutes} минут.\nРегистрация открыта до окончания чекина, при этом новым участникам вызов команды */checkin* не требуется, достаточно команды */play*", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                    await _botApi.SendMessage($"Внимание! Началась стадия чекина на турнир *{_tournamentApi.TournamentType} AutoCup {_tournamentApi.Id}*.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина {_options.CheckInTimeoutMinutes} минут.\nРегистрация открыта до окончания чекина, при этом новым участникам вызов команды */checkin* не требуется, достаточно команды */play*", GuildThread.EventsTape | GuildThread.TournamentChat, AllPlayersMentions);
 
                     _timeline.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromMinutes(_options.CheckInTimeoutMinutes));
                     return;

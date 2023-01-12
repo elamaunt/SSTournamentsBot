@@ -68,9 +68,12 @@ namespace SSTournamentsBot.Api.Services
                 _currentTournament = RegisterPlayerInTournament(_currentTournament, player);
 
                 if (_isCheckInStage)
+                {
                     _checkInedUsers.Add(player.SteamId);
+                    return RegistrationResult.RegisteredAndCheckIned;
+                }
 
-                return RegistrationResult.Ok;
+                return RegistrationResult.Registered;
             });
         }
 

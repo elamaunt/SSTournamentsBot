@@ -231,11 +231,6 @@ namespace SSTournamentsBot.Api.Services
             return Task.FromResult(mainGuild.GetRole(_options.WaitingRoleId).Mention);
         }
 
-        public Task<bool> ToggleWaitingRole(bool? toValue)
-        {
-            return Task.FromResult(toValue ?? true);
-        }
-
         public async Task MentionWaitingRole(GuildThread thread)
         {
             var mention = await GetMentionForWaitingRole();

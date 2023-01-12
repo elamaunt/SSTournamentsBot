@@ -32,7 +32,7 @@ namespace SSTournamentsBot.Api.Tests
             for (ulong i = 1; i < 5; i++)
             {
                 var user = data.FindUserByDiscordId(i);
-                Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(user.DiscordId))) == Domain.RegistrationResult.Ok);
+                Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(user.DiscordId))) == Domain.RegistrationResult.Registered);
             }
 
             Assert.IsTrue((await api.TryStartTheCheckIn()).IsDone);
@@ -108,7 +108,7 @@ namespace SSTournamentsBot.Api.Tests
             for (ulong i = 1; i < 5; i++)
             {
                 var user = data.FindUserByDiscordId(i);
-                Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(user.DiscordId))) == Domain.RegistrationResult.Ok);
+                Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(user.DiscordId))) == Domain.RegistrationResult.Registered);
             }
 
             Assert.IsTrue((await api.TryStartTheCheckIn()).IsDone);
@@ -231,7 +231,7 @@ namespace SSTournamentsBot.Api.Tests
                 for (ulong i = 1; i < 5; i++)
                 {
                     var user = data.FindUserByDiscordId(i);
-                    Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(user.DiscordId))) == Domain.RegistrationResult.Ok);
+                    Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(user.DiscordId))) == Domain.RegistrationResult.Registered);
                 }
 
                 timeline.AddOneTimeEventAfterTime(Event.StartCheckIn, TimeSpan.FromMinutes(options.Value.CheckInTimeoutMinutes));

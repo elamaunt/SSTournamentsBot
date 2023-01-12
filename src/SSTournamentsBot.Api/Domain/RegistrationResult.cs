@@ -2,7 +2,8 @@
 {
     public enum RegistrationResult
     {
-        Ok,
+        Registered,
+        RegisteredAndCheckIned,
         AlreadyRegistered,
         TournamentAlreadyStarted
     }

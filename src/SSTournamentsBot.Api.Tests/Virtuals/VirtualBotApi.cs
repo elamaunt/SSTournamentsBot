@@ -36,10 +36,7 @@ namespace SSTournamentsBot.Api.Tests.Virtuals
         {
             return Task.CompletedTask;
         }
-        public Task<bool> ToggleWaitingRole(bool? toValue)
-        {
-            return Task.FromResult(toValue ?? true);
-        }
+
         public Task ModifyLastMessage(string message, SecondaryDomain.GuildThread thread)
         {
             var last = Messages.FindLast(x => x.Thread == thread);
@@ -71,6 +68,11 @@ namespace SSTournamentsBot.Api.Tests.Virtuals
         public Task<IButtonsController> SendVotingButtons(string message, SecondaryDomain.VotingOption[] buttons, SecondaryDomain.GuildThread thread, params ulong[] mentions)
         {
             return Task.FromResult((IButtonsController)new ButtonsControllerMock());
+        }
+
+        public Task<bool> ToggleWaitingRole(ulong id, bool? toValue)
+        {
+            return Task.FromResult(toValue ?? true);
         }
     }
 }
