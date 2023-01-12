@@ -55,14 +55,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             if (result.IsDone)
             {
                 await arg.RespondAsync($"Вы успешно подтведили свое участие!");
-
-                if (_api.IsAllPlayersCheckIned())
-                {
-                    _timeLine.RemoveAllEventsWithType(Event.StartCurrentTournament);
-                    _timeLine.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromSeconds(10));
-                }
                 return;
             }
+
+            await arg.RespondAsync("Произошла ошибка");
         }
     }
 }

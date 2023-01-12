@@ -1,10 +1,13 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Options;
 using SSTournamentsBot.Api.Helpers;
 using SSTournamentsBot.Api.Services;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
+using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
@@ -16,11 +19,16 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         readonly IDataService _dataService;
         readonly IStatsApi _statsApi;
         readonly TournamentApi _tournamentApi;
-        public PlaySlashCommand(IDataService dataService, IStatsApi statsApi, TournamentApi tournamentApi)
+        readonly IEventsTimeline _timeLine;
+        readonly TournamentEventsOptions _options;
+
+        public PlaySlashCommand(IDataService dataService, IStatsApi statsApi, TournamentApi tournamentApi, IEventsTimeline timeline, IOptions<TournamentEventsOptions> options)
         {
             _dataService = dataService;
             _statsApi = statsApi;
             _tournamentApi = tournamentApi;
+            _timeLine = timeline;
+            _options = options.Value;
         }
         public override async Task Handle(SocketSlashCommand arg)
         {
@@ -42,7 +50,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             await arg.DeferAsync();
 
-            Task Responce(string message) => arg.ModifyOriginalResponseAsync(x => { x.Content = new Optional<string>(message); });
+            Task Responce(string message) => arg.ModifyOriginalResponseAsync(x => x.Content = message);
 
             if (!userData.StatsVerified)
             {
@@ -55,9 +63,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 }
 
                 userData.StatsVerified = true;
-                if (_dataService.UpdateUser(userData))
+                if (!_dataService.UpdateUser(userData))
                 {
-                    await Responce($"Не удалось обновить данные в базе. @Admin");
+                    await Responce($"Не удалось обновить данные в базе.");
                     return;
                 }
             }
@@ -86,9 +94,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 userData.Race = race;
 
-                if (_dataService.UpdateUser(userData))
+                if (!_dataService.UpdateUser(userData))
                 {
-                    await Responce($"Не удалось обновить данные в базе. @Admin");
+                    await Responce($"Не удалось обновить данные в базе.");
                     return;
                 }
             }
@@ -102,11 +110,18 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     break;
                 case Domain.RegistrationResult.Ok:
                     await Responce($"Вы были успешно зарегистрированы на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
+
+                    if (_tournamentApi.RegisteredPlayers.Length >= _options.MinimumPlayersToStartCheckin)
+                    {
+                        _timeLine.RemoveAllEventsWithType(Event.StartCheckIn);
+                        _timeLine.AddOneTimeEventAfterTime(Event.StartCheckIn, TimeSpan.FromSeconds(10));
+                    }
+
                     break;
                 case Domain.RegistrationResult.AlreadyRegistered:
                     if (raceOption != null)
                     {
-                        var updateResult = await _tournamentApi.UpdatePlayersRace(userData);
+                        var updateResult = await _tournamentApi.TryUpdatePlayersRace(userData);
 
                         if (!updateResult.IsCompleted)
                         {

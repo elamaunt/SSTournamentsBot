@@ -16,6 +16,11 @@ namespace SSTournamentsBot.Api.Tests.Virtuals
             return Task.FromResult(id.ToString());
         }
 
+        public Task<string> GetMentionForWaitingRole()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Task<string> GetUserName(ulong id)
         {
             return Task.FromResult("Bot" + id);
@@ -27,6 +32,14 @@ namespace SSTournamentsBot.Api.Tests.Virtuals
             return Task.CompletedTask;
         }
 
+        public Task MentionWaitingRole(SecondaryDomain.GuildThread thread)
+        {
+            return Task.CompletedTask;
+        }
+        public Task<bool> ToggleWaitingRole(bool? toValue)
+        {
+            return Task.FromResult(toValue ?? true);
+        }
         public Task ModifyLastMessage(string message, SecondaryDomain.GuildThread thread)
         {
             var last = Messages.FindLast(x => x.Thread == thread);

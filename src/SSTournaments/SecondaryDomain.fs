@@ -120,7 +120,6 @@ module SecondaryDomain =
 
     type Event = 
         | StartCurrentTournament
-        | StartPreCheckingTimeVote
         | StartCheckIn
         | CompleteVoting
         | StartNextStage
@@ -135,17 +134,15 @@ module SecondaryDomain =
     let GetTimeBeforeEvent info = info.StartDate - GetMoscowTime()
 
     type ITournamentEventsHandler =
-        abstract DoStartCurrentTournament : Unit -> Unit
-        abstract DoStartPreCheckingTimeVote : Unit -> Unit
-        abstract DoStartCheckIn : Unit -> Unit
-        abstract DoCompleteVoting : Unit -> Unit
-        abstract DoStartNextStage : Unit -> Unit
-        abstract DoCompleteStage : Unit -> Unit
+        abstract DoStartCurrentTournament : Unit -> System.Threading.Tasks.Task
+        abstract DoStartCheckIn : Unit -> System.Threading.Tasks.Task
+        abstract DoCompleteVoting : Unit -> System.Threading.Tasks.Task
+        abstract DoStartNextStage : Unit -> System.Threading.Tasks.Task
+        abstract DoCompleteStage : Unit -> System.Threading.Tasks.Task
 
     let SwitchEvent ev (handler: ITournamentEventsHandler) = 
         match ev with
         | StartCurrentTournament -> handler.DoStartCurrentTournament()
-        | StartPreCheckingTimeVote -> handler.DoStartPreCheckingTimeVote()
         | StartCheckIn -> handler.DoStartCheckIn()
         | CompleteVoting -> handler.DoCompleteVoting()
         | StartNextStage -> handler.DoStartNextStage()

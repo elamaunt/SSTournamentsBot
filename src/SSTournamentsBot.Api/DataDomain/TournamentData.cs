@@ -12,5 +12,8 @@ namespace SSTournamentsBot.Api.DataDomain
         public MatchData[] Matches { get; set; }
         public Mod Mod { get; internal set; }
         public int Seed { get; internal set; }
+        public int TournamentId { get; internal set; }
+        public int SeasonId { get; internal set; }
+        public int EarnedRating { get; set; }
     }
 }

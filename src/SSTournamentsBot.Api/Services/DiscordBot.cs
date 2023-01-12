@@ -68,7 +68,6 @@ namespace SSTournamentsBot.Api.Services
         private Task OnReady()
         {
             _isReady = true;
-            _timeLine.ScheduleEveryDayTournament(_tournamentOptions);
             return Task.CompletedTask;
         }
 
@@ -116,9 +115,9 @@ namespace SSTournamentsBot.Api.Services
 
             if (result == AcceptVoteResult.CompletedByThisVote)
             {
-                _eventsHandler.DoCompleteVoting();
                 await arg.RespondAsync($"{arg.User.Mention} завершает голосование голосом администрации.");
-                return; 
+                await _eventsHandler.DoCompleteVoting();
+                return;
             }
 
             await arg.RespondAsync($"{arg.User.Mention} Ошибка во время обработка запроса");

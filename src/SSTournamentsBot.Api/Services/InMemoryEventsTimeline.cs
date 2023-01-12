@@ -206,7 +206,7 @@ namespace SSTournamentsBot.Api.Services
 
                 if (info?.Event == ev)
                 {
-                    info.TimeExtension = time;
+                    info.TimeExtension += time;
                     break;
                 }
             }

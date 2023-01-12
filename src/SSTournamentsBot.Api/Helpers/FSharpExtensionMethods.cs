@@ -11,6 +11,13 @@ namespace SSTournamentsBot.Api
             return default;
         }
 
+        public static T? AsNullable<T>(this FSharpOption<T> self) where T: struct
+        {
+            if (FSharpOption<T>.get_IsSome(self))
+                return new T?(self.Value);
+            return new T?();
+        }
+
         public static bool IsSome<T>(this FSharpOption<T> self)
         {
             return FSharpOption<T>.get_IsSome(self);

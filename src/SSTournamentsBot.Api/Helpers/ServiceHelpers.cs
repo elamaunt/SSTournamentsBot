@@ -27,12 +27,10 @@ namespace SSTournamentsBot.Api.Helpers
                 return "Начало следующей стадии";
             if (ev.IsStartCurrentTournament)
                 return "Начало турнира";
-            if (ev.IsStartPreCheckingTimeVote)
-                return "Предтурнирное голосование";
             return ev.ToString();
         }
 
-        public static void ScheduleEveryDayTournament(this IEventsTimeline timeline, TournamentEventsOptions options)
+        /*public static void ScheduleEveryDayTournament(this IEventsTimeline timeline, TournamentEventsOptions options)
         {
             var now = GetMoscowTime();
 
@@ -41,7 +39,7 @@ namespace SSTournamentsBot.Api.Helpers
                 .AddMinutes(-now.Minute)
                 .AddSeconds(-now.Second);
 
-            var tournamentStartTime = today.AddHours(18);
+            var tournamentStartTime = today.AddHours(options.TournamentStartHour);
             var checkinStartTime = tournamentStartTime.AddMinutes(-options.CheckInTimeoutMinutes);
             var preCheckinVoteStartTime = checkinStartTime.AddMinutes(-options.PreCheckinTimeVotingOffsetMinutes);
 
@@ -49,14 +47,14 @@ namespace SSTournamentsBot.Api.Helpers
             {
                 today = today.AddDays(1);
 
-                tournamentStartTime = today.AddHours(18);
+                tournamentStartTime = today.AddHours(options.TournamentStartHour);
                 checkinStartTime = tournamentStartTime.AddMinutes(-options.CheckInTimeoutMinutes);
                 preCheckinVoteStartTime = checkinStartTime.AddMinutes(-options.PreCheckinTimeVotingOffsetMinutes);
             }
 
             timeline.RemoveAllEventsWithType(Event.StartPreCheckingTimeVote);
             timeline.AddPeriodicalEventOnSingleDayTime(Event.StartPreCheckingTimeVote, preCheckinVoteStartTime);
-        }
+        }*/
 
         public static async Task RefreshLeaders(IBotApi botApi, IDataService dataService, bool notify = true)
         {

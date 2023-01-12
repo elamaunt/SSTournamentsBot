@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Options;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Linq;
@@ -13,16 +14,18 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "start";
         public override string Description => "Немедленно запускает турнир начиная с чекина";
 
+        readonly TournamentEventsOptions _options;
         readonly TournamentApi _tournamentApi;
         readonly IEventsTimeline _timeline;
         readonly IBotApi _botApi;
         ulong[] Mentions => _tournamentApi.RegisteredPlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
 
-        public StartSlashCommand(IEventsTimeline timeline, IBotApi botApi, TournamentApi tournamentApi)
+        public StartSlashCommand(IEventsTimeline timeline, IBotApi botApi, TournamentApi tournamentApi, IOptions<TournamentEventsOptions> options)
         {
             _timeline = timeline;
             _botApi = botApi;
             _tournamentApi = tournamentApi;
+            _options = options.Value;
         }
 
         public override async Task Handle(SocketSlashCommand arg)
@@ -34,10 +37,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 _timeline.RemoveAllEventsWithType(Event.StartCheckIn);
                 _timeline.RemoveAllEventsWithType(Event.StartCurrentTournament);
 
-                if (_timeline.HasEventToday(Event.StartPreCheckingTimeVote))
-                    _timeline.AddTimeToNextEventWithType(Event.StartPreCheckingTimeVote, TimeSpan.FromDays(1));
-
-                await _botApi.SendMessage("Внимание! Началась стадия чекина на турнир.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина 15 минут.\nЕсли все игроки зачекинятся до окончания времени, то турнир начнется немедленно.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                await _botApi.SendMessage($"Внимание! Началась стадия чекина на турнир.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина {_options.CheckInTimeoutMinutes} минут.\nРегистрация новых участников позволяется и не требует чекина.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
 
                 _timeline.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromMinutes(15));
 

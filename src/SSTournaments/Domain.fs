@@ -2,17 +2,15 @@
 
 module Domain =
     
-    [<Literal>] 
-    let tournamentStartHour = 18
-
     // TODO: use BracketsType
     type BracketsType = 
         | OnlyWinners
         | WinnersAndLosers
 
     type TournamentType = 
-        | Daily
-        | Weekly
+        | Regular
+        //| Daily
+        //| Weekly
 
     type Race = 
         | SpaceMarines
@@ -67,9 +65,12 @@ module Domain =
        | TPMod
 
     type Tournament = {
-        Mod: Mod; 
+        Id: int
+        SeasonId: int
+        Mod: Mod
         Type: TournamentType
-        Date: System.DateTime
+        StartDate: System.DateTime option
+        CreationDate: System.DateTime 
         RegisteredPlayers: Player array
         Seed: int
     }
@@ -152,28 +153,24 @@ module Domain =
         | System.DayOfWeek.Saturday -> System.DayOfWeek.Monday
         | _ -> System.DayOfWeek.Monday
 
-    let TournamentTypeByDayOfTheWeek day = 
-        match day with
-       // | System.DayOfWeek.Saturday -> Weekly
-        | _ -> Daily
+    //let TournamentTypeByDayOfTheWeek day = 
+    //    match day with
+    //    | System.DayOfWeek.Saturday -> Weekly
+    //    | _ -> Daily
+
+    let GetUnixTimeStamp() = (int32)(System.DateTime.UtcNow.Subtract(System.DateTime(1970, 1, 1))).TotalSeconds;
 
     let GetMoscowTime() = System.DateTime.UtcNow.AddHours(3.0)
 
-    let GetNextTournamentDate() = 
-        let moscowTime = GetMoscowTime()
-        if moscowTime.Hour < tournamentStartHour then moscowTime else moscowTime.AddDays(1.0)
-
-    let GetNextTournamentDayTypeByDate() = 
-        let moscowTime = GetMoscowTime()
-        let day = moscowTime.DayOfWeek
-        if moscowTime.Hour < tournamentStartHour then day else (day |> NextDay)
-
-    let CreateTournamentByDate gameMod = { 
+    let CreateTournament gameMod seasonId tournamentId = { 
+        Id = tournamentId
+        SeasonId = seasonId
         Mod = gameMod
-        Type = GetNextTournamentDayTypeByDate() |> TournamentTypeByDayOfTheWeek
+        Type = Regular
         RegisteredPlayers = [||]
         Seed = System.Random().Next()
-        Date = GetNextTournamentDate()
+        CreationDate = GetMoscowTime()
+        StartDate = None
     }
    
     let Exists x =
@@ -183,7 +180,7 @@ module Domain =
 
     let IsEnoughPlayersToPlay tournament = 
         match tournament.Type with 
-        | Weekly -> tournament.RegisteredPlayers.Length >= 12
+        //| Weekly -> tournament.RegisteredPlayers.Length >= 12
         | _ -> tournament.RegisteredPlayers.Length > 3
 
 
@@ -235,12 +232,12 @@ module Domain =
         |]
        
     let SetStartDate tournament = 
-        { tournament with Date = GetMoscowTime() }
+        { tournament with StartDate = Some (GetMoscowTime()) }
 
     let Start tournament = 
         match tournament.Type with
-        | Daily -> tournament.RegisteredPlayers  |> (Shuffle tournament.Seed) |> Array.choose(fun x -> Some(Some x)) |> Brackets
-        | Weekly -> tournament.RegisteredPlayers |> (Shuffle tournament.Seed) |> SplitToArrays 4 |> Groups
+        | Regular -> tournament.RegisteredPlayers  |> (Shuffle tournament.Seed) |> Array.choose(fun x -> Some(Some x)) |> Brackets
+        //| Weekly -> tournament.RegisteredPlayers |> (Shuffle tournament.Seed) |> SplitToArrays 4 |> Groups
 
     let rec GetPowerOfTwoNearestTo n i = 
         if i > n then (i >>> 1) else GetPowerOfTwoNearestTo n (i <<< 1)

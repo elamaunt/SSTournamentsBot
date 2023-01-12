@@ -197,6 +197,51 @@ namespace SSTournamentsBot.Api.Services
             await (await _client.GetUserAsync(id)).SendMessageAsync(message);
         }
 
+        public async Task<bool> ToggleWaitingRole(ulong id, bool? toValue)
+        {
+            var main = _client.GetGuild(_options.MainGuildId);
+            var waitingRole = main.GetRole(_options.WaitingRoleId);
+            var user = main.GetUser(id);
+
+            if (user.Roles.Any(x => x.Id == _options.WaitingRoleId))
+            {
+                if (!toValue.HasValue || !toValue.Value)
+                {
+                    await user.RemoveRoleAsync(waitingRole);
+                    return false;
+                }
+
+                return true;
+            }
+            else
+            {
+                if (!toValue.HasValue || toValue.Value)
+                {
+                    await user.AddRoleAsync(waitingRole);
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        public Task<string> GetMentionForWaitingRole()
+        {
+            var mainGuild = _client.Guilds.First();
+            return Task.FromResult(mainGuild.GetRole(_options.WaitingRoleId).Mention);
+        }
+
+        public Task<bool> ToggleWaitingRole(bool? toValue)
+        {
+            return Task.FromResult(toValue ?? true);
+        }
+
+        public async Task MentionWaitingRole(GuildThread thread)
+        {
+            var mention = await GetMentionForWaitingRole();
+            await SendMessage(mention, thread);
+        }
+
         private class DiscordButtonsController : IButtonsController
         {
             private readonly RestUserMessage[] _messages;

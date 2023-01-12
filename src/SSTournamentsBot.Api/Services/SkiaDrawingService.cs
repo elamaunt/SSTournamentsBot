@@ -38,7 +38,9 @@ namespace SSTournamentsBot.Api.Services
         Dictionary<Map, string> _mapNames;
         Dictionary<Race, string> _races;
         string _logo;
-        string _blood;
+        string _dead;
+        string _techLose;
+        string _winner;
         string _font;
         public SkiaDrawingService()
         {
@@ -48,7 +50,9 @@ namespace SSTournamentsBot.Api.Services
             }
 
             _logo = PathTo("SSTournamentsBot.png");
-            _blood = PathTo("Blood.png");
+            _dead = PathTo("Blood.png");
+            _techLose = PathTo("TechLose.png");
+            _winner = PathTo("Winner.png");
             _font = PathTo("roboto-medium.ttf");
 
             _maps = new Dictionary<Map, string>() 
@@ -176,6 +180,17 @@ namespace SSTournamentsBot.Api.Services
                     Typeface = typeface
                 };
 
+                var identityIconPaint = new SKPaint
+                {
+                    Color = SKColors.White,
+                    IsAntialias = true,
+                    Style = SKPaintStyle.Fill,
+                    TextAlign = SKTextAlign.Left,
+                    TextSize = 15,
+                    Typeface = typeface,
+                   // BlendMode = SKBlendMode.Multiply
+                };
+
                 var whitePaint = new SKPaint
                 {
                     Color = SKColors.White,
@@ -216,8 +231,8 @@ namespace SSTournamentsBot.Api.Services
                     Typeface = typeface
                 };
 
-                canvas.DrawImage(SKImage.FromEncodedData(_logo), new SKRect(TopHeaderMargin, TopHeaderMargin, LogoSize, LogoSize), whitePaint);
-                canvas.DrawText($"DAILY TOURNAMENT | {tournament.Date.PrettyShortDatePrint()}", new SKPoint(TopHeaderMargin + LogoSize + TopHeaderMargin, TopHeaderMargin + LogoSize / 2), titlePaint);
+                canvas.DrawImage(SKImage.FromEncodedData(_logo), SKRect.Create(TopHeaderMargin, TopHeaderMargin, LogoSize, LogoSize), whitePaint);
+                canvas.DrawText($"REGULAR TOURNAMENT  {tournament.Id}  |  {tournament.StartDate.Value.PrettyShortDatePrint()}", new SKPoint(TopHeaderMargin + LogoSize + TopHeaderMargin, TopHeaderMargin + LogoSize / 2), titlePaint);
                 canvas.DrawText($"SS Tournaments Bot | powered by elamaunt", new SKPoint(TopHeaderMargin + LogoSize + TopHeaderMargin, TopHeaderMargin + LogoSize / 2 + 18), subTitlePaint);
                 
                 var blockPoints = new Dictionary<(int StageIndex, int TargetSlotIndex), (Player Player, SKPoint Point, bool Free)[]>();
@@ -339,11 +354,15 @@ namespace SSTournamentsBot.Api.Services
                                 else
                                 {
                                     Player winner = null;
+                                    bool techWin = false;
 
                                     if (match.Result.IsWinner)
                                         winner = ((MatchResult.Winner)match.Result).Item1;
                                     else if (match.Result.IsTechnicalWinner)
+                                    {
                                         winner = ((MatchResult.TechnicalWinner)match.Result).Item1;
+                                        techWin = true;
+                                    }
 
                                     if (winner != null)
                                         if (winner == player)
@@ -358,7 +377,7 @@ namespace SSTournamentsBot.Api.Services
                                                 leftOffset + PlayerLineLeftTextOffset,
                                                 blockTopOffset + MapSize + MapMargin + PlayerLineTextOffset), notActiveTextPaint);
 
-                                            canvas.DrawImage(SKImage.FromEncodedData(_blood), new SKPoint(leftOffset + PlayerLineWidth - 100, blockTopOffset + MapSize + MapMargin));
+                                            canvas.DrawImage(SKImage.FromEncodedData(techWin ? _techLose : _dead), new SKPoint(leftOffset + PlayerLineWidth - 100, blockTopOffset + MapSize + MapMargin));
                                         }
                                 }
 
@@ -398,11 +417,15 @@ namespace SSTournamentsBot.Api.Services
                                 else
                                 {
                                     Player winner = null;
+                                    bool techWin = false;
 
                                     if (match.Result.IsWinner)
                                         winner = ((MatchResult.Winner)match.Result).Item1;
                                     else if (match.Result.IsTechnicalWinner)
+                                    {
                                         winner = ((MatchResult.TechnicalWinner)match.Result).Item1;
+                                        techWin = true;
+                                    }
 
                                     if (winner != null)
                                         if (winner == player)
@@ -417,7 +440,7 @@ namespace SSTournamentsBot.Api.Services
                                                 leftOffset + PlayerLineLeftTextOffset,
                                                 blockTopOffset + MapSize + MapMargin + PlayerLineHeight + PlayerLinesOffset + PlayerLineTextOffset), notActiveTextPaint);
 
-                                            canvas.DrawImage(SKImage.FromEncodedData(_blood), new SKPoint(leftOffset + PlayerLineWidth - 100, blockTopOffset + MapSize + MapMargin + PlayerLineHeight + PlayerLinesOffset));
+                                            canvas.DrawImage(SKImage.FromEncodedData(techWin ? _techLose : _dead), new SKPoint(leftOffset + PlayerLineWidth - 100, blockTopOffset + MapSize + MapMargin + PlayerLineHeight + PlayerLinesOffset));
                                         }
                                 }
                             }
@@ -461,6 +484,9 @@ namespace SSTournamentsBot.Api.Services
                                 canvas.DrawText(player.Name, new SKPoint(
                                     leftOffset + PlayerLineLeftTextOffset,
                                     blockTopOffset + PlayerLineTextOffset), tournamentWinner == player ? tournamentWinnerTextPaint : whitePaint);
+
+                                //if (blocks.Length == 1)
+                                //    canvas.DrawImage(SKImage.FromEncodedData(_winner), new SKPoint(leftOffset + PlayerLineWidth - 100, blockTopOffset));
                             }
 
                             currentSlotsCounter++;

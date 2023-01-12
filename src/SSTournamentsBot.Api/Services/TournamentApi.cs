@@ -17,8 +17,8 @@ namespace SSTournamentsBot.Api.Services
         private VotingProgress _votingProgress;
 
         private volatile bool _isStarted;
-        private volatile bool _isCheckIn;
-        private volatile bool _stageCompleted;
+        private bool _isCheckInStage;
+        private bool _stageCompleted;
 
         private (Stage, StageBlock[])[] _stages;
         private Match[] _playedMatches;
@@ -26,13 +26,16 @@ namespace SSTournamentsBot.Api.Services
         private HashSet<ulong> _checkInedUsers;
         private Dictionary<ulong, TechnicalWinReason> _excludedUsers;
         private Stage _initialStage;
+
+        readonly IDataService _dataService;
         readonly IDrawingService _renderingService;
 
         readonly AsyncQueue _queue = new AsyncQueue();
 
-        public TournamentApi(IDrawingService renderingService)
+        public TournamentApi(IDrawingService renderingService, IDataService dataService)
         {
             _renderingService = renderingService;
+            _dataService = dataService;
         }
 
         public Task<RegistrationResult> TryRegisterUser(UserData userData, string name, bool isBot = false)
@@ -46,7 +49,9 @@ namespace SSTournamentsBot.Api.Services
 
                 if (_currentTournament == null)
                 {
-                    _currentTournament = CreateTournamentByDate(Mod.Soulstorm);
+                    var (SeasonId, TournamentId) = _dataService.GetCurrentTournamentIds();
+
+                    _currentTournament = CreateTournament(Mod.Soulstorm, SeasonId, TournamentId);
                     _excludedUsers = new Dictionary<ulong, TechnicalWinReason>();
                     _checkInedUsers = new HashSet<ulong>();
                     _initialStage = null;
@@ -62,7 +67,7 @@ namespace SSTournamentsBot.Api.Services
                 var player = new Player(name, userData.SteamId, userData.DiscordId, userData.Race, isBot, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
                 _currentTournament = RegisterPlayerInTournament(_currentTournament, player);
 
-                if (_isCheckIn)
+                if (_isCheckInStage)
                     _checkInedUsers.Add(player.SteamId);
 
                 return RegistrationResult.Ok;
@@ -74,7 +79,7 @@ namespace SSTournamentsBot.Api.Services
             return _queue.Async(() =>
             {
                 _currentTournament = null;
-                _isCheckIn = false;
+                _isCheckInStage = false;
                 _isStarted = false;
                 _excludedUsers = null;
                 _checkInedUsers = null;
@@ -89,22 +94,26 @@ namespace SSTournamentsBot.Api.Services
 
         public bool IsTounamentStarted => _isStarted;
         public Player[] RegisteredPlayers => _currentTournament?.RegisteredPlayers ?? new Player[0];
-        public TournamentType TournamentType => _currentTournament?.Type;
+        private IEnumerable<Player> ActivePlayersEnumerable => IsTounamentStarted ? RegisteredPlayers
+            .Where(x => !_excludedUsers.ContainsKey(x.DiscordId))
+            .Where(x => !_playedMatches.Any(m => IsLoseOf(m, x)))
+            .Where(x => !ActiveMatches.Any(m => IsLoseOf(m, x))) : Enumerable.Empty<Player>();
+
+        public Player[] ActivePlayers => ActivePlayersEnumerable.ToArray();
+        public bool IsAllPlayersCheckIned => RegisteredPlayers.All(x => _checkInedUsers?.Contains(x.SteamId) ?? false);
+        public bool IsAllActiveMatchesCompleted => ActiveMatches.All(x => !x.Result.IsNotCompleted);
+        public Player[] CheckInedPlayers => RegisteredPlayers.Where(x => _checkInedUsers?.Contains(x.SteamId) ?? false).ToArray();
+        public TournamentType TournamentType => _currentTournament?.Type ?? TournamentType.Regular;
         public Match[] ActiveMatches => _currentStageMatches ?? new Match[0];
         public Match[] PlayedMatches => _playedMatches ?? new Match[0];
         public VotingProgress VotingProgress => _votingProgress;
-
         public bool SingleMatchTimeAlreadyExtended { get; set; }
         public bool TimeAlreadyExtended { get; set; }
-        public DateTime Date => _currentTournament?.Date ?? DateTime.Today;
-
-        public int PossibleNextStageMatches => RegisteredPlayers
-            .Where(x => !_excludedUsers.ContainsKey(x.DiscordId))
-            .Where(x => !_playedMatches.Any(m => IsLoseOf(m, x)))
-            .Where(x => !ActiveMatches.Any(m => IsLoseOf(m, x)))
-            .Count() / 2;
-
-        public bool IsCheckinStage => _isCheckIn;
+        public DateTime? StartDate => _currentTournament?.StartDate.AsNullable();
+        public int PossibleNextStageMatches => ActivePlayersEnumerable.Count() / 2;
+        public bool IsCheckinStage => _isCheckInStage;
+        public int Id => _currentTournament?.Id ?? 0;
+        public string Header => $"{TournamentType} AutoCup {Id} | {StartDate.Value.PrettyShortDatePrint()}";
 
         public Task<LeaveUserResult> TryLeaveUser(ulong discordId, ulong steamId, TechnicalWinReason reason)
         {
@@ -143,13 +152,13 @@ namespace SSTournamentsBot.Api.Services
                 if (_currentTournament == null)
                     return CheckInResult.NoTournament;
 
-                if (_isCheckIn || _isStarted)
+                if (_isCheckInStage || _isStarted)
                     return CheckInResult.AlreadyStarted;
 
                 if (!IsEnoughPlayersToPlay(_currentTournament))
                     return CheckInResult.NotEnoughPlayers;
 
-                _isCheckIn = true;
+                _isCheckInStage = true;
                 return CheckInResult.Done;
             });
         }
@@ -375,7 +384,7 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
-        public Task<UpdatePlayersRaceResult> UpdatePlayersRace(UserData userData)
+        public Task<UpdatePlayersRaceResult> TryUpdatePlayersRace(UserData userData)
         {
             return _queue.Async(() =>
             {
@@ -450,7 +459,7 @@ namespace SSTournamentsBot.Api.Services
                 if (!RegisteredPlayers.Any(x => x.SteamId == steamId))
                     return UserCheckInResult.NotRegisteredIn;
 
-                if (!_isCheckIn)
+                if (!_isCheckInStage)
                     return UserCheckInResult.NotCheckInStageNow;
 
                 if (_checkInedUsers.Add(steamId))
@@ -547,16 +556,6 @@ namespace SSTournamentsBot.Api.Services
             }));
 
             _votingProgress = null;
-        }
-
-        public bool IsAllPlayersCheckIned()
-        {
-            return RegisteredPlayers.All(x => _checkInedUsers?.Contains(x.SteamId) ?? false);
-        }
-
-        public bool IsAllActiveMatchesCompleted()
-        {
-            return ActiveMatches.All(x => !x.Result.IsNotCompleted);
         }
     }
 }

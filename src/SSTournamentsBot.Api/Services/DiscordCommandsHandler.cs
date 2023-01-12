@@ -15,6 +15,7 @@ namespace SSTournamentsBot.Api.Services
     {
         readonly DiscordSocketClient _client;
         readonly DiscordBotOptions _options;
+        readonly TournamentEventsOptions _tournamentOptions;
         readonly Dictionary<string, SlashCommandBase> _commands;
 
         private volatile bool _firstReadyRecieved;
@@ -26,10 +27,12 @@ namespace SSTournamentsBot.Api.Services
             IBotApi botApi,
             ITournamentEventsHandler eventsHandler,
             IEventsTimeline timeline,
-            IOptions<DiscordBotOptions> options)
+            IOptions<DiscordBotOptions> options,
+            IOptions<TournamentEventsOptions> tournamentOptions)
         {
             _client = client;
             _options = options.Value;
+            _tournamentOptions = tournamentOptions.Value;
 
             _commands = new SlashCommandBase[]
             {
@@ -43,12 +46,12 @@ namespace SSTournamentsBot.Api.Services
                 new LeaveSlashCommand(dataService, eventsHandler, api),
                 new MyIdSlashCommand(),
                 new PlayersShashCommand(api),
-                new PlaySlashCommand(dataService, statsApi, api),
+                new PlaySlashCommand(dataService, statsApi, api, timeline, tournamentOptions),
                 new StatusSlashCommand(),
                 new TimelineSlashCommand(timeline),
                 new TimeSlashCommand(timeline),
                 new ViewSlashCommand(api),
-                new StartSlashCommand(timeline, botApi, api),
+                new StartSlashCommand(timeline, botApi, api, tournamentOptions),
                 new DeleteUserDataSlashCommand(dataService),
                 new AddTimeSlashCommand(timeline),
                 new KickBotSlashCommand(api),
@@ -60,11 +63,22 @@ namespace SSTournamentsBot.Api.Services
                 new AllUsersSlashCommand(botApi, dataService),
                 new SetUsersScoreSlashCommand(dataService),
                 new RegisterUserSlashCommand(dataService),
+                new RebuildCommandsSlashCommand(this),
+                new SetWaitingRoleEnabledSlashCommand(botApi),
                // new VoteAddTimeSlashCommand(api),
                // new VoteBanSlashCommand(api),
                // new VoteKickSlashCommand(api),
                 new MatchesSlashCommand(api)
             }.ToDictionary(x => x.Name);
+        }
+
+        public async Task RebuildCommands()
+        {
+            foreach (var guild in _client.Guilds)
+            {
+                await guild.DeleteApplicationCommandsAsync();
+                await UpdateOrCreateCommandsForGuild(guild);
+            }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -107,44 +121,47 @@ namespace SSTournamentsBot.Api.Services
 
             foreach (var guild in _client.Guilds)
             {
-               // await guild.DeleteApplicationCommandsAsync(); 
-                var currentCommands = (await guild.GetApplicationCommandsAsync()).ToList();
+                await UpdateOrCreateCommandsForGuild(guild);
 
-                foreach (var cmd in _commands.Values)
+#if !DEBUG
+                await guild.GetTextChannel(_options.TournamentThreadId).SendMessageAsync($@"Привет, друзья! 
+**SS Tournaments Bot** к вашим услугам и готов устраивать для Вас автоматические турниры.
+Они автоматически организуются сразу по достижению **минимального количества участников 4**.
+После этого сразу же начинается стадия чекина и идет __ровно 10 минут__.
+За это время могут регистрироваться больше участников, но после чекина игроков должно быть не менее {_tournamentOptions.MinimumPlayersToStartCheckin}, чтобы начать турнир.
+Как только турнир завершается, набор игроков начинается заново.
+Для регистрации на турнир используйте команду **/play.
+Удачной игры!**");
+#endif
+            }
+        }
+
+        private async Task UpdateOrCreateCommandsForGuild(SocketGuild guild)
+        {
+            var currentCommands = (await guild.GetApplicationCommandsAsync()).ToList();
+
+            foreach (var cmd in _commands.Values)
+            {
+                var sameCommand = currentCommands.FirstOrDefault(x => x.Name == cmd.Name);
+                if (sameCommand == null)
                 {
-                    var sameCommand = currentCommands.FirstOrDefault(x => x.Name == cmd.Name);
-                    if (sameCommand == null)
+                    await guild.CreateApplicationCommandAsync(cmd.MakeBuilder().Build());
+                }
+                else
+                {
+                    currentCommands.Remove(sameCommand);
+
+                    if (sameCommand.Description != cmd.Description)
                     {
+                        await sameCommand.DeleteAsync();
                         await guild.CreateApplicationCommandAsync(cmd.MakeBuilder().Build());
                     }
-                    else
-                    {
-                        currentCommands.Remove(sameCommand);
-
-                        if (sameCommand.Description != cmd.Description)
-                        {
-                            await sameCommand.DeleteAsync();
-                            await guild.CreateApplicationCommandAsync(cmd.MakeBuilder().Build());
-                        }
-                    }
                 }
+            }
 
-                foreach (var cmd in currentCommands)
-                {
-                    await cmd.DeleteAsync();
-                }
-
-#if DEBUG
-                await guild.GetTextChannel(_options.TournamentThreadId).SendMessageAsync(@"Привет, друзья! 
-SS Tournaments Bot к вашим услугам и готов устраивать для Вас автоматические турниры.
-Тестовый режим активирован. Для регистрации на турнир используйте команду /play.");
-#else
-                await guild.GetTextChannel(_options.TournamentThreadId).SendMessageAsync(@"Привет, друзья! 
-**SS Tournaments Bot** к вашим услугам и готов устраивать для Вас автоматические турниры.
-Они организуются ежедневно в __**18:00 по Мск**__.
-*Начало чекина за 15 минут до начала.* Генерация сетки ровно в 18, либо сразу после чекина всех игроков, успевайте :)
-Для регистрации на турнир используйте команду **/play.**");
-#endif
+            foreach (var cmd in currentCommands)
+            {
+                await cmd.DeleteAsync();
             }
         }
 

@@ -11,7 +11,12 @@ namespace SSTournamentsBot
 
         public static string PrettyShortDateAndTimePrint(this DateTime date)
         {
-            return date.ToString("dd.MM.yyyy hh:mm");
+            return date.ToString("HH:mm (dd.MM.yyyy)");
+        }
+
+        public static string PrettyShortTimePrint(this DateTime date)
+        {
+            return date.ToString("HH:mm");
         }
 
         public static string PrettyPrint(this TimeSpan time)

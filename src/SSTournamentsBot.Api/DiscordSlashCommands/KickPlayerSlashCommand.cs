@@ -44,12 +44,12 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 if (_tournamentApi.IsTounamentStarted)
                 {
                     if (_tournamentApi.ActiveMatches.All(x => !x.Result.IsNotCompleted))
-                        _eventsHandler.DoCompleteStage();
+                        await _eventsHandler.DoCompleteStage();
                 }
                 else
                 {
-                    if (_tournamentApi.IsCheckinStage && _tournamentApi.IsAllPlayersCheckIned())
-                        _eventsHandler.DoStartCurrentTournament();
+                    if (_tournamentApi.IsCheckinStage && _tournamentApi.IsAllPlayersCheckIned)
+                        await _eventsHandler.DoStartCurrentTournament();
                 }
                 return;
             }

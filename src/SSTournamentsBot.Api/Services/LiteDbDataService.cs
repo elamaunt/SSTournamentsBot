@@ -1,6 +1,8 @@
 ﻿using LiteDB;
 using SSTournamentsBot.Api.DataDomain;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
 
@@ -122,9 +124,23 @@ namespace SSTournamentsBot.Api.Services
             return _liteDb.GetCollection<UserData>().FindOne(x => x.SteamId == steamId);
         }
 
-        public void StoreTournament(TournamentData data)
+        public void StoreTournamentAndIncrementTournamentId(TournamentData data)
         {
             _liteDb.GetCollection<TournamentData>().Insert(data);
+
+            UpdateGlobals(x =>
+            {
+                x.CurrentTournamentId++;
+                x.MatchesPlayed += data.Matches.Count(x => x.Result.IsWinner);
+                x.EarnedRating += data.EarnedRating;
+            });
+        }
+
+        private void UpdateGlobals(Action<GlobalData> update)
+        {
+            var globals = GetGlobals();
+            update(globals);
+            _liteDb.GetCollection<GlobalData>().Upsert(0, globals);
         }
 
         public bool StoreUsersSteamId(ulong discordId, ulong steamId)
@@ -154,6 +170,31 @@ namespace SSTournamentsBot.Api.Services
         public bool DeleteUser(ulong discordId)
         {
             return _liteDb.GetCollection<UserData>().DeleteMany(x => x.DiscordId == discordId) > 0;
+        }
+
+        public (int SeasonId, int TournamentId) GetCurrentTournamentIds()
+        {
+            var globals = GetGlobals();
+            return (globals.CurrentSeasonId, globals.CurrentTournamentId);
+        }
+
+        private GlobalData GetGlobals()
+        {
+            var col = _liteDb.GetCollection<GlobalData>();
+            var globals = col.FindById(0);
+
+            if (globals == null)
+            {
+                globals = new GlobalData();
+                col.Upsert(0, globals);
+            }
+
+            return globals;
+        }
+
+        public void IncrementTournamentId()
+        {
+            UpdateGlobals(x => x.CurrentTournamentId++);
         }
     }
 }

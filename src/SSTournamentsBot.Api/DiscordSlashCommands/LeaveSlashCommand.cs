@@ -40,8 +40,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 await arg.RespondAsync($"Вы успешно покинули турнир.");
 
                 if (_api.IsTounamentStarted && _api.ActiveMatches.All(x => !x.Result.IsNotCompleted))
-                    _eventsHandler.DoCompleteStage();
-
+                    await _eventsHandler.DoCompleteStage();
                 return;
             }
 

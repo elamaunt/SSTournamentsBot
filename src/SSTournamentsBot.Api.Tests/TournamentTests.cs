@@ -5,6 +5,7 @@ using SSTournamentsBot.Api.Services.Debug;
 using SSTournamentsBot.Api.Tests.Mocks;
 using SSTournamentsBot.Api.Tests.Virtuals;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
@@ -19,8 +20,8 @@ namespace SSTournamentsBot.Api.Tests
         public async Task SubmitGameAfterStageCompletedTest()
         {
             var skia = new SkiaDrawingService();
-            var api = new TournamentApi(skia);
             var data = new InMemoryDataService();
+            var api = new TournamentApi(skia, data);
             var botApi = new VirtualBotApi();
 
             Assert.IsTrue(data.StoreUsersSteamId(1, 1));
@@ -39,7 +40,7 @@ namespace SSTournamentsBot.Api.Tests
             for (ulong i = 1; i < 5; i++)
                 Assert.IsTrue((await api.TryCheckInUser(i)).IsDone);
 
-            Assert.IsTrue(api.IsAllPlayersCheckIned());
+            Assert.IsTrue(api.IsAllPlayersCheckIned);
 
             Assert.IsTrue((await api.TryStartTheTournament()).IsDone);
 
@@ -74,7 +75,7 @@ namespace SSTournamentsBot.Api.Tests
                 Assert.IsTrue((await api.TryLeaveUser(i, i, TechnicalWinReason.OpponentsLeft)).IsDone);
             }
 
-            Assert.IsTrue(api.IsAllActiveMatchesCompleted());
+            Assert.IsTrue(api.IsAllActiveMatchesCompleted);
             Assert.IsTrue((await api.TryCompleteCurrentStage()).IsCompleted);
             Assert.IsTrue((await api.TryStartNextStage()).IsTheStageIsTerminal);
 
@@ -95,8 +96,8 @@ namespace SSTournamentsBot.Api.Tests
         public async Task MatchVotingTest()
         {
             var skia = new SkiaDrawingService();
-            var api = new TournamentApi(skia);
             var data = new InMemoryDataService();
+            var api = new TournamentApi(skia, data);
             var botApi = new VirtualBotApi();
 
             Assert.IsTrue(data.StoreUsersSteamId(1, 1));
@@ -115,7 +116,7 @@ namespace SSTournamentsBot.Api.Tests
             for (ulong i = 1; i < 5; i++)
                 Assert.IsTrue((await api.TryCheckInUser(i)).IsDone);
 
-            Assert.IsTrue(api.IsAllPlayersCheckIned());
+            Assert.IsTrue(api.IsAllPlayersCheckIned);
 
             Assert.IsTrue((await api.TryStartTheTournament()).IsDone);
 
@@ -137,6 +138,8 @@ namespace SSTournamentsBot.Api.Tests
 
                 Assert.IsTrue(submitResult.IsCompleted || submitResult.IsCompletedAndFinishedTheStage);
             }
+
+            //System.IO.File.WriteAllBytes("sstournamentimage0.png", await api.RenderTournamentImage());
 
             Assert.IsTrue((await api.TryCompleteCurrentStage()).IsCompleted);
             Assert.IsTrue((await api.TryStartNextStage()).IsDone);
@@ -173,7 +176,7 @@ namespace SSTournamentsBot.Api.Tests
 
             var leaveId = finalMatch.Player1.Value.Item1.DiscordId;
             Assert.IsTrue((await api.TryLeaveUser(leaveId, leaveId, TechnicalWinReason.Voting)).IsDone);
-            Assert.IsTrue(api.IsAllActiveMatchesCompleted());
+            Assert.IsTrue(api.IsAllActiveMatchesCompleted);
             Assert.IsTrue((await api.TryCompleteCurrentStage()).IsCompleted);
             Assert.IsTrue((await api.TryStartNextStage()).IsTheStageIsTerminal);
 
@@ -190,27 +193,113 @@ namespace SSTournamentsBot.Api.Tests
             Assert.IsNotNull(bundle.Winner);
             Assert.AreEqual(finalMatch.Player2.Value.Item1.DiscordId, bundle.Winner.Value.DiscordId);
 
-            //System.IO.File.WriteAllBytes("sstournamentimage.png", bundle.Image);
+            System.IO.File.WriteAllBytes("sstournamentimage1.png", bundle.Image);
         }
 
-        // TODO: 
-        /*public async Task EventsHandlerTest()
+        [TestMethod]
+        public async Task TournamentCycleTest()
         {
             var skia = new SkiaDrawingService();
-            var api = new TournamentApi(skia);
-
-            var timeline = new InMemoryEventsTimeline();
             var data = new InMemoryDataService();
+            var api = new TournamentApi(skia, data);
+            var timeline = new InMemoryEventsTimeline();
 
             var scanner = new GamesScannerMock();
             var botApi = new VirtualBotApi();
 
-            var options = new VirtualOptions<TournamentEventsOptions>(new TournamentEventsOptions() { });
+            var options = new VirtualOptions<TournamentEventsOptions>(new TournamentEventsOptions()
+            {
+                MinimumPlayersToStartCheckin = 4,
+                CheckInTimeoutMinutes = 1,
+                VotingTimeoutSeconds = 1,
+                StageBreakTimeoutMinutes = 1,
+                StageTimeoutMinutes = 1,
+                AdditionalTimeForStageMinutes = 1
+            });
 
             var handler = new TournamentEventsHandler(new LoggerMock<TournamentEventsHandler>(), data, botApi, scanner, timeline, api, options);
-            var timeScheduler = new TimeSchedulerService(new LoggerMock<TimeSchedulerService>(), handler, timeline);
 
-            await timeScheduler.StartAsync(CancellationToken.None);
-        }*/
+            // Store users in db
+            Assert.IsTrue(data.StoreUsersSteamId(1, 1));
+            Assert.IsTrue(data.StoreUsersSteamId(2, 2));
+            Assert.IsTrue(data.StoreUsersSteamId(3, 3));
+            Assert.IsTrue(data.StoreUsersSteamId(4, 4));
+
+            for (int k = 0; k < 3; k++)
+            {
+                // Register users in the tournament
+                for (ulong i = 1; i < 5; i++)
+                {
+                    var user = data.FindUserByDiscordId(i);
+                    Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(user.DiscordId))) == Domain.RegistrationResult.Ok);
+                }
+
+                timeline.AddOneTimeEventAfterTime(Event.StartCheckIn, TimeSpan.FromMinutes(options.Value.CheckInTimeoutMinutes));
+
+                // Start checkin
+                await GoNextEvent(timeline, handler);
+
+                for (ulong i = 1; i < 5; i++)
+                    Assert.IsTrue((await api.TryCheckInUser(i)).IsDone);
+
+                // Start tournament
+                await GoNextEvent(timeline, handler);
+
+                foreach (var match in api.ActiveMatches)
+                {
+                    var winner = match.Player1.ValueOrDefault();
+                    var loser = match.Player2.ValueOrDefault();
+
+                    var winners = new Tuple<ulong, RaceInfo>[] { new Tuple<ulong, RaceInfo>(winner.Item1.SteamId, RaceInfo.NewNormalRace(winner.Item2)) };
+                    var losers = new Tuple<ulong, RaceInfo>[] { new Tuple<ulong, RaceInfo>(loser.Item1.SteamId, RaceInfo.NewNormalRace(loser.Item2)) };
+
+                    var gameType = GameType.Type1v1;
+                    var duration = 100;
+                    var map = MapInfo.NewMap1v1(match.Map, match.Map.ToString());
+                    var usedMod = ModInfo.NewMod(Mod.Soulstorm);
+                    var replayLink = "";
+
+                    var submitResult = await api.TrySubmitGame(new FinishedGameInfo(winners, losers, gameType, duration, map, usedMod, replayLink));
+
+                    Assert.IsTrue(submitResult.IsCompleted || submitResult.IsCompletedAndFinishedTheStage);
+                }
+
+                // Complete stage
+                await GoNextEvent(timeline, handler);
+                // Start new stage
+                await GoNextEvent(timeline, handler);
+
+                foreach (var match in api.ActiveMatches)
+                {
+                    var winner = match.Player1.ValueOrDefault();
+                    var loser = match.Player2.ValueOrDefault();
+
+                    var winners = new Tuple<ulong, RaceInfo>[] { new Tuple<ulong, RaceInfo>(winner.Item1.SteamId, RaceInfo.NewNormalRace(winner.Item2)) };
+                    var losers = new Tuple<ulong, RaceInfo>[] { new Tuple<ulong, RaceInfo>(loser.Item1.SteamId, RaceInfo.NewNormalRace(loser.Item2)) };
+
+                    var gameType = GameType.Type1v1;
+                    var duration = 100;
+                    var map = MapInfo.NewMap1v1(match.Map, match.Map.ToString());
+                    var usedMod = ModInfo.NewMod(Mod.Soulstorm);
+                    var replayLink = "";
+
+                    var submitResult = await api.TrySubmitGame(new FinishedGameInfo(winners, losers, gameType, duration, map, usedMod, replayLink));
+
+                    Assert.IsTrue(submitResult.IsCompleted || submitResult.IsCompletedAndFinishedTheStage);
+                }
+
+                // Complete the tournament
+                await GoNextEvent(timeline, handler);
+
+                Assert.AreEqual("The tournament is finished normally", botApi.Messages.Last().Message);
+            }
+        }
+
+        private static async Task GoNextEvent(InMemoryEventsTimeline timeline, TournamentEventsHandler handler)
+        {
+            var next = timeline.GetNextEventInfo().Event;
+            timeline.RemoveAllEvents();
+            await SwitchEvent(next, handler);
+        }
     }
 }

@@ -41,7 +41,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 _timeline.AddTimeToNextEventWithType(e.Event, time);
 
                 if (minutes < 0)
-                    await arg.RespondAsync($"Следующее событие '**{e.Event.PrettyPrint()}**' ускорено на **{time.Negate().PrettyPrint()}**");
+                    await arg.RespondAsync($"Следующее событие '**{e.Event.PrettyPrint()}**' ускорено на -**{time.Negate().PrettyPrint()}**");
                 else
                     await arg.RespondAsync($"Следующее событие '**{e.Event.PrettyPrint()}**' отложено на **{time.PrettyPrint()}**");
             }
@@ -58,7 +58,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     .WithName("minutes")
                     .WithDescription("Время в минутах")
                     .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.User))
+                    .WithType(ApplicationCommandOptionType.Integer))
                 .WithDefaultMemberPermissions(GuildPermission.Administrator)
                 .WithDMPermission(true);
         }

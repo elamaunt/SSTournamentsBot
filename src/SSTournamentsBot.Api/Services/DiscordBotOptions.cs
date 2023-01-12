@@ -10,6 +10,6 @@
         public ulong LeaderboardThreadId { get; set; }
         public ulong LoggingThreadId { get; set; }
         public ulong VotingsTapeThreadId { get; set; }
-        
+        public ulong WaitingRoleId { get; set; }
     }
 }

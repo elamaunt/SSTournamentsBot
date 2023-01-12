@@ -36,7 +36,8 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        ulong[] Mentions => _tournamentApi.RegisteredPlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
+        ulong[] Mentions => _tournamentApi.ActivePlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
+        ulong[] AllPlayersMentions => _tournamentApi.RegisteredPlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
 
         public TournamentEventsHandler(ILogger<TournamentEventsHandler> logger,
             IDataService dataService,
@@ -55,7 +56,7 @@ namespace SSTournamentsBot.Api.Services
             _tournamentApi = tournamentApi;
         }
 
-        public async void DoCompleteStage()
+        public async Task DoCompleteStage()
         {
             try
             {
@@ -108,7 +109,7 @@ namespace SSTournamentsBot.Api.Services
                         var p2 = activeMatch.Player2.Value.Item1;
 
                         var voting = CreateVoting(">>> Быстрое голосование по незавершенному матчу. Кому присудить техническое поражение?",
-                            2,
+                            1,
                             true,
                             FSharpFunc<FSharpOption<int>, Unit>.FromConverter(x =>
                             {
@@ -143,7 +144,7 @@ namespace SSTournamentsBot.Api.Services
                                             break;
                                     }
 
-                                    if (_tournamentApi.IsAllActiveMatchesCompleted())
+                                    if (_tournamentApi.IsAllActiveMatchesCompleted)
                                     {
                                         _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(10));
                                     }
@@ -179,7 +180,7 @@ namespace SSTournamentsBot.Api.Services
 
                     if (_tournamentApi.PossibleNextStageMatches == 0)
                     {
-                        DoStartNextStage();
+                        await DoStartNextStage();
                     }
                     else
                     {
@@ -198,7 +199,7 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        public async void DoStartCheckIn()
+        public async Task DoStartCheckIn()
         {
             try
             {
@@ -223,8 +224,7 @@ namespace SSTournamentsBot.Api.Services
                 {
                     await Log("Not enough players.");
                     await _tournamentApi.DropTournament();
-                    await _botApi.SendMessage("Турнир отменен, так как участников недостаточно. Список зарегистрированных был обнулен.\nСледующий турнир только завтра :)", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
-                    await PrintTimeAndNextEvent();
+                    await _botApi.SendMessage($"Турнир отменен, так как участников недостаточно. Список зарегистрированных был обнулен.\nСледующий турнир начнется, когда снова зарегистрируются {_options.MinimumPlayersToStartCheckin} участника.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
                     return;
                 }
 
@@ -232,7 +232,8 @@ namespace SSTournamentsBot.Api.Services
                 {
                     await Log("Checkin stage starting..");
 
-                    await _botApi.SendMessage("Внимание! Началась стадия чекина на турнир.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина 15 минут.\nЕсли все игроки зачекинятся до окончания времени, то турнир начнется немедленно.\nКто не успел зарегистрироваться, самое время.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                    await _botApi.MentionWaitingRole(GuildThread.EventsTape | GuildThread.TournamentChat);
+                    await _botApi.SendMessage($"Внимание! Началась стадия чекина на турнир *{_tournamentApi.TournamentType} AutoCup {_tournamentApi.Id}*.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина {_options.CheckInTimeoutMinutes} минут.\nРегистрация открыта до окончания чекина, при этом новым участникам вызов команды */checkin* не требуется, достаточно команды */play*", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
 
                     _timeline.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromMinutes(_options.CheckInTimeoutMinutes));
                     return;
@@ -246,7 +247,7 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        public async void DoStartCurrentTournament()
+        public async Task DoStartCurrentTournament()
         {
             try
             {
@@ -271,8 +272,8 @@ namespace SSTournamentsBot.Api.Services
                 {
                     await Log("Starting the tournament..");
 
-                    await _botApi.SendMessage("Начинается турнир!", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
-                    await _botApi.SendFile(await _tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка:", GuildThread.EventsTape | GuildThread.TournamentChat);
+                    await _botApi.SendMessage($"Начинается турнир *{_tournamentApi.TournamentType} AutoCup {_tournamentApi.Id}*!", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                    await _botApi.SendFile(await _tournamentApi.RenderTournamentImage(), $"tournament_{_tournamentApi.Id}.png", "Сетка:", GuildThread.EventsTape | GuildThread.TournamentChat);
                     _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromMinutes(_options.StageTimeoutMinutes));
                     _scanner.GameTypeFilter = GameType.Type1v1;
                     _scanner.Active = true;
@@ -331,7 +332,8 @@ namespace SSTournamentsBot.Api.Services
 
             await _botApi.SendMessage(builder.ToString(), GuildThread.EventsTape | GuildThread.TournamentChat);
 
-            var hostingMentions = Mentions.Where(x =>
+            var mentions = Mentions;
+            var hostingMentions = mentions.Where(x =>
             {
                 return matches.Any(m => m.Player1.Value.Item1.DiscordId == x);
             }).ToArray();
@@ -339,7 +341,7 @@ namespace SSTournamentsBot.Api.Services
             await _botApi.SendMessage("---\nИгру хостят вот эти ребята:", GuildThread.EventsTape | GuildThread.TournamentChat);
             await _botApi.Mention(GuildThread.EventsTape | GuildThread.TournamentChat, hostingMentions);
 
-            var relaxingMentions = Mentions.Where(x =>
+            var relaxingMentions = mentions.Where(x =>
             {
                 return !matches.Any(m => m.Player1.Value.Item1.DiscordId == x || m.Player2.Value.Item1.DiscordId == x);
             }).ToArray();
@@ -351,7 +353,7 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        public async void DoStartNextStage()
+        public async Task DoStartNextStage()
         {
             try
             {
@@ -380,28 +382,29 @@ namespace SSTournamentsBot.Api.Services
 
                     await Log("The stage is terminal");
 
+                    var tournamentHeader = _tournamentApi.Header;
+
                     if (!_tournamentApi.PlayedMatches.Any(x => x.Result.IsWinner))
                     {
                         await _botApi.SendMessage("Определился победитель, но турнир не будет засчитан, так как он полностью состоит из технических поражений. Должна быть сыграна хотя бы одна игра.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
-                        await _botApi.SendMessage($"__**Daily Tournament {_tournamentApi.Date.PrettyShortDatePrint()} завершен без учета результатов**__\n==================================================================================================\n", GuildThread.EventsTape | GuildThread.TournamentChat);
+                        
+                        await _botApi.SendMessage($"__**{tournamentHeader} завершен без учета результатов**__\n==================================================================================================\n", GuildThread.EventsTape | GuildThread.TournamentChat);
                         await _tournamentApi.DropTournament();
-                        await Task.Delay(5000);
-                        await PrintTimeAndNextEvent();
+                        _dataService.IncrementTournamentId();
                         await Log("The tournament is finished without results");
                         return;
                     }
 
-                    await _botApi.SendMessage("Определился победитель турнира!", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                    await _botApi.SendMessage("Определился победитель турнира!", GuildThread.EventsTape | GuildThread.TournamentChat);
 
                     var tournamentBundle = await _tournamentApi.BuildAllData();
-                    var date = _tournamentApi.Date;
-                    await _botApi.SendFile(tournamentBundle.Image, "tournament.png", "Полная сетка:", GuildThread.EventsTape | GuildThread.TournamentChat);
+                    var date = _tournamentApi.StartDate.Value;
+                    await _botApi.SendFile(tournamentBundle.Image, $"tournament_{tournamentBundle.Tournament.Id}_completed.png", "Полная сетка:", GuildThread.EventsTape | GuildThread.TournamentChat);
                     await UploadTournamentToHistory(tournamentBundle);
                     await UpdateLeaderboardAndUploadChangesToHistory(tournamentBundle);
-                    await _botApi.SendMessage($"__**Daily Tournament {date.PrettyShortDatePrint()} успешно завершен**__\n==================================================================================================\n", GuildThread.EventsTape | GuildThread.TournamentChat);
+
+                    await _botApi.SendMessage($"__**{tournamentHeader} успешно завершен**__\n==================================================================================================\n", GuildThread.EventsTape | GuildThread.TournamentChat);
                     await _tournamentApi.DropTournament();
-                    await Task.Delay(2000);
-                    await PrintTimeAndNextEvent();
                     await Log("The tournament is finished normally");
                     return;
                 }
@@ -410,7 +413,7 @@ namespace SSTournamentsBot.Api.Services
                 {
                     await Log("The stage has been started..");
                     await _botApi.SendMessage(">>> Начинается следующая стадия турнира! Генерация сетки..", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
-                    await _botApi.SendFile(await _tournamentApi.RenderTournamentImage(), "tournament.png", "Сетка турнира", GuildThread.EventsTape | GuildThread.TournamentChat);
+                    await _botApi.SendFile(await _tournamentApi.RenderTournamentImage(), $"tournament_{_tournamentApi.Id}.png", "Сетка турнира", GuildThread.EventsTape | GuildThread.TournamentChat);
 
                     _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromMinutes(_options.StageTimeoutMinutes));
                     _scanner.GameTypeFilter = GameType.Type1v1;
@@ -429,13 +432,13 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        public async void DoStartPreCheckingTimeVote()
+        /*public async Task DoStartPreCheckingTimeVote()
         {
             try
             {
                 await Log("An attempt to start the pre checking time vote..");
 
-                var voting = CreateVoting($">>> @here *До начала чек-ина в турнире осталось __**{_options.PreCheckinTimeVotingOffsetMinutes} минут**__.*\nСтоит ли отложить чекин турнира и его начало на **30 минут**?\n\nГолосовать могут только участники, зарегистрированные на следующий турнир, и администрация сервера.",
+                var voting = CreateVoting($">>> *До начала чек-ина в турнире осталось __**{_options.PreCheckinTimeVotingOffsetMinutes} минут**__.*\nСтоит ли отложить чекин турнира и его начало на **30 минут**?\n\nГолосовать могут только участники, зарегистрированные на следующий турнир, и администрация сервера.",
                             1,
                             false,
                             FSharpFunc<FSharpOption<int>, Unit>.FromConverter(x =>
@@ -491,9 +494,9 @@ namespace SSTournamentsBot.Api.Services
             {
                 await Log(nameof(DoStartPreCheckingTimeVote) + ':' + ex.ToString());
             }
-        }
+        }*/
 
-        public async void DoCompleteVoting()
+        public async Task DoCompleteVoting()
         {
             try
             {
@@ -602,11 +605,6 @@ namespace SSTournamentsBot.Api.Services
             if (modifiedUsers.Values.Count == 0)
                 return (null, null);
 
-            var builder = new StringBuilder();
-
-            builder.AppendLine("--- __**Изменения в рейтинге**__ ---");
-            builder.AppendLine();
-
             foreach (var info in modifiedUsers.Values.OrderByDescending(x => x.AddedScore))
             {
                 var data = info.Data;
@@ -614,10 +612,14 @@ namespace SSTournamentsBot.Api.Services
                 data.Penalties = info.Penalties;
 
                 if (!_dataService.UpdateUser(data))
-                    Log($"WARNING! Unable to update the users rating. User Steamid = {data.SteamId}. Rating = {data.Score}. Penalties = {data.Penalties}");
+                    Log($"WARNING! Unable to update the users rating. User DiscordId = {data.DiscordId}. User Steamid = {data.SteamId}. Rating = {data.Score}. Penalties = {data.Penalties}");
             }
 
             var mentionsList = new List<ulong>();
+            var builder = new StringBuilder();
+
+            builder.AppendLine();
+            builder.AppendLine("--- __**Изменения в рейтинге**__ ---");
 
             int i = 1;
             foreach (var info in modifiedUsers.Values.OrderByDescending(x => x.AddedScore))
@@ -629,6 +631,8 @@ namespace SSTournamentsBot.Api.Services
                 }
             }
 
+            builder.AppendLine();
+
             return (builder.ToString(), mentionsList.ToArray());
         }
 
@@ -637,7 +641,9 @@ namespace SSTournamentsBot.Api.Services
             await Log("Uploading the tournament to history");
             var data = new TournamentData()
             { 
-                Date = bundle.Tournament.Date,
+                TournamentId = bundle.Tournament.Id,
+                SeasonId = bundle.Tournament.SeasonId,
+                Date = bundle.Tournament.StartDate.ValueOrDefault(),
                 Type = bundle.Tournament.Type,
                 Mod = bundle.Tournament.Mod,
                 Seed = bundle.Tournament.Seed,
@@ -656,9 +662,11 @@ namespace SSTournamentsBot.Api.Services
 
             };
 
-            _dataService.StoreTournament(data);
-            await _botApi.SendMessage($"__**Daily Tournament {bundle.Tournament.Date.PrettyShortDatePrint()}**__ благополучно завершен!\nПоздравляем с победой игрока под ником __**{bundle.Winner.Value.Name}**__. Всем остальным желаем удачи на следующих турнирах!", GuildThread.History, Mentions);
-            await _botApi.SendFile(bundle.Image, "tournament.png", "Сетка:", GuildThread.History);
+            _dataService.StoreTournamentAndIncrementTournamentId(data);
+
+            var tournamentHeader = $"{bundle.Tournament.Type} AutoCup {bundle.Tournament.Id} | {bundle.Tournament.StartDate.Value.PrettyShortDatePrint()}";
+            await _botApi.SendMessage($"__**{tournamentHeader}**__ благополучно завершен!\nПоздравляем с победой игрока под ником __**{bundle.Winner.Value.Name}**__. Всем остальным желаем удачи на следующих турнирах!", GuildThread.History, AllPlayersMentions);
+            await _botApi.SendFile(bundle.Image, $"tournament_{bundle.Tournament.Id}_completed.png", "Сетка:", GuildThread.History);
 
             var builder = new StringBuilder();
 
@@ -693,7 +701,7 @@ namespace SSTournamentsBot.Api.Services
             if (nextEvent != null)
             {
                 var e = nextEvent;
-                await _botApi.SendMessage($"Московское время {GetMoscowTime().PrettyShortDateAndTimePrint()}\nСледующее событие '**{e.Event.PrettyPrint()}**' наступит через **{GetTimeBeforeEvent(e).PrettyPrint()}**.", GuildThread.TournamentChat | GuildThread.EventsTape);
+                await _botApi.SendMessage($"Московское время {GetMoscowTime().PrettyShortTimePrint()}\nСледующее событие '**{e.Event.PrettyPrint()}**' наступит через **{GetTimeBeforeEvent(e).PrettyPrint()}**.", GuildThread.TournamentChat | GuildThread.EventsTape);
             }
         }
 

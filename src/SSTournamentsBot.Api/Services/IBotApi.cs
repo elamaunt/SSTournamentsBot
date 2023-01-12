@@ -14,5 +14,8 @@ namespace SSTournamentsBot.Api.Services
         Task<string> GetUserName(ulong id);
         Task<string> GetMention(ulong id);
         Task SendMessageToUser(string message, ulong id);
+        Task<bool> ToggleWaitingRole(bool? toValue);
+        Task<string> GetMentionForWaitingRole();
+        Task MentionWaitingRole(GuildThread thread);
     }
 }
