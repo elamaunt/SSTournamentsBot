@@ -40,7 +40,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (userData == null)
             {
-                await arg.RespondAsync("Для регистрации в системе турниров необходимо присоединить Steam аккаунт к вашему профилю. Инструкция отправлена в личные сообщения.");
+                await arg.RespondAsync(">>> Для регистрации в системе турниров необходимо присоединить Steam аккаунт к вашему профилю. Инструкция отправлена в личные сообщения.");
                 await user.SendMessageAsync(@"Для участия в ежедневных турнирах нужно подтвердить связь своей учетной записи со Steam. 
 Для этого нужно сперва добавить учетную запись стим в интеграции в настройках профиля вашего Discord аккаунта. 
 Сделать интеграцию видимой публично и затем перейти по ссылке ниже для подтверждения. Регистрироваться ну турнирах могут только Steam аккаунты, имеющие не менее 300 сыгранных игр всего в сервисе DowStats.");
@@ -58,14 +58,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (stats.Games < 300)
                 {
-                    await Responce("Недостаточно игр на аккаунте Steam.\nРегистрироваться на турнирах могут только Steam аккаунты, имеющие не менее **300 сыгранных игр** всего в сервисе DowStats.\nВозвращайтесь, когда наиграете больше игр :)");
+                    await Responce(">>> Недостаточно игр на аккаунте Steam.\nРегистрироваться на турнирах могут только Steam аккаунты, имеющие не менее **300 сыгранных игр** всего в сервисе DowStats.\nВозвращайтесь, когда наиграете больше игр :)");
                     return;
                 }
 
                 userData.StatsVerified = true;
                 if (!_dataService.UpdateUser(userData))
                 {
-                    await Responce($"Не удалось обновить данные в базе.");
+                    await Responce($"> Не удалось обновить данные в базе.");
                     return;
                 }
             }
@@ -96,7 +96,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (!_dataService.UpdateUser(userData))
                 {
-                    await Responce($"Не удалось обновить данные в базе.");
+                    await Responce($"> Не удалось обновить данные в базе.");
                     return;
                 }
             }
@@ -106,7 +106,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             switch (result)
             {
                 case Domain.RegistrationResult.TournamentAlreadyStarted:
-                    await Responce($"Текущий турнир уже начался, изменения в данный момент невозможны.");
+                    await Responce($"> Текущий турнир уже начался, изменения в данный момент невозможны.");
                     break;
                     
                 case Domain.RegistrationResult.Registered:
@@ -114,7 +114,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                     if (result == Domain.RegistrationResult.Registered)
                     {
-                        await Responce($"Вы были успешно зарегистрированы на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
+                        await Responce($">>> Вы были успешно зарегистрированы на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
 
                         if (_tournamentApi.RegisteredPlayers.Length >= _options.MinimumPlayersToStartCheckin)
                         {
@@ -124,7 +124,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     }
                     else
                     {
-                        await Responce($"Вы были успешно зарегистрированы и зачекинены на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
+                        await Responce($">>> Вы были успешно зарегистрированы и зачекинены на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
                     }
 
                     break;
@@ -137,14 +137,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                         {
                             var player = _tournamentApi.RegisteredPlayers.First(x => x.DiscordId == arg.User.Id);
 
-                            await Responce($"Вы уже зарегистрированы на турнир, но смена расы в турнире на данный момент невозможна.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {player.Race}");
+                            await Responce($">>> Вы уже зарегистрированы на турнир, но смена расы в турнире на данный момент невозможна.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {player.Race}");
                             return;
                         }
                     }
-                    await Responce($"Вы уже зарегистрированы на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
+                    await Responce($">>> Вы уже зарегистрированы на турнир.\nАккаунт на DowStats: {userData.SteamId.BuildStatsUrl()} \nВыбранная раса: {userData.Race}");
                     break;
                 default:
-                    await Responce($"Не удалось выполнить регистрацию.");
+                    await Responce($"> Не удалось выполнить регистрацию.");
                     break;
             }
         }

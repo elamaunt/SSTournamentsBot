@@ -24,11 +24,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (_api.IsTounamentStarted)
             {
-                infoBuilder.AppendLine("В данный момент идет турнир.");
+                infoBuilder.AppendLine(">>> В данный момент идет турнир.");
             }
             else
             {
-                infoBuilder.AppendLine("Турнир еще не начался.");
+                infoBuilder.AppendLine(">>> Турнир еще не начался.");
             }
 
             infoBuilder.AppendLine("Тип турнира: " + (_api.TournamentType?.ToString() ?? "Неопределен"));
@@ -39,7 +39,6 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 infoBuilder.AppendLine("Пока никто не зарегистрировался, но, возможно, вы будете первым :)");
             else
                 infoBuilder.AppendLine("Зарегистрировано участников: " + players.Length);
-            //infoBuilder.AppendLine("Турнир, выпавшие на субботу, получают формат еженедельного.");
 
             await arg.RespondAsync(infoBuilder.ToString());
         }

@@ -141,7 +141,7 @@ namespace SSTournamentsBot.Api.Services
 
                                         if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
                                         {
-                                            await _botApi.SendMessage($"> Засчитана победа **{string.Join(", ", winnersSelection.Select(x => x.name))}** в матче против **{string.Join(", ", losersSelection.Select(x => x.name))}**.\nСсылка на игру: {game.replayDownloadLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
+                                            await _botApi.SendMessage($"> Засчитана победа **{string.Join(", ", winnersSelection.Select(x => x.name))}** в матче против **{string.Join(", ", losersSelection.Select(x => x.name))}**.\nСсылка на игру: {game.gameLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
                                         }
 
                                         if (result.IsCompletedAndFinishedTheStage)

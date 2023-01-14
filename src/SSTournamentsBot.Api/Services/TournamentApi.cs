@@ -306,7 +306,7 @@ namespace SSTournamentsBot.Api.Services
                 if (!IsTerminalStage(next))
                 {
                     var nextBlockes = GenerateBlocksFrom(next, random.Next(), idCounter);
-                    nextBlockes = ApplyPlayedMatches(nextBlockes, playedMatches);
+                    nextBlockes = ApplyExcludedUsers(ApplyPlayedMatches(nextBlockes, playedMatches), _excludedUsers);
                     idCounter += nextBlockes.Count(x => x.IsMatch);
 
                     currentStageMatches.AddRange(GetPlayableMatchesWithoutResult(nextBlockes));
@@ -321,8 +321,6 @@ namespace SSTournamentsBot.Api.Services
 
             _currentStageMatches = currentStageMatches.ToArray();
             _stages = stages.ToArray();
-
-            ApplyLeftUsers();
         }
 
         public Task<TournamentBundle> BuildAllData()
@@ -344,25 +342,6 @@ namespace SSTournamentsBot.Api.Services
                 _votingProgress = InitVotingProgress(voting);
                 return StartVotingResult.Completed;
             });
-        }
-
-        private void ApplyLeftUsers()
-        {
-            for (int i = 0; i < _currentStageMatches.Length; i++)
-            {
-                var m = _currentStageMatches[i];
-
-                var p1 = m.Player1.ValueOrDefault()?.Item1;
-                var p2 = m.Player2.ValueOrDefault()?.Item1;
-
-                if (p1 == null || p2 == null)
-                    continue;
-
-                if (_excludedUsers.ContainsKey(p1.DiscordId))
-                    _currentStageMatches[i] = AddTechicalLoseToMatch(m, p1.SteamId, TechnicalWinReason.OpponentsLeft);
-                else if (_excludedUsers.ContainsKey(p2.DiscordId))
-                    _currentStageMatches[i] = AddTechicalLoseToMatch(m, p2.SteamId, TechnicalWinReason.OpponentsLeft);
-            }
         }
 
         public Task<byte[]> RenderTournamentImage()

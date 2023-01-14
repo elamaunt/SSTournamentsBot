@@ -28,7 +28,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (userData == null)
             {
-                await arg.RespondAsync("Вы не зарегистрированы в системе. Используйте команду */play*.");
+                await arg.RespondAsync("> Вы не зарегистрированы в системе. Используйте команду */play*.");
                 return;
             }
 
@@ -36,29 +36,29 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsNotRegisteredIn)
             {
-                await arg.RespondAsync($"Вы не регистрировались на текущий турнир.");
+                await arg.RespondAsync($"> Вы не регистрировались на текущий турнир.");
                 return;
             }
 
             if (result.IsNotCheckInStageNow)
             {
-                await arg.RespondAsync($"В данный момент чекин не проводится.");
+                await arg.RespondAsync($"> В данный момент чекин не проводится.");
                 return;
             }
 
             if (result.IsAlreadyCheckIned)
             {
-                await arg.RespondAsync($"Вы уже подтведили свое участие.");
+                await arg.RespondAsync($"> Вы уже подтведили свое участие.");
                 return;
             }
 
             if (result.IsDone)
             {
-                await arg.RespondAsync($"Вы успешно подтведили свое участие!");
+                await arg.RespondAsync($"> Вы успешно подтведили свое участие!");
                 return;
             }
 
-            await arg.RespondAsync("Произошла ошибка");
+            await arg.RespondAsync("> Произошла ошибка");
         }
     }
 }

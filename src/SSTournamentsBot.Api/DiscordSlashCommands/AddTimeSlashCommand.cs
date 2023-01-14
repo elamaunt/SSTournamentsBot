@@ -28,7 +28,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (minutes == 0)
             {
-                await arg.RespondAsync("Нет изменений во времени следующего события, так как указано 0 минут.");
+                await arg.RespondAsync("> Нет изменений во времени следующего события, так как указано 0 минут.");
                 return;
             }
 
@@ -41,13 +41,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 _timeline.AddTimeToNextEventWithType(e.Event, time);
 
                 if (minutes < 0)
-                    await arg.RespondAsync($"Следующее событие '**{e.Event.PrettyPrint()}**' ускорено на -**{time.Negate().PrettyPrint()}**");
+                    await arg.RespondAsync($"> Следующее событие '**{e.Event.PrettyPrint()}**' ускорено на -**{time.Negate().PrettyPrint()}**");
                 else
-                    await arg.RespondAsync($"Следующее событие '**{e.Event.PrettyPrint()}**' отложено на **{time.PrettyPrint()}**");
+                    await arg.RespondAsync($"> Следующее событие '**{e.Event.PrettyPrint()}**' отложено на **{time.PrettyPrint()}**");
             }
             else
             {
-                await arg.RespondAsync("Сейчас нет запланированных событий.");
+                await arg.RespondAsync("> Сейчас нет запланированных событий.");
             }
         }
 

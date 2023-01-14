@@ -487,10 +487,34 @@ module Domain =
             for block in blocks do
                 match block with
                 | Match m -> 
-                    let sameMatch = matches |> Array.tryFind(fun x -> x.Player1.IsSome && x.Player1 = m.Player1 && x.Player2.IsSome && x.Player2 = m.Player2)
+                    match m.Result with
+                    | NotCompleted _ ->
+                        // TODO: Apply by id
+                        let sameMatch = matches |> Array.tryFind(fun x -> x.Player1.IsSome && x.Player1 = m.Player1 && x.Player2.IsSome && x.Player2 = m.Player2)
 
-                    match sameMatch with
-                    | Some sameMatch -> Match { m with Result = sameMatch.Result; Replays = sameMatch.Replays }
+                        match sameMatch with
+                        | Some sameMatch -> Match { m with Result = sameMatch.Result; Replays = sameMatch.Replays }
+                        | _ -> block
+                    | _ -> block
+                | _ -> block
+        |]
+
+    let ApplyExcludedUsers blocks (excludedUsers : System.Collections.Generic.Dictionary<uint64, TechnicalWinReason>) = 
+        [|
+            for block in blocks do
+                match block with
+                | Match m -> 
+                    match m.Result with
+                    | NotCompleted _ ->
+                        match (m.Player1, m.Player2) with
+                        | (Some (p1,_), Some (p2,_)) -> 
+                            match excludedUsers.TryGetValue(p1.DiscordId) with
+                            | (true, reason) -> Match { m with Result = TechnicalWinner(p2, reason ) }
+                            | _ -> 
+                                match excludedUsers.TryGetValue(p2.DiscordId) with
+                                | (true, reason) -> Match { m with Result = TechnicalWinner(p1, reason ) }
+                                | _ -> block
+                        | _ -> block
                     | _ -> block
                 | _ -> block
         |]
