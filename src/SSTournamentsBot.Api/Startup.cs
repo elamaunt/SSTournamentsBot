@@ -11,9 +11,6 @@ using SSTournamentsBot.Services;
 using static SSTournaments.SecondaryDomain;
 using Microsoft.Extensions.Logging;
 
-#if DEBUG
-using SSTournamentsBot.Api.Services.Debug;
-#endif
 
 namespace SSTournamentsBot.Api
 {

@@ -1,12 +1,10 @@
 ﻿using Microsoft.FSharp.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SSTournamentsBot.Api.Services;
-using SSTournamentsBot.Api.Services.Debug;
 using SSTournamentsBot.Api.Tests.Mocks;
 using SSTournamentsBot.Api.Tests.Virtuals;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
