@@ -131,7 +131,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 case Domain.RegistrationResult.AlreadyRegistered:
                     if (raceOption != null)
                     {
-                        var updateResult = await _tournamentApi.TryUpdatePlayersRace(userData);
+                        var updateResult = await _tournamentApi.TryUpdatePlayer(userData);
 
                         if (!updateResult.IsCompleted)
                         {

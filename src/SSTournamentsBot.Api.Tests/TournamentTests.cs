@@ -293,6 +293,24 @@ namespace SSTournamentsBot.Api.Tests
             }
         }
 
+        [TestMethod]
+        public void TestMapBans()
+        {
+            var random = new Random(1);
+            var p1 = new FSharpOption<Player>(new Player("", 0, 0, RaceOrRandom.RandomEveryMatch, false, MapBans.NoBattleMarshes | MapBans.NoFataMorgana, 0));
+            var p2 = new FSharpOption<Player>(new Player("", 0, 0, RaceOrRandom.RandomEveryMatch, false, MapBans.NoMeetingOfMinds | MapBans.NoTranquilitysEnd, 0));
+
+            for (int i = 0; i < 1000; i++)
+            {
+                var map = GetRandomMapForPlayers(p1, p2, random);
+
+                Assert.AreNotEqual(Map.BattleMarshes, map);
+                Assert.AreNotEqual(Map.MeetingOfMinds, map);
+                Assert.AreNotEqual(Map.FataMorgana, map);
+                Assert.AreNotEqual(Map.TranquilitysEnd, map);
+            }
+        }
+
         private static async Task GoNextEvent(InMemoryEventsTimeline timeline, TournamentEventsHandler handler)
         {
             var next = timeline.GetNextEventInfo().Event;

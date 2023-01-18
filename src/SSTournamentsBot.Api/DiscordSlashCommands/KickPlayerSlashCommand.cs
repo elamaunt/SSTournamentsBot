@@ -41,7 +41,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             {
                 await arg.RespondAsync($"Игрок **{user.Username}** покинул турнир.");
 
-                if (_tournamentApi.IsTounamentStarted)
+                if (_tournamentApi.IsTournamentStarted)
                 {
                     if (_tournamentApi.ActiveMatches.All(x => !x.Result.IsNotCompleted))
                         await _eventsHandler.DoCompleteStage();

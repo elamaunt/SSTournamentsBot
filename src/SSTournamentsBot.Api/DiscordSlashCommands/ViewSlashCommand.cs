@@ -21,7 +21,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override async Task Handle(SocketSlashCommand arg)
         {
-            if (!_api.IsTounamentStarted)
+            if (!_api.IsTournamentStarted)
             {
                 await arg.RespondAsync("Нет активного турнира.");
                 return;

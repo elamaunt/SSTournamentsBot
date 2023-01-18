@@ -40,7 +40,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            if (result.IsNotCheckInStageNow)
+            if (result.IsNotCheckInStageNow || result.IsNoTournament)
             {
                 await arg.RespondAsync($"> В данный момент чекин не проводится.");
                 return;

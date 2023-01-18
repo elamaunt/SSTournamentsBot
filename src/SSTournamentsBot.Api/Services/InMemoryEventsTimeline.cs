@@ -71,6 +71,18 @@ namespace SSTournamentsBot.Api.Services
             throw new InvalidOperationException("Event is lost");
         }
 
+        
+        public void RemoveEventInfo(EventInfo ev)
+        {
+            for (int i = 0; i < _events.Length; i++)
+            {
+                var info = _events[i];
+                
+                if (info.Event == ev.Event && GetEventsDate(info) == ev.StartDate)
+                    Interlocked.Exchange(ref _events[i], null);
+            }
+        }
+
         public void RemoveAllEvents()
         {
             for (int i = 0; i < _events.Length; i++)

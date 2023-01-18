@@ -2,7 +2,7 @@
 {
     public class TournamentEventsOptions
     {
-        
+        public int CallToPlayTimeoutHours { get; set; }
         public int MinimumPlayersToStartCheckin { get; set; }
         public int CheckInTimeoutMinutes { get; set; }
         public int VotingTimeoutSeconds { get; set; }

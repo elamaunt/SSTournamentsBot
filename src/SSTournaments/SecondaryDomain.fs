@@ -21,7 +21,7 @@ module SecondaryDomain =
         SoloMmr: int32
     }
 
-    type UpdatePlayersRaceResult = 
+    type UpdatePlayerResult = 
         | NoTournament
         | NotRegistered
         | Completed
@@ -75,10 +75,6 @@ module SecondaryDomain =
         | MatchNotFound
         | Completed
         | CompletedAndFinishedTheStage
-
-    type MentionSetting =
-        | Default
-        | OnlyCheckin
 
     type BotButtonStyle = 
         | Primary

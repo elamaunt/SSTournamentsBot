@@ -19,22 +19,6 @@ namespace SSTournamentsBot.Api.Services
 
             mapper.RegisterType
             (
-                serialize: x => x.ToString(),
-                deserialize: x => {
-                    switch (x.AsString)
-                    {
-                        case nameof(MentionSetting.Default):
-                            return MentionSetting.Default;
-                        case nameof(MentionSetting.OnlyCheckin):
-                            return MentionSetting.OnlyCheckin;
-                        default:
-                            return MentionSetting.Default;
-                    }
-                }
-            );
-
-            mapper.RegisterType
-            (
                 serialize: x =>
                 {
                     if (x.IsRandomEveryMatch) return nameof(RaceOrRandom.RandomEveryMatch);

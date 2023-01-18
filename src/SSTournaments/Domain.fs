@@ -1,4 +1,5 @@
 ﻿namespace SSTournaments
+open System
 
 module Domain =
     
@@ -42,6 +43,22 @@ module Domain =
         | TitansFall
         | QuestsTriumph
 
+    [<Flags>]
+    type MapBans = 
+        | None = 0
+        | NoBloodRiver = 1
+        | NoFataMorgana = 2
+        | NoFallenCity = 4
+        | NoMeetingOfMinds = 8
+        | NoDeadlyFunArcheology = 16
+        | NoSugarOasis = 32
+        | NoOuterReaches = 64
+        | NoBattleMarshes = 128
+        | NoShrineOfExcellion = 256
+        | NoTranquilitysEnd = 512
+        | NoTitansFall = 1024
+        | NoQuestsTriumph = 2048
+
     type BestOf = 
         | One
         | Three
@@ -54,6 +71,7 @@ module Domain =
         DiscordId: uint64
         Race: RaceOrRandom
         IsBot: bool
+        MapBans: MapBans
         Seed: int}
         
     type Stage = 
@@ -272,6 +290,32 @@ module Domain =
         | 11 -> QuestsTriumph
         | _ -> BloodRiver
 
+    let GetIndexesFromIntBinary value = 
+        let mutable current = value
+        let mutable i = 0
+
+        [|
+            while current > 0 do
+                if current &&& 1 = 1 then i 
+                current <- current >>> 1
+                i <- i + 1
+        |]
+
+    let GetRandomValue (array: _ array) (random: System.Random) =
+        array.[(random.Next(array.Length))]
+
+    let GetRandomMapForPlayers p1 p2 (random: System.Random) =
+        match (p1, p2) with
+        | (Some p1, Some p2) -> 
+
+            let maps = 0b111111111111
+            let posibleMaps = maps &&& (~~~(LanguagePrimitives.EnumToValue(p1.MapBans))) &&& (~~~(LanguagePrimitives.EnumToValue(p2.MapBans)))
+            let indexes = GetIndexesFromIntBinary posibleMaps
+
+            GetMapByIndex(GetRandomValue indexes random)
+
+        | _ -> GetMapByIndex(random.Next(12))
+
     let GetOrGenerateRace (player: Player option) seed = 
         let random = System.Random(seed)
         let race = GetRaceByIndex (random.Next(9))
@@ -308,7 +352,7 @@ module Domain =
                             Id = idOffset
                             Player1 = if player1.IsSome then Some (player1.Value, race1.Value) else None
                             Player2 = if player2.IsSome then Some (player2.Value, race2.Value) else None
-                            Map = GetMapByIndex (random.Next(12))
+                            Map = GetRandomMapForPlayers player1 player2 random
                             BestOf = One
                             Result = NotCompleted (0, 0)
                             Replays = [] }
@@ -333,7 +377,7 @@ module Domain =
                                 Id = id
                                 Player1 = if player1.IsSome then Some (player1.Value, race1.Value) else None
                                 Player2 = if player2.IsSome then Some (player2.Value, race2.Value) else None
-                                Map = GetMapByIndex (random.Next(12))
+                                Map = GetRandomMapForPlayers player1 player2 random
                                 BestOf = One
                                 Result = NotCompleted (0, 0)
                                 Replays = [] }
@@ -359,7 +403,7 @@ module Domain =
                                 Id = id
                                 Player1 = if player1.IsSome then Some (player1.Value, race1.Value) else None
                                 Player2 = if player2.IsSome then Some (player2.Value, race2.Value) else None
-                                Map = GetMapByIndex (random.Next(12))
+                                Map = GetRandomMapForPlayers player1 player2 random
                                 BestOf = One
                                 Result = NotCompleted (0, 0)
                                 Replays = [] }
@@ -386,7 +430,7 @@ module Domain =
                             Id = index
                             Player1 = if player1.IsSome then Some (player1.Value, race1.Value) else None
                             Player2 = if player2.IsSome then Some (player2.Value, race2.Value) else None
-                            Map = GetMapByIndex (random.Next(12))
+                            Map = GetRandomMapForPlayers player1 player2 random
                             BestOf = One
                             Result = NotCompleted (0, 0)
                             Replays = [] }
@@ -397,16 +441,19 @@ module Domain =
             |] 
         | Groups groups -> [|
             let mutable id = idOffset
-
+            // TODO: rework
             for group in groups do
                 for index in [0..group.Length-1] do 
                      for otherIndex in [index+1..group.Length-1] do 
                         
+                        let (p1, r1) = (group.[index], GetRaceByIndex (random.Next(9)))
+                        let (p2, r2) = (group.[otherIndex], GetRaceByIndex (random.Next(9)))
+
                         yield Match { 
                             Id = id
-                            Player1 = Some (group.[index], GetRaceByIndex (random.Next(9)))
-                            Player2 = Some (group.[otherIndex], GetRaceByIndex (random.Next(9)))
-                            Map = GetMapByIndex (random.Next(12))
+                            Player1 = Some(p1,r1)
+                            Player2 = Some(p2,r2)
+                            Map = GetRandomMapForPlayers (Some(p1)) (Some(p2)) random
                             BestOf = One
                             Result = NotCompleted (0, 0)
                             Replays = [] }

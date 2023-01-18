@@ -64,7 +64,7 @@ namespace SSTournamentsBot.Api.Services
                 if (IsPlayerRegisteredInTournament(_currentTournament, userData.SteamId, userData.DiscordId))
                     return RegistrationResult.AlreadyRegistered;
 
-                var player = new Player(name, userData.SteamId, userData.DiscordId, userData.Race, isBot, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
+                var player = new Player(name, userData.SteamId, userData.DiscordId, userData.Race, isBot, userData.Map1v1Bans, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
                 _currentTournament = RegisterPlayerInTournament(_currentTournament, player);
 
                 if (_isCheckInStage)
@@ -95,9 +95,9 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
-        public bool IsTounamentStarted => _isStarted;
+        public bool IsTournamentStarted => _isStarted;
         public Player[] RegisteredPlayers => _currentTournament?.RegisteredPlayers ?? new Player[0];
-        private IEnumerable<Player> ActivePlayersEnumerable => IsTounamentStarted ? RegisteredPlayers
+        private IEnumerable<Player> ActivePlayersEnumerable => IsTournamentStarted ? RegisteredPlayers
             .Where(x => !_excludedUsers.ContainsKey(x.DiscordId))
             .Where(x => !_playedMatches.Any(m => IsLoseOf(m, x)))
             .Where(x => !ActiveMatches.Any(m => IsLoseOf(m, x))) : Enumerable.Empty<Player>();
@@ -366,25 +366,25 @@ namespace SSTournamentsBot.Api.Services
             });
         }
 
-        public Task<UpdatePlayersRaceResult> TryUpdatePlayersRace(UserData userData)
+        public Task<UpdatePlayerResult> TryUpdatePlayer(UserData userData)
         {
             return _queue.Async(() =>
             {
                 if (_isStarted)
-                    return UpdatePlayersRaceResult.NotPossible;
+                    return UpdatePlayerResult.NotPossible;
 
                 if (_currentTournament == null)
-                    return UpdatePlayersRaceResult.NoTournament;
+                    return UpdatePlayerResult.NoTournament;
 
                 var player = _currentTournament.RegisteredPlayers.FirstOrDefault(x => x.DiscordId == userData.DiscordId);
 
                 if (player == null)
-                    return UpdatePlayersRaceResult.NotRegistered;
+                    return UpdatePlayerResult.NotRegistered;
 
-                var updatedPlayer = new Player(player.Name, userData.SteamId, userData.DiscordId, userData.Race, player.IsBot, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
+                var updatedPlayer = new Player(player.Name, userData.SteamId, userData.DiscordId, userData.Race, player.IsBot, userData.Map1v1Bans, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
                 _currentTournament = UpdatePlayerInTournament(_currentTournament, updatedPlayer);
 
-                return UpdatePlayersRaceResult.Completed;
+                return UpdatePlayerResult.Completed;
             });
         }
 
@@ -394,7 +394,7 @@ namespace SSTournamentsBot.Api.Services
             {
                 var matches = _currentStageMatches;
 
-                if (!IsTounamentStarted || matches == null)
+                if (!IsTournamentStarted || matches == null)
                     return CompleteStageResult.NoTournament;
 
                 if (_stageCompleted)
@@ -414,7 +414,7 @@ namespace SSTournamentsBot.Api.Services
         {
             return _queue.Async(() =>
             {
-                if (!IsTounamentStarted)
+                if (!IsTournamentStarted)
                     return StartNextStageResult.NoTournament;
 
                 if (!_stageCompleted)

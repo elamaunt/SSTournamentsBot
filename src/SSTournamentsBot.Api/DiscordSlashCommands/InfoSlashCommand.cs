@@ -22,7 +22,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         {
             var infoBuilder = new StringBuilder();
 
-            if (_api.IsTounamentStarted)
+            if (_api.IsTournamentStarted)
             {
                 infoBuilder.AppendLine(">>> В данный момент идет турнир.");
             }

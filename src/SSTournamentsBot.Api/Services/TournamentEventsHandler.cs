@@ -646,7 +646,7 @@ namespace SSTournamentsBot.Api.Services
                 Date = bundle.Tournament.StartDate.ValueOrDefault(),
                 Type = bundle.Tournament.Type,
                 Mod = bundle.Tournament.Mod,
-                Seed = bundle.Tournament.Seed,
+                PlayersBans = bundle.Tournament.RegisteredPlayers.Select(x => (int)x.MapBans).ToArray(),
                 WinnerSteamId = bundle.Winner.ValueOrDefault()?.SteamId,
                 PlayersSteamIds = bundle.Tournament.RegisteredPlayers.Select(x => x.SteamId).ToArray(),
                 Matches = bundle.PlayedMatches.Select(x => 

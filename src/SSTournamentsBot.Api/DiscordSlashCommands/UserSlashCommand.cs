@@ -42,7 +42,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             builder.AppendLine($"Race: **{userData.Race}**");
             builder.AppendLine($"HasLowPriority: **{userData.HasLowPriority}**");
             builder.AppendLine($"Banned: **{userData.Banned}**");
-            builder.AppendLine($"MentionSetting: **{userData.MentionSetting}**");
+            builder.AppendLine($"MapBans: **{userData.Map1v1Bans}**");
 
             if (builder.Length > 0)
                 await arg.RespondAsync(builder.ToString());

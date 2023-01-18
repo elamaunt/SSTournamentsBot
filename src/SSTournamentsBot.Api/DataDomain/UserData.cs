@@ -1,5 +1,5 @@
-﻿using static SSTournaments.Domain;
-using static SSTournaments.SecondaryDomain;
+﻿using LiteDB;
+using static SSTournaments.Domain;
 
 namespace SSTournamentsBot.Api.DataDomain
 {
@@ -14,6 +14,13 @@ namespace SSTournamentsBot.Api.DataDomain
         public bool HasLowPriority { get; set; }
         public int Score { get; set; }
         public int Penalties { get; set; }
-        public MentionSetting MentionSetting { get; set; } = MentionSetting.Default;
+        public int Map1v1BansRaw { get; set; }
+
+        [BsonIgnore]
+        public MapBans Map1v1Bans
+        {
+            get => (MapBans)Map1v1BansRaw;
+            set => Map1v1BansRaw = (int)value;
+        }
     }
 }

@@ -3,9 +3,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
 
@@ -13,20 +15,20 @@ namespace SSTournamentsBot.Api.Services
 {
     public class DowStatsGameScanner : IGameScanner
     {
-        volatile bool _active;
-
         readonly DowStatsGameScannerOptions _options;
         readonly ILogger<DowStatsGameScanner> _logger;
         readonly HttpService _httpService;
         readonly TournamentApi _api;
         readonly IBotApi _botApi;
         readonly IEventsTimeline _timeline;
+        readonly object _lock = new object();
+        readonly ConcurrentDictionary<string, string> _submitedGames = new ConcurrentDictionary<string, string>();
 
+        volatile bool _active;
         DateTime _lastScan;
         Timer _rescanTimer;
-        public GameType GameTypeFilter { get; set; } = GameType.Type1v1;
 
-        readonly object _lock = new object();
+        public GameType GameTypeFilter { get; set; } = GameType.Type1v1;
 
         public DowStatsGameScanner(
             ILogger<DowStatsGameScanner> logger, 
@@ -66,6 +68,7 @@ namespace SSTournamentsBot.Api.Services
 
         private void StartScan()
         {
+            _submitedGames.Clear();
             _lastScan = GetMoscowTime();
             _rescanTimer = new Timer(OnReScan, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(_options.ReScanPeriod));
         }
@@ -76,17 +79,17 @@ namespace SSTournamentsBot.Api.Services
             var toDate = GetMoscowTime();
 
             _httpService.Build("https://dowstats.ru/api/lastgames.php", UriKind.Absolute)
-                .WithParameter("datetime_from", fromDate.ToString("s", DateTimeFormatInfo.InvariantInfo))
-                .WithParameter("datetime_to", toDate.ToString("s", DateTimeFormatInfo.InvariantInfo))
+                .WithParameter("datetime_from", fromDate.AddMilliseconds(-_options.ReScanPeriod / 2).ToString("s", DateTimeFormatInfo.InvariantInfo))
+                .WithParameter("datetime_to", toDate.AddMilliseconds(_options.ReScanPeriod / 2).ToString("s", DateTimeFormatInfo.InvariantInfo))
                 .Get()
                 .Send()
                 .ValidateSuccessStatusCode()
                 .Json<DowStatsGameDTO[]>(JsonSerializer.CreateDefault())
-                .Task.ContinueWith(t =>
+                .Task.ContinueWith(async t =>
                 {
                     if (t.IsFaulted)
                     {
-                        _logger.LogError(t.Exception, "Error on the DowStats lastgames request");
+                        await Log("Error on the DowStats lastgames request. " + t.Exception);
                         return;
                     }
 
@@ -120,40 +123,53 @@ namespace SSTournamentsBot.Api.Services
                                 int.Parse(game.matchDurationSeconds),
                                 ResolveMapInfo(game.map),
                                 ResolveModInfo(game.modification),
-                                game.replayDownloadLink);
+                                game.gameLink);
 
-                            _logger.LogInformation($"Trying to submit a game:  {string.Join(", ", winnersSelection.Select(x => x.name))} VS {string.Join(", ", losersSelection.Select(x => x.name))}");
+                            var playersString = $"{game.registerTime} | {string.Join(", ", winnersSelection.Select(x => x.name))} VS {string.Join(", ", losersSelection.Select(x => x.name))}";
 
-                            _api.TrySubmitGame(info)
-                                .ContinueWith(async submitTask => 
-                                {
-                                    if (submitTask.IsFaulted)
+                            await Log($"Trying to submit a game: {playersString}");
+
+                            if (_submitedGames.TryAdd(playersString, playersString))
+                            {
+                                await _api.TrySubmitGame(info)
+                                    .ContinueWith(async submitTask =>
                                     {
-                                        _logger.LogError(submitTask.Exception, "Error on submitting the gameInfo");
-                                        return;
-                                    }
-
-
-                                    if (submitTask.IsCompleted)
-                                    {
-                                        var result = submitTask.Result;
-                                        _logger.LogInformation(submitTask.Exception, "Game submitted");
-
-                                        if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
+                                        if (submitTask.IsFaulted)
                                         {
-                                            await _botApi.SendMessage($"> Засчитана победа **{string.Join(", ", winnersSelection.Select(x => x.name))}** в матче против **{string.Join(", ", losersSelection.Select(x => x.name))}**.\nСсылка на игру: {game.gameLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
+                                            await Log("Error on submitting the gameInfo. " + submitTask.Exception);
+                                            return;
                                         }
 
-                                        if (result.IsCompletedAndFinishedTheStage)
+                                        if (submitTask.IsCompleted)
                                         {
-                                            _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(10));
+                                            var result = submitTask.Result;
+                                            await Log("Game submitted");
+
+                                            if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
+                                            {
+                                                await _botApi.SendMessage($"> Засчитана победа **{string.Join(", ", winnersSelection.Select(x => x.name))}** в матче против **{string.Join(", ", losersSelection.Select(x => x.name))}**.\nСсылка на игру: {game.gameLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
+                                                await Log($"The game is counted");
+                                            }
+                                            else
+                                            {
+                                                await Log($"The game is not counted due to reason: {result}");
+                                            }
+
+                                            if (result.IsCompletedAndFinishedTheStage)
+                                            {
+                                                _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(10));
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                            }
+                            else
+                            {
+                                await Log($"The game is already submitted:  {playersString}");
+                            }
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex, "Error on processing of the gameInfo");
+                            await Log("Error on processing of the gameInfo. " + ex);
                         }
                     }
                 });
@@ -241,6 +257,12 @@ namespace SSTournamentsBot.Api.Services
         private void StopScan()
         {
             _rescanTimer?.Change(Timeout.Infinite, 0);
+        }
+
+        private Task Log(string message)
+        {
+            _logger.LogInformation(message);
+            return _botApi.Log(message);
         }
 
         public class DowStatsGameDTO
