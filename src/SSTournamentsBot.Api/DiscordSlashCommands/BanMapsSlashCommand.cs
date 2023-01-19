@@ -51,7 +51,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             {
                 var result = await _tournamentApi.TryUpdatePlayer(userData);
 
-                if (result.IsCompleted)
+                if (result.IsCompleted || result.IsNoTournament || result.IsNotRegistered)
                 {
                     await Responce($"> Ваш список банов успешно обновлен.");
                     return;
