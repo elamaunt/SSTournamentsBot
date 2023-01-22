@@ -19,7 +19,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _dataService = dataService;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var builder = new StringBuilder();
 
@@ -28,7 +28,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             for (int i = 0; i < users.Length; i++)
             {
                 var user = users[i];
-                builder.AppendLine($"{i + 1}. {user.Score} - **{await _botApi.GetUserName(user.DiscordId)}**");
+                builder.AppendLine($"{i + 1}. {user.Score} - **{await _botApi.GetUserName(context, user.DiscordId)}**");
             }
 
             if (builder.Length > 0)

@@ -11,66 +11,66 @@ namespace SSTournamentsBot.Api.Tests.Virtuals
     {
         public List<VirtualMessage> Messages { get; } = new List<VirtualMessage>();
 
-        public Task<string> GetMention(ulong id)
+        public Task<string> GetMention(Context context, ulong id)
         {
             return Task.FromResult(id.ToString());
         }
 
-        public Task<string> GetMentionForWaitingRole()
+        public Task<string> GetMentionForWaitingRole(Context context)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<string> GetUserName(ulong id)
+        public Task<string> GetUserName(Context context, ulong id)
         {
             return Task.FromResult("Bot" + id);
         }
 
-        public Task Mention(SecondaryDomain.GuildThread thread, params ulong[] mentions)
+        public Task Mention(Context context, SecondaryDomain.GuildThread thread, params ulong[] mentions)
         {
             Messages.Add(new VirtualMessage(thread, mentions));
             return Task.CompletedTask;
         }
 
-        public Task MentionWaitingRole(SecondaryDomain.GuildThread thread)
+        public Task MentionWaitingRole(Context context, SecondaryDomain.GuildThread thread)
         {
             return Task.CompletedTask;
         }
 
-        public Task ModifyLastMessage(string message, SecondaryDomain.GuildThread thread)
+        public Task ModifyLastMessage(Context context, Text message, SecondaryDomain.GuildThread thread)
         {
             var last = Messages.FindLast(x => x.Thread == thread);
 
             if (last == null)
-                Messages.Add(new VirtualMessage(thread, message));
+                Messages.Add(new VirtualMessage(thread, message.Build()));
             else
-                last.Message = message;
+                last.Message = message.Build();
             return Task.CompletedTask;
         }
 
-        public Task SendFile(byte[] file, string fileName, string text, SecondaryDomain.GuildThread thread)
+        public Task SendFile(Context context, byte[] file, string fileName, Text text, SecondaryDomain.GuildThread thread)
         {
-            Messages.Add(new VirtualMessage(file, fileName, text, thread));
+            Messages.Add(new VirtualMessage(file, fileName, text.Build(), thread));
             return Task.CompletedTask;
         }
 
-        public Task SendMessage(string message, SecondaryDomain.GuildThread thread, params ulong[] mentions)
+        public Task SendMessage(Context context, Text message, SecondaryDomain.GuildThread thread, params ulong[] mentions)
         {
-            Messages.Add(new VirtualMessage(message, mentions, thread));
+            Messages.Add(new VirtualMessage(message.Build(), mentions, thread));
             return Task.CompletedTask;
         }
 
-        public Task SendMessageToUser(string message, ulong id)
+        public Task SendMessageToUser(Context context, Text message, ulong id)
         {
             return Task.CompletedTask;
         }
 
-        public Task<IButtonsController> SendVotingButtons(string message, SecondaryDomain.VotingOption[] buttons, SecondaryDomain.GuildThread thread, params ulong[] mentions)
+        public Task<IButtonsController> SendVotingButtons(Context context, Text message, SecondaryDomain.VotingOption[] buttons, SecondaryDomain.GuildThread thread, params ulong[] mentions)
         {
             return Task.FromResult((IButtonsController)new ButtonsControllerMock());
         }
 
-        public Task<bool> ToggleWaitingRole(ulong id, bool? toValue)
+        public Task<bool> ToggleWaitingRole(Context context, ulong id, bool? toValue)
         {
             return Task.FromResult(toValue ?? true);
         }

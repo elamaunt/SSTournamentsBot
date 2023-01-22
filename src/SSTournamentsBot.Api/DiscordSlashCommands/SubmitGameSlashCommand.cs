@@ -23,7 +23,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _timeline = timeline;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var botIdOption = arg.Data.Options.FirstOrDefault(x => x.Name == "winner-id");
             var id = (ulong)(long)botIdOption.Value;
@@ -57,7 +57,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (result.IsCompletedAndFinishedTheStage)
                 {
-                    _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(10));
+                    _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(context.Name), TimeSpan.FromSeconds(10));
                 }
             }
             else

@@ -28,7 +28,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _options = options.Value;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             await arg.DeferAsync();
 
@@ -40,7 +40,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 if (!last.HasValue || (current - last.Value).TotalHours > _options.CallToPlayTimeoutHours)
                 {
                     await arg.ModifyOriginalResponseAsync(x => x.Content = "> Запрос выполнен!");
-                    await CallForTournament();
+                    await CallForTournament(context);
                 }
                 else
                 {
@@ -49,10 +49,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             });
         }
 
-        private async Task CallForTournament()
+        private async Task CallForTournament(Context context)
         {
             _lastCallDate = GetMoscowTime();
-            await _botApi.SendMessage("@everyone Призываю всех играть турниры!", GuildThread.TournamentChat);
+            await _botApi.SendMessage(context, "@everyone Призываю всех играть турниры!", GuildThread.TournamentChat);
         }
     }
 }

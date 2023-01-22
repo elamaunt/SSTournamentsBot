@@ -28,18 +28,18 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _options = options.Value;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var result = await _tournamentApi.TryStartTheCheckIn();
 
             if (result.IsDone)
             {
-                _timeline.RemoveAllEventsWithType(Event.StartCheckIn);
-                _timeline.RemoveAllEventsWithType(Event.StartCurrentTournament);
+                _timeline.RemoveAllEventsWithType(Event.NewStartCheckIn(context.Name));
+                _timeline.RemoveAllEventsWithType(Event.NewStartCurrentTournament(context.Name));
 
-                await _botApi.SendMessage($"Внимание! Началась стадия чекина на турнир.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина {_options.CheckInTimeoutMinutes} минут.\nРегистрация новых участников позволяется и не требует чекина.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                await _botApi.SendMessage(context, $"Внимание! Началась стадия чекина на турнир.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина {_options.CheckInTimeoutMinutes} минут.\nРегистрация новых участников позволяется и не требует чекина.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
 
-                _timeline.AddOneTimeEventAfterTime(Event.StartCurrentTournament, TimeSpan.FromMinutes(15));
+                _timeline.AddOneTimeEventAfterTime(Event.NewStartCurrentTournament(context.Name), TimeSpan.FromMinutes(15));
 
                 await arg.RespondAsync("Турнир успешно запущен.");
                 return;

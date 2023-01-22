@@ -21,7 +21,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Вывести раписание всех запланированных событий";
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var events = _timeline.GetAllScheduledEvents();
 

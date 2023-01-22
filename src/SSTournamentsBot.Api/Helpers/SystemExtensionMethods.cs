@@ -4,6 +4,26 @@ namespace SSTournamentsBot
 {
     public static class SystemExtensionMethods
     {
+        public static string FormatWith(this string self, object arg)
+        {
+            return string.Format(self, arg);
+        }
+
+        public static string FormatWith(this string self, object arg, object arg2)
+        {
+            return string.Format(self, arg, arg2);
+        }
+
+        public static string FormatWith(this string self, object arg, object arg2, object arg3)
+        {
+            return string.Format(self, arg, arg2, arg3);
+        }
+
+        public static string FormatWith(this string self, params object[] args)
+        {
+            return string.Format(self, args);
+        }
+
         public static string PrettyShortDatePrint(this DateTime date)
         {
             return date.ToString("dd.MM.yyyy");

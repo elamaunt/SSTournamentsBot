@@ -23,7 +23,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _tournamentApi = tournamentApi;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var count = (long)arg.Data.Options.First(x => x.Name == "count").Value;
             

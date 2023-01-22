@@ -23,7 +23,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _tournamentApi = tournamentApi;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var userOption = arg.Data.Options.FirstOrDefault(x => x.Name == "player");
 
@@ -38,8 +38,8 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if ((await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsBan)).IsDone)
             {
-                var mention = await _botApi.GetMention(userData.DiscordId);
-                await _botApi.SendMessage($"{mention} исключен из турнира.", GuildThread.EventsTape | GuildThread.TournamentChat);
+                var mention = await _botApi.GetMention(context, userData.DiscordId);
+                await _botApi.SendMessage(context, $"{mention} исключен из турнира.", GuildThread.EventsTape | GuildThread.TournamentChat);
             }
 
             userData.Banned = true;

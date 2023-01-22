@@ -18,7 +18,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _tournamentApi = tournamentApi;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var botIdOption = arg.Data.Options.FirstOrDefault(x => x.Name == "bot-id");
             var reasonOption = arg.Data.Options.FirstOrDefault(x => x.Name == "reason");

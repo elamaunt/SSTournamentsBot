@@ -115,11 +115,11 @@ module SecondaryDomain =
         | TheVoteIsOver
 
     type Event = 
-        | StartCurrentTournament
-        | StartCheckIn
-        | CompleteVoting
-        | StartNextStage
-        | CompleteStage
+        | StartCurrentTournament of string
+        | StartCheckIn of string
+        | CompleteVoting of string
+        | StartNextStage of string
+        | CompleteStage of string
 
     type EventInfo = {
         Event: Event
@@ -130,19 +130,19 @@ module SecondaryDomain =
     let GetTimeBeforeEvent info = info.StartDate - GetMoscowTime()
 
     type ITournamentEventsHandler =
-        abstract DoStartCurrentTournament : Unit -> System.Threading.Tasks.Task
-        abstract DoStartCheckIn : Unit -> System.Threading.Tasks.Task
-        abstract DoCompleteVoting : Unit -> System.Threading.Tasks.Task
-        abstract DoStartNextStage : Unit -> System.Threading.Tasks.Task
-        abstract DoCompleteStage : Unit -> System.Threading.Tasks.Task
+        abstract DoStartCurrentTournament : string -> System.Threading.Tasks.Task
+        abstract DoStartCheckIn : string -> System.Threading.Tasks.Task
+        abstract DoCompleteVoting : string -> System.Threading.Tasks.Task
+        abstract DoStartNextStage : string -> System.Threading.Tasks.Task
+        abstract DoCompleteStage : string -> System.Threading.Tasks.Task
 
     let SwitchEvent ev (handler: ITournamentEventsHandler) = 
         match ev with
-        | StartCurrentTournament -> handler.DoStartCurrentTournament()
-        | StartCheckIn -> handler.DoStartCheckIn()
-        | CompleteVoting -> handler.DoCompleteVoting()
-        | StartNextStage -> handler.DoStartNextStage()
-        | CompleteStage -> handler.DoCompleteStage()
+        | StartCurrentTournament contextName -> handler.DoStartCurrentTournament contextName
+        | StartCheckIn contextName -> handler.DoStartCheckIn contextName
+        | CompleteVoting contextName -> handler.DoCompleteVoting contextName
+        | StartNextStage contextName -> handler.DoStartNextStage contextName
+        | CompleteStage contextName -> handler.DoCompleteStage contextName
 
     type VoteCompletionResult = 
         | NotCompleted

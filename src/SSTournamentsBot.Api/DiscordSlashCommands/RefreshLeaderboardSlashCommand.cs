@@ -21,9 +21,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _dataService = dataService;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
-            await ServiceHelpers.RefreshLeaders(_botApi, _dataService, false);
+            await ServiceHelpers.RefreshLeaders(context, _botApi, _dataService, false);
             await arg.RespondAsync("Таблица лидеров обновлена.");
         }
 

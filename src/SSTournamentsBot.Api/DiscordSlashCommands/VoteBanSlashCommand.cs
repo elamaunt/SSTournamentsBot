@@ -18,7 +18,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _api = api;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var type = (long?)arg.Data.Options.FirstOrDefault(x => x.Name == "type")?.Value ?? null;
 

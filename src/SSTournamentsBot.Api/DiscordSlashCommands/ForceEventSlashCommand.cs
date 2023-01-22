@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System.Threading.Tasks;
 using static SSTournaments.SecondaryDomain;
@@ -20,7 +21,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Форсирует следующее событие (для админов)";
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var nextEvent = _timeline.GetNextEventInfo();
 
@@ -34,6 +35,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             {
                 await arg.RespondAsync($"> Сейчас нет запланированных событий.");
             }
+        }
+
+        protected override void Configure(SlashCommandBuilder builder)
+        {
+            builder.WithDefaultPermission(true)
+                .WithDefaultMemberPermissions(GuildPermission.Administrator)
+                .WithDMPermission(true);
         }
     }
 }

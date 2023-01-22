@@ -18,7 +18,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Получить текущую информацию о следующем турнире";
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var infoBuilder = new StringBuilder();
 

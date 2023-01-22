@@ -30,7 +30,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _timeLine = timeline;
             _options = options.Value;
         }
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var user = arg.User;
             if (user == null || user.IsBot)
@@ -118,8 +118,8 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                         if (_tournamentApi.RegisteredPlayers.Length >= _options.MinimumPlayersToStartCheckin)
                         {
-                            _timeLine.RemoveAllEventsWithType(Event.StartCheckIn);
-                            _timeLine.AddOneTimeEventAfterTime(Event.StartCheckIn, TimeSpan.FromSeconds(10));
+                            _timeLine.RemoveAllEventsWithType(Event.NewStartCheckIn(context.Name));
+                            _timeLine.AddOneTimeEventAfterTime(Event.NewStartCheckIn(context.Name), TimeSpan.FromSeconds(10));
                         }
                     }
                     else

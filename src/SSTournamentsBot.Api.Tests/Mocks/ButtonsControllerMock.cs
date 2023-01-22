@@ -12,7 +12,7 @@ namespace SSTournamentsBot.Api.Tests.Mocks
             return Task.FromResult(true);
         }
 
-        public Task DisableButtons(string resultMessage)
+        public Task DisableButtons(Text resultMessage)
         {
             return Task.CompletedTask;
         }

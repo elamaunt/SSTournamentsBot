@@ -23,7 +23,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _tournamentApi = tournamentApi;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var userOption = arg.Data.Options.First(x => x.Name == "player");
             var user = (IUser)userOption.Value;
@@ -44,12 +44,12 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 if (_tournamentApi.IsTournamentStarted)
                 {
                     if (_tournamentApi.ActiveMatches.All(x => !x.Result.IsNotCompleted))
-                        await _eventsHandler.DoCompleteStage();
+                        await _eventsHandler.DoCompleteStage(context.Name);
                 }
                 else
                 {
                     if (_tournamentApi.IsCheckinStage && _tournamentApi.IsAllPlayersCheckIned)
-                        await _eventsHandler.DoStartCurrentTournament();
+                        await _eventsHandler.DoStartCurrentTournament(context.Name);
                 }
                 return;
             }

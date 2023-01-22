@@ -19,7 +19,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _api = api;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var random = new Random();
             var matches = _api.ActiveMatches;

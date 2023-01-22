@@ -44,20 +44,22 @@ namespace SSTournamentsBot.Api
                 .AddSingleton<HttpService, CustomHttpService>()
                 //.AddSingleton<CommandService>()
                 .AddSingleton<IEventsTimeline, InMemoryEventsTimeline>()
-                .AddSingleton<ITournamentEventsHandler, TournamentEventsHandler>()
+                .AddTransient<ITournamentEventsHandler, TournamentEventsHandler>()
                 .AddSingleton<IGameScanner, DowStatsGameScanner>()
                 .AddTransient<IStatsApi, DowStatsApi>()
 #if DEBUG
                 .AddTransient<IDataService, InMemoryDataService>()
 #else
                 .AddSingleton<ILiteDbContext, LiteDbContext>()
-                .AddTransient<IDataService, LiteDbDataService>()
+                .AddSingleton<IDataService, LiteDbDataService>()
 #endif
 
                 .AddTransient<IDrawingService, SkiaDrawingService>()
                 .AddSingleton<IBotApi, DiscordBotApi>()
-                .AddSingleton<TournamentApi>()
+                .AddTransient<TournamentApi>()
                 .AddSingleton<DiscordApi>()
+                .AddSingleton<ContextService>()
+                
                 .AddHostedService<DiscordCommandsHandler>()
                 .AddHostedService<DiscordBot>()
                 .AddHostedService<TimeSchedulerService>();

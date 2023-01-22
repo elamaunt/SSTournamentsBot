@@ -19,7 +19,7 @@ namespace SSTournamentsBot.Api.Services
         readonly DiscordSocketClient _client;
         readonly DiscordBotOptions _options;
 
-        readonly ConcurrentDictionary<GuildThread, SocketTextChannel[]> _channels = new ConcurrentDictionary<GuildThread, SocketTextChannel[]>();
+        readonly ConcurrentDictionary<GuildThread, (string, SocketTextChannel[])[]> _channels = new ConcurrentDictionary<GuildThread, (string, SocketTextChannel[])[]>();
         private long _idsCounter;
 
         public DiscordBotApi(DiscordSocketClient client, IOptions<DiscordBotOptions> options)
@@ -28,18 +28,25 @@ namespace SSTournamentsBot.Api.Services
             _client = client;
         }
 
-        public async Task SendFile(byte[] file, string fileName, string text, GuildThread thread)
+        public async Task SendFile(Context context, byte[] file, string fileName, Text text, GuildThread thread)
         {
             if (file == null || file.Length == 0)
                 return;
 
-            var channels = GetChannels(thread);
+            var channelsByLocale = GetChannels(context, thread);
 
-            for (int i = 0; i < channels.Length; i++)
-                await channels[i].SendFileAsync(new MemoryStream(file), fileName ?? "Image", text ?? "Image");
+            for (int i = 0; i < channelsByLocale.Length; i++)
+            {
+                var (locale, channels) = channelsByLocale[i];
+
+                for (int k = 0; k < channels.Length; k++)
+                {
+                    await channels[k].SendFileAsync(new MemoryStream(file), fileName ?? "Image", text?.Build() ?? "Image");
+                }
+            }
         }
 
-        public async Task Mention(GuildThread thread, params ulong[] mentions)
+        public async Task Mention(Context context, GuildThread thread, params ulong[] mentions)
         {
             if (mentions.Length == 0)
                 return;
@@ -53,14 +60,21 @@ namespace SSTournamentsBot.Api.Services
                 messageBuilder.Append(' ');
             }
 
-            var channels = GetChannels(thread);
+            var channelsByLocale = GetChannels(context, thread);
             var resultedMessage = messageBuilder.ToString();
 
-            for (int i = 0; i < channels.Length; i++)
-                await channels[i].SendMessageAsync(resultedMessage);
+            for (int i = 0; i < channelsByLocale.Length; i++)
+            {
+                var (locale, channels) = channelsByLocale[i];
+
+                for (int k = 0; k < channels.Length; k++)
+                {
+                    await channels[k].SendMessageAsync(resultedMessage);
+                }
+            }
         }
 
-        public async Task SendMessage(string message, GuildThread thread, params ulong[] mentions)
+        public async Task SendMessage(Context context, Text message, GuildThread thread, params ulong[] mentions)
         {
             if (mentions.Length == 0 && string.IsNullOrWhiteSpace(message))
                 return;
@@ -79,14 +93,21 @@ namespace SSTournamentsBot.Api.Services
 
             messageBuilder.Append(message);
 
-            var channels = GetChannels(thread);
+            var channelsByLocale = GetChannels(context, thread);
             var resultedMessage = messageBuilder.ToString();
 
-            for (int i = 0; i < channels.Length; i++)
-                await channels[i].SendMessageAsync(resultedMessage);
+            for (int i = 0; i < channelsByLocale.Length; i++)
+            {
+                var (locale, channels) = channelsByLocale[i];
+
+                for (int k = 0; k < channels.Length; k++)
+                {
+                    await channels[k].SendMessageAsync(resultedMessage);
+                }
+            }
         }
 
-        public async Task<IButtonsController> SendVotingButtons(string message, VotingOption[] options, GuildThread thread, params ulong[] mentions)
+        public async Task<IButtonsController> SendVotingButtons(Context context, Text message, VotingOption[] options, GuildThread thread, params ulong[] mentions)
         {
             var messageBuilder = new StringBuilder();
 
@@ -102,7 +123,7 @@ namespace SSTournamentsBot.Api.Services
 
             messageBuilder.Append(message);
 
-            var channels = GetChannels(thread);
+            var channelsByLocale = GetChannels(context, thread);
             var resultedMessage = messageBuilder.ToString();
             var builder = new ComponentBuilder();
 
@@ -112,10 +133,17 @@ namespace SSTournamentsBot.Api.Services
                 builder.WithButton(option.Message, i.ToString(), style: ConvertStyle(option.Style));
             }
 
-            var restMessages = new List<RestUserMessage>(channels.Length);
+            var restMessages = new List<RestUserMessage>(channelsByLocale.Sum(x => x.channels.Length));
 
-            for (int i = 0; i < channels.Length; i++)
-                restMessages.Add(await channels[i].SendMessageAsync(resultedMessage, components: builder.Build()));
+            for (int i = 0; i < channelsByLocale.Length; i++)
+            {
+                var (locale, channels) = channelsByLocale[i];
+
+                for (int k = 0; k < channels.Length; k++)
+                {
+                    restMessages.Add(await channels[k].SendMessageAsync(resultedMessage, components: builder.Build()));
+                }
+            }
 
             return new DiscordButtonsController(Interlocked.Increment(ref _idsCounter), restMessages.ToArray());
         }
@@ -130,15 +158,15 @@ namespace SSTournamentsBot.Api.Services
             return ButtonStyle.Secondary;
         }
 
-        private SocketTextChannel[] GetChannels(GuildThread thread)
+        private (string locale, SocketTextChannel[] channels)[] GetChannels(Context context, GuildThread thread)
         {
             if (!_channels.TryGetValue(thread, out var channels))
             {
                 var main = _client.GetGuild(_options.MainGuildId);
 
-                var channelsList = new List<SocketTextChannel>();
+                var channelsList = new List<(string, SocketTextChannel[])>();
 
-                if (thread.HasFlag(GuildThread.EventsTape))
+                /*if (thread.HasFlag(GuildThread.EventsTape))
                     channelsList.Add(main.GetTextChannel(_options.EventsThreadId));
                 if (thread.HasFlag(GuildThread.History))
                     channelsList.Add(main.GetTextChannel(_options.HistoryThreadId));
@@ -149,7 +177,7 @@ namespace SSTournamentsBot.Api.Services
                 if (thread.HasFlag(GuildThread.TournamentChat))
                     channelsList.Add(main.GetTextChannel(_options.TournamentThreadId));
                 if (thread.HasFlag(GuildThread.VotingsTape))
-                    channelsList.Add(main.GetTextChannel(_options.VotingsTapeThreadId));
+                    channelsList.Add(main.GetTextChannel(_options.VotingsTapeThreadId));*/
 
                 channels = _channels[thread] = channelsList.ToArray();
             }
@@ -157,47 +185,52 @@ namespace SSTournamentsBot.Api.Services
             return channels;
         }
 
-        public async Task ModifyLastMessage(string message, GuildThread thread)
+        public async Task ModifyLastMessage(Context context, Text message, GuildThread thread)
         {
-            var channels = GetChannels(thread);
+            var channelsByLocale = GetChannels(context, thread);
 
-            for (int i = 0; i < channels.Length; i++)
+            for (int i = 0; i < channelsByLocale.Length; i++)
             {
-                var lastMessages = channels[i].GetMessagesAsync(2);
+                var (locale, channels) = channelsByLocale[i];
 
-                var page = await lastMessages.FirstOrDefaultAsync();
-                var messageEntry = page.FirstOrDefault(x => x.Author.IsBot);
-
-                if (messageEntry != null)
+                for (int k = 0; k < channels.Length; k++)
                 {
-                    await channels[i].ModifyMessageAsync(messageEntry.Id, x =>
+                    var lastMessages = channels[k].GetMessagesAsync(2);
+
+                    var page = await lastMessages.FirstOrDefaultAsync();
+                    var messageEntry = page.FirstOrDefault(x => x.Author.IsBot);
+
+                    if (messageEntry != null)
                     {
-                        x.Content = message;
-                    });
-                }
-                else
-                {
-                    await channels[i].SendMessageAsync(message);
+                        await channels[k].ModifyMessageAsync(messageEntry.Id, x =>
+                        {
+                            x.Content = message.Build();
+                        });
+                    }
+                    else
+                    {
+                        await channels[k].SendMessageAsync(message);
+                    }
                 }
             }
         }
 
-        public async Task<string> GetUserName(ulong id)
+        public async Task<string> GetUserName(Context context, ulong id)
         {
             return (await _client.GetUserAsync(id)).Username;
         }
 
-        public async Task<string> GetMention(ulong id)
+        public async Task<string> GetMention(Context context, ulong id)
         {
             return (await _client.GetUserAsync(id)).Mention;
         }
 
-        public async Task SendMessageToUser(string message, ulong id)
+        public async Task SendMessageToUser(Context context, Text message, ulong id)
         {
             await (await _client.GetUserAsync(id)).SendMessageAsync(message);
         }
 
-        public async Task<bool> ToggleWaitingRole(ulong id, bool? toValue)
+        public async Task<bool> ToggleWaitingRole(Context context, ulong id, bool? toValue)
         {
             var main = _client.GetGuild(_options.MainGuildId);
             var waitingRole = main.GetRole(_options.WaitingRoleId);
@@ -225,16 +258,16 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        public Task<string> GetMentionForWaitingRole()
+        public Task<string> GetMentionForWaitingRole(Context context)
         {
             var mainGuild = _client.Guilds.First();
             return Task.FromResult(mainGuild.GetRole(_options.WaitingRoleId).Mention);
         }
 
-        public async Task MentionWaitingRole(GuildThread thread)
+        public async Task MentionWaitingRole(Context context, GuildThread thread)
         {
-            var mention = await GetMentionForWaitingRole();
-            await SendMessage(mention, thread);
+            var mention = await GetMentionForWaitingRole(context);
+            await SendMessage(context, Text.OfValue(mention), thread);
         }
 
         private class DiscordButtonsController : IButtonsController
@@ -253,11 +286,11 @@ namespace SSTournamentsBot.Api.Services
                 return Task.FromResult(_messages.Any(x => x.Id == id));
             }
 
-            public Task DisableButtons(string resultMessage)
+            public Task DisableButtons(Text resultMessage)
             {
                 return Task.WhenAll(_messages.Select(x => x.ModifyAsync(m =>
                 {
-                    m.Content = resultMessage;
+                    m.Content = resultMessage.Build();
                     m.Components = null;
                 })));
             }

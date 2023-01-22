@@ -22,7 +22,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _timeLine = timeLine;
             _api = api;
         }
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var userData =  _dataService.FindUserByDiscordId(arg.User.Id);
 

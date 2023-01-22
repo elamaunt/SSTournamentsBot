@@ -10,8 +10,12 @@ module Domain =
 
     type TournamentType = 
         | Regular
-        //| Daily
-        //| Weekly
+
+    type SetupType = 
+        | Solo1v1
+        | Team2v2
+        | Team3v3
+        | Team4v4
 
     type Race = 
         | SpaceMarines

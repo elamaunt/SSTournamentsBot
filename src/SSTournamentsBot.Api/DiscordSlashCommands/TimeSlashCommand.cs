@@ -21,7 +21,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Выводит текущее время и оставшееся время до следующего события";
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var nextEvent = _timeline.GetNextEventInfo();
 

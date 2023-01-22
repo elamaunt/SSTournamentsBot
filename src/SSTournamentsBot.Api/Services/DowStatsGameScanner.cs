@@ -17,6 +17,7 @@ namespace SSTournamentsBot.Api.Services
     {
         readonly DowStatsGameScannerOptions _options;
         readonly ILogger<DowStatsGameScanner> _logger;
+        private readonly IContextService _contextService;
         readonly HttpService _httpService;
         readonly TournamentApi _api;
         readonly IBotApi _botApi;
@@ -32,6 +33,7 @@ namespace SSTournamentsBot.Api.Services
 
         public DowStatsGameScanner(
             ILogger<DowStatsGameScanner> logger, 
+            IContextService contextService,
             HttpService httpService, 
             TournamentApi api,
             IBotApi botApi,
@@ -40,6 +42,7 @@ namespace SSTournamentsBot.Api.Services
         {
             _options = options.Value;
             _logger = logger;
+            _contextService = contextService;
             _httpService = httpService;
             _api = api;
             _botApi = botApi;
@@ -87,9 +90,10 @@ namespace SSTournamentsBot.Api.Services
                 .Json<DowStatsGameDTO[]>(JsonSerializer.CreateDefault())
                 .Task.ContinueWith(async t =>
                 {
+                    var mainContext = _contextService.GetMainContext();
                     if (t.IsFaulted)
                     {
-                        await Log("Error on the DowStats lastgames request. " + t.Exception);
+                        await Log(mainContext, "Error on the DowStats lastgames request. " + t.Exception);
                         return;
                     }
 
@@ -125,54 +129,62 @@ namespace SSTournamentsBot.Api.Services
                                 ResolveModInfo(game.modification),
                                 game.gameLink);
 
+                            var context = ResolveContext(info);
+
                             var playersString = $"{game.registerTime} | {string.Join(", ", winnersSelection.Select(x => x.name))} VS {string.Join(", ", losersSelection.Select(x => x.name))}";
 
-                            await Log($"Trying to submit a game: {playersString}");
+                            await Log(context, $"Trying to submit a game: {playersString}");
 
                             if (_submitedGames.TryAdd(playersString, playersString))
                             {
+
                                 await _api.TrySubmitGame(info)
                                     .ContinueWith(async submitTask =>
                                     {
                                         if (submitTask.IsFaulted)
                                         {
-                                            await Log("Error on submitting the gameInfo. " + submitTask.Exception);
+                                            await Log(context, "Error on submitting the gameInfo. " + submitTask.Exception);
                                             return;
                                         }
 
                                         if (submitTask.IsCompleted)
                                         {
                                             var result = submitTask.Result;
-                                            await Log("Game submitted");
+                                            await Log(context, "Game submitted");
 
                                             if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
                                             {
-                                                await _botApi.SendMessage($"> Засчитана победа **{string.Join(", ", winnersSelection.Select(x => x.name))}** в матче против **{string.Join(", ", losersSelection.Select(x => x.name))}**.\nСсылка на игру: {game.gameLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
-                                                await Log($"The game is counted");
+                                                await _botApi.SendMessage(context, $"> Засчитана победа **{string.Join(", ", winnersSelection.Select(x => x.name))}** в матче против **{string.Join(", ", losersSelection.Select(x => x.name))}**.\nСсылка на игру: {game.gameLink}", GuildThread.EventsTape | GuildThread.TournamentChat);
+                                                await Log(context, $"The game is counted");
                                             }
                                             else
                                             {
-                                                await Log($"The game is not counted due to reason: {result}");
+                                                await Log(context, $"The game is not counted due to reason: {result}");
                                             }
 
                                             if (result.IsCompletedAndFinishedTheStage)
                                             {
-                                                _timeline.AddOneTimeEventAfterTime(Event.CompleteStage, TimeSpan.FromSeconds(10));
+                                                _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(context.Name), TimeSpan.FromSeconds(10));
                                             }
                                         }
                                     });
                             }
                             else
                             {
-                                await Log($"The game is already submitted:  {playersString}");
+                                await Log(context, $"The game is already submitted:  {playersString}");
                             }
                         }
                         catch (Exception ex)
                         {
-                            await Log("Error on processing of the gameInfo. " + ex);
+                            await Log(mainContext, "Error on processing of the gameInfo. " + ex);
                         }
                     }
                 });
+        }
+
+        private Context ResolveContext(FinishedGameInfo info)
+        {
+            throw new NotImplementedException();
         }
 
         private RaceInfo ResolveRace(string race)
@@ -259,10 +271,10 @@ namespace SSTournamentsBot.Api.Services
             _rescanTimer?.Change(Timeout.Infinite, 0);
         }
 
-        private Task Log(string message)
+        private Task Log(Context context, string message)
         {
             _logger.LogInformation(message);
-            return _botApi.Log(message);
+            return _botApi.Log(context, message);
         }
 
         public class DowStatsGameDTO

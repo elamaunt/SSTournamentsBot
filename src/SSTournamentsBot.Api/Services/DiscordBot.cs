@@ -13,6 +13,7 @@ namespace SSTournamentsBot.Api.Services
     public class DiscordBot : IHostedService
     {
         readonly DiscordSocketClient _client;
+        readonly ContextService _contextService;
         readonly TournamentApi _tournamentApi;
         readonly IBotApi _botApi;
         readonly DiscordBotOptions _options;
@@ -23,15 +24,16 @@ namespace SSTournamentsBot.Api.Services
         private volatile bool _isReady;
 
         public DiscordBot(DiscordSocketClient client,
+            ContextService contextService,
             TournamentApi tournamentApi,
             IBotApi botApi,
             IEventsTimeline timeLine,
             ITournamentEventsHandler eventsHandler, 
             IOptions<DiscordBotOptions> options,
             IOptions<TournamentEventsOptions> tournamentOptions)
-
         {
             _client = client;
+            _contextService = contextService;
             _tournamentApi = tournamentApi;
             _botApi = botApi;
             _timeLine = timeLine;
@@ -44,6 +46,8 @@ namespace SSTournamentsBot.Api.Services
         {
             _timeLine.RemoveAllEvents();
 
+            var context = _contextService.GetMainContext();
+
             _client.Log += async (msg) =>
             {
                 var s = msg.ToString();
@@ -52,9 +56,9 @@ namespace SSTournamentsBot.Api.Services
                 if (_isReady)
                 {
                     if (msg.Severity == LogSeverity.Error || msg.Severity == LogSeverity.Critical)
-                        await _botApi.SendMessage(s, GuildThread.Logging, 272710324484833281);
+                        await _botApi.SendMessage(context, s, GuildThread.Logging, 272710324484833281);
                     else
-                        await _botApi.SendMessage(s, GuildThread.Logging);
+                        await _botApi.SendMessage(context, s, GuildThread.Logging);
                 }
             };
 
@@ -73,6 +77,8 @@ namespace SSTournamentsBot.Api.Services
 
         private async Task OnButtonExecuted(SocketMessageComponent arg)
         {
+            var (locale, context) = _contextService.GetLocaleAndContext(arg.Channel.Id);
+
             var guildUser = (SocketGuildUser)arg.User;
 
             var guildRole = GuildRole.Everyone;
@@ -116,7 +122,7 @@ namespace SSTournamentsBot.Api.Services
             if (result == AcceptVoteResult.CompletedByThisVote)
             {
                 await arg.RespondAsync($"{arg.User.Mention} завершает голосование голосом администрации.");
-                await _eventsHandler.DoCompleteVoting();
+                await _eventsHandler.DoCompleteVoting(context.Name);
                 return;
             }
 

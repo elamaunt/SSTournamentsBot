@@ -27,7 +27,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "call";
         public override string Description => "Позвать оппонента на игру";
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var user = arg.User;
 
@@ -61,8 +61,8 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                         await arg.RespondAsync($">>> Твой оппонент под ником **{opponent.Name}** не может быть вызван. Возможно, он покинул сервер.\nЕму будет присуждено техническое поражение.");
                         if ((await _api.TryLeaveUser(opponentData.DiscordId, opponentData.SteamId, TechnicalWinReason.OpponentsKicked)).IsDone)
                         {
-                            var mention = await _botApi.GetMention(opponent.DiscordId);
-                            await _botApi.SendMessage($"> {mention} исключен из турнира, так как недоступен.", GuildThread.EventsTape | GuildThread.TournamentChat);
+                            var mention = await _botApi.GetMention(context, opponent.DiscordId);
+                            await _botApi.SendMessage(context, $"> {mention} исключен из турнира, так как недоступен.", GuildThread.EventsTape | GuildThread.TournamentChat);
                         }
                         return;
                     }

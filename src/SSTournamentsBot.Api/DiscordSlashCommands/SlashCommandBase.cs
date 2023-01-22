@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Services;
 using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
@@ -8,7 +9,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     {
         public abstract string Name { get; }
         public abstract string Description { get; }
-        public abstract Task Handle(SocketSlashCommand arg);
+        public abstract Task Handle(Context context, SocketSlashCommand arg);
        
         public SlashCommandBuilder MakeBuilder()
         {

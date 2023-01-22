@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using SSTournamentsBot.Api.Services;
 using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
@@ -8,7 +9,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "my-id";
         public override string Description => "Выводит Ваш discord user id";
 
-        public override Task Handle(SocketSlashCommand arg)
+        public override Task Handle(Context context, SocketSlashCommand arg)
         {
             return arg.RespondAsync($"Ваш id = {arg.User.Id}");
         }

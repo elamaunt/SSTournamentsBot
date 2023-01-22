@@ -21,6 +21,7 @@ namespace SSTournamentsBot.Api.Tests
             var data = new InMemoryDataService();
             var api = new TournamentApi(skia, data);
             var botApi = new VirtualBotApi();
+            var context = new Context("test", api, null, new SetupOptions());
 
             Assert.IsTrue(data.StoreUsersSteamId(1, 1));
             Assert.IsTrue(data.StoreUsersSteamId(2, 2));
@@ -30,7 +31,7 @@ namespace SSTournamentsBot.Api.Tests
             for (ulong i = 1; i < 5; i++)
             {
                 var user = data.FindUserByDiscordId(i);
-                Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(user.DiscordId))) == Domain.RegistrationResult.Registered);
+                Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(context, user.DiscordId))) == Domain.RegistrationResult.Registered);
             }
 
             Assert.IsTrue((await api.TryStartTheCheckIn()).IsDone);
@@ -97,6 +98,7 @@ namespace SSTournamentsBot.Api.Tests
             var data = new InMemoryDataService();
             var api = new TournamentApi(skia, data);
             var botApi = new VirtualBotApi();
+            var context = new Context("test", api, null, new SetupOptions());
 
             Assert.IsTrue(data.StoreUsersSteamId(1, 1));
             Assert.IsTrue(data.StoreUsersSteamId(2, 2));
@@ -106,7 +108,7 @@ namespace SSTournamentsBot.Api.Tests
             for (ulong i = 1; i < 5; i++)
             {
                 var user = data.FindUserByDiscordId(i);
-                Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(user.DiscordId))) == Domain.RegistrationResult.Registered);
+                Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(context, user.DiscordId))) == Domain.RegistrationResult.Registered);
             }
 
             Assert.IsTrue((await api.TryStartTheCheckIn()).IsDone);
@@ -197,7 +199,7 @@ namespace SSTournamentsBot.Api.Tests
         [TestMethod]
         public async Task TournamentCycleTest()
         {
-            var skia = new SkiaDrawingService();
+            var skia = new SkiaDrawingService(); 
             var data = new InMemoryDataService();
             var api = new TournamentApi(skia, data);
             var timeline = new InMemoryEventsTimeline();
@@ -215,7 +217,9 @@ namespace SSTournamentsBot.Api.Tests
                 AdditionalTimeForStageMinutes = 1
             });
 
-            var handler = new TournamentEventsHandler(new LoggerMock<TournamentEventsHandler>(), data, botApi, scanner, timeline, api, options);
+            var contextService = new VirtualContextService();
+            var handler = new TournamentEventsHandler(new LoggerMock<TournamentEventsHandler>(), contextService, data, botApi, scanner, timeline, api, options);
+            var context = contextService.Context = new Context("test", api, handler, new SetupOptions());
 
             // Store users in db
             Assert.IsTrue(data.StoreUsersSteamId(1, 1));
@@ -229,10 +233,10 @@ namespace SSTournamentsBot.Api.Tests
                 for (ulong i = 1; i < 5; i++)
                 {
                     var user = data.FindUserByDiscordId(i);
-                    Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(user.DiscordId))) == Domain.RegistrationResult.Registered);
+                    Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(context, user.DiscordId))) == Domain.RegistrationResult.Registered);
                 }
 
-                timeline.AddOneTimeEventAfterTime(Event.StartCheckIn, TimeSpan.FromMinutes(options.Value.CheckInTimeoutMinutes));
+                timeline.AddOneTimeEventAfterTime(Event.NewStartCheckIn(context.Name), TimeSpan.FromMinutes(options.Value.CheckInTimeoutMinutes));
 
                 // Start checkin
                 await GoNextEvent(timeline, handler);

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SSTournamentsBot.Api.DiscordSlashCommands;
+using SSTournamentsBot.Api.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace SSTournamentsBot.Api.Services
     public class DiscordCommandsHandler : IHostedService
     {
         readonly DiscordSocketClient _client;
+        readonly IContextService _contextService;
         readonly DiscordBotOptions _options;
         readonly TournamentEventsOptions _tournamentOptions;
         readonly Dictionary<string, SlashCommandBase> _commands;
@@ -21,6 +23,7 @@ namespace SSTournamentsBot.Api.Services
         private volatile bool _firstReadyRecieved;
         public DiscordCommandsHandler(
             DiscordSocketClient client,
+            IContextService contextService,
             TournamentApi api,
             IDataService dataService,
             IStatsApi statsApi,
@@ -31,6 +34,7 @@ namespace SSTournamentsBot.Api.Services
             IOptions<TournamentEventsOptions> tournamentOptions)
         {
             _client = client;
+            _contextService = contextService;
             _options = options.Value;
             _tournamentOptions = tournamentOptions.Value;
 
@@ -103,7 +107,9 @@ namespace SSTournamentsBot.Api.Services
             {
                 try
                 {
-                    await command.Handle(arg);
+                    var (locale, context) = _contextService.GetLocaleAndContext(arg.Channel.Id);
+
+                    await command.Handle(context, arg);
                 }
                 catch (NotImplementedException)
                 {
@@ -123,21 +129,10 @@ namespace SSTournamentsBot.Api.Services
 
             _firstReadyRecieved = true;
 
-            foreach (var guild in _client.Guilds)
-            {
-                await UpdateOrCreateCommandsForGuild(guild);
+            var mainGuild = _client.GetGuild(_options.MainGuildId);
 
-#if !DEBUG
-                await guild.GetTextChannel(_options.TournamentThreadId).SendMessageAsync($@"Привет, друзья! 
-**SS Tournaments Bot** к вашим услугам и готов устраивать для Вас автоматические турниры.
-Они автоматически организуются сразу по достижению **минимального количества участников 4**.
-После этого сразу же начинается стадия чекина и идет __ровно 10 минут__.
-За это время могут регистрироваться больше участников, но после чекина игроков должно быть не менее {_tournamentOptions.MinimumPlayersToStartCheckin}, чтобы начать турнир.
-Как только турнир завершается, набор игроков начинается заново.
-Для регистрации на турнир используйте команду **/play.
-Удачной игры!**");
-#endif
-            }
+            await UpdateOrCreateCommandsForGuild(mainGuild);
+            await mainGuild.GetTextChannel(_options.MainThreads.Values.First()).SendMessageAsync(Text.OfLambda(() => S.Greetings).Format(_tournamentOptions.MinimumPlayersToStartCheckin));
         }
 
         private async Task UpdateOrCreateCommandsForGuild(SocketGuild guild)

@@ -23,7 +23,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "leave";
         public override string Description => "Покинуть турнир или исключить себя из регистрации";
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var userData = _dataService.FindUserByDiscordId(arg.User.Id);
 
@@ -40,7 +40,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 await arg.RespondAsync($"> Вы успешно покинули турнир.");
 
                 if (_api.IsTournamentStarted && _api.ActiveMatches.All(x => !x.Result.IsNotCompleted))
-                    await _eventsHandler.DoCompleteStage();
+                    await _eventsHandler.DoCompleteStage(context.Name);
                 return;
             }
 

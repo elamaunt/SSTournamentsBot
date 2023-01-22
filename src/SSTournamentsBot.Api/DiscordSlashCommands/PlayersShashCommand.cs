@@ -17,7 +17,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _tournamentApi = tournamentApi;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var builder = new StringBuilder();
 
@@ -35,12 +35,5 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 await arg.RespondAsync("В данный момент никто не зарегистрирован на турнир.");
         }
 
-        protected override void Configure(SlashCommandBuilder builder)
-        {
-            builder
-                .WithDefaultPermission(true)
-                .WithDefaultMemberPermissions(GuildPermission.Administrator | GuildPermission.ModerateMembers)
-                .WithDMPermission(true);
-        }
     }
 }

@@ -17,7 +17,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _dataService = dataService;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var userOption = arg.Data.Options.First(x => x.Name == "user");
             var user = (IUser)userOption.Value;

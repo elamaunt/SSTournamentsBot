@@ -17,7 +17,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _botApi = botApi;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var valueOption = arg.Data.Options.FirstOrDefault(x => x.Name == "value");
 
@@ -26,9 +26,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             bool enabled;
 
             if (valueOption != null)
-                enabled = await _botApi.ToggleWaitingRole(arg.User.Id, (bool)valueOption.Value);
+                enabled = await _botApi.ToggleWaitingRole(context, arg.User.Id, (bool)valueOption.Value);
             else
-                enabled = await _botApi.ToggleWaitingRole(arg.User.Id, null);
+                enabled = await _botApi.ToggleWaitingRole(context, arg.User.Id, null);
 
             if (enabled)
                 await arg.ModifyOriginalResponseAsync(x => x.Content = $"> Вы будете получать уведомления о начинающихся турнирах");

@@ -21,7 +21,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Откладывает или ускоряет следующее событие";
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             var minutesOption = arg.Data.Options.FirstOrDefault(x => x.Name == "minutes");
             var minutes = (long)minutesOption.Value;

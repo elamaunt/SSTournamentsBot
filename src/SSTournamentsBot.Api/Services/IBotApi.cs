@@ -6,16 +6,16 @@ namespace SSTournamentsBot.Api.Services
 {
     public interface IBotApi
     {
-        Task Mention(GuildThread thread, params ulong[] mentions);
-        Task SendMessage(string message, GuildThread thread, params ulong[] mentions);
-        Task SendFile(byte[] file, string fileName, string text, GuildThread thread);
-        Task<IButtonsController> SendVotingButtons(string message, VotingOption[] buttons, GuildThread thread, params ulong[] mentions);
-        Task ModifyLastMessage(string message, GuildThread thread);
-        Task<string> GetUserName(ulong id);
-        Task<string> GetMention(ulong id);
-        Task SendMessageToUser(string message, ulong id);
-        Task<bool> ToggleWaitingRole(ulong id, bool? toValue);
-        Task<string> GetMentionForWaitingRole();
-        Task MentionWaitingRole(GuildThread thread);
+        Task Mention(Context context, GuildThread thread, params ulong[] mentions);
+        Task SendMessage(Context context, Text message, GuildThread thread, params ulong[] mentions);
+        Task SendFile(Context context, byte[] file, string fileName, Text text, GuildThread thread);
+        Task<IButtonsController> SendVotingButtons(Context context, Text message, VotingOption[] buttons, GuildThread thread, params ulong[] mentions);
+        Task ModifyLastMessage(Context context, Text message, GuildThread thread);
+        Task<string> GetUserName(Context context, ulong id);
+        Task<string> GetMention(Context context, ulong id);
+        Task SendMessageToUser(Context context, Text message, ulong id);
+        Task<bool> ToggleWaitingRole(Context context, ulong id, bool? toValue);
+        Task<string> GetMentionForWaitingRole(Context context);
+        Task MentionWaitingRole(Context context, GuildThread thread);
     }
 }

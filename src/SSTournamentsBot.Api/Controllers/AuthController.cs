@@ -11,13 +11,15 @@ namespace SSTournamentsBot.Api.Controllers
     public class AuthController : ControllerBase
     {
         readonly ILogger<AuthController> _logger;
+        readonly IContextService _contextService;
         readonly DiscordApi _api;
         readonly IBotApi _botApi;
         readonly IDataService _dataService;
 
-        public AuthController(ILogger<AuthController> logger, DiscordApi api, IBotApi botApi, IDataService dataService)
+        public AuthController(ILogger<AuthController> logger, IContextService contextService, DiscordApi api, IBotApi botApi, IDataService dataService)
         {
             _logger = logger;
+            _contextService = contextService;
             _api = api;
             _botApi = botApi;
             _dataService = dataService;
@@ -48,7 +50,8 @@ namespace SSTournamentsBot.Api.Controllers
 
             var html = $"<h1>SS Tournaments Bot by elamaunt</h1><br/><p>Привязка аккаунта завершена успешно. Добро пожаловать на участие в турнирах! Выполните команду play повторно на турнирном канале в Discord, чтобы зарегистрироваться.</p>";
 
-            await _botApi.SendMessageToUser("Привязка аккаунта завершена успешно. Добро пожаловать на участие в турнирах! Выполните команду __**/play повторно**__ на турнирном канале, чтобы зарегистрироваться.", result.Value.discordId);
+            // TODO: get users locale
+            await _botApi.SendMessageToUser(_contextService.GetMainContext(), "Привязка аккаунта завершена успешно. Добро пожаловать на участие в турнирах! Выполните команду __**/play повторно**__ на турнирном канале, чтобы зарегистрироваться.", result.Value.discordId);
 
             return new ContentResult
             {

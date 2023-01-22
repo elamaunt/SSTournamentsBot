@@ -22,11 +22,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _handler = handler;
         }
 
-        public override async Task Handle(SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg)
         {
             _timeline.RemoveAllEvents();
             await _tournamentApi.DropTournament();
-            await _handler.DoCompleteVoting();
+            await _handler.DoCompleteVoting(context.Name);
             await arg.RespondAsync("Сброс состояния выполнен.");
         }
 
