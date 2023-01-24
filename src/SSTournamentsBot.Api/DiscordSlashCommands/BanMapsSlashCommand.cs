@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (userData == null)
             {
-                await arg.RespondAsync("> Вы не зарегистрированы в системе турниров.");
+                await arg.RespondAsync(OfKey(nameof(S.Bot_YouAreNotRegistered)).Build());
                 return;
             }
 
@@ -39,13 +40,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (!_dataService.UpdateUser(userData))
             {
-                await Responce($"> Не удалось обновить данные в базе.");
+                await Responce(OfKey(nameof(S.Bot_DataBaseUpdateError)));
                 return;
             }
 
             if (_tournamentApi.IsTournamentStarted)
             {
-                await Responce($"> Ваш список банов успешно обновлен, но изменения будут учтены только на следующих турнирах.");
+                await Responce(OfKey(nameof(S.BanMaps_MapsUpdatedButForNextTournaments)));
             }
             else
             {
@@ -53,11 +54,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (result.IsCompleted || result.IsNoTournament || result.IsNotRegistered)
                 {
-                    await Responce($"> Ваш список банов успешно обновлен.");
+                    await Responce(OfKey(nameof(S.BanMaps_UpdatedSuccessfully)));
                     return;
                 }
 
-                await Responce($"> Ваш список банов успешно обновлен, но изменения будут учтены только на следующих турнирах.");
+                await Responce(OfKey(nameof(S.BanMaps_MapsUpdatedButForNextTournaments)));
             }
         }
 

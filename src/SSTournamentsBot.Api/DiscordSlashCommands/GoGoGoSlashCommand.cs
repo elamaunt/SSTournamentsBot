@@ -9,7 +9,7 @@ using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
-    public class GoGoGoSlashCommand : SlashCommandBase
+   /* public class GoGoGoSlashCommand : SlashCommandBase
     {
         readonly IBotApi _botApi;
         readonly TournamentEventsOptions _options;
@@ -54,5 +54,5 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _lastCallDate = GetMoscowTime();
             await _botApi.SendMessage(context, "@everyone Призываю всех играть турниры!", GuildThread.TournamentChat);
         }
-    }
+    }*/
 }

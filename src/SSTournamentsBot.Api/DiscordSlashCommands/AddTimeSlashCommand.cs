@@ -1,6 +1,8 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Domain;
 using SSTournamentsBot.Api.Helpers;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Linq;
@@ -19,7 +21,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Name => "add-time";
 
-        public override string Description => "Откладывает или ускоряет следующее событие";
+        public override string Description => "Откладывает или ускоряет следующее событие (для админов)";
 
         public override async Task Handle(Context context, SocketSlashCommand arg)
         {
@@ -28,7 +30,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (minutes == 0)
             {
-                await arg.RespondAsync("> Нет изменений во времени следующего события, так как указано 0 минут.");
+                await arg.RespondAsync(OfKey(nameof(S.AddTime_NoMinutes)).Format(arg.CommandName).Build());
                 return;
             }
 

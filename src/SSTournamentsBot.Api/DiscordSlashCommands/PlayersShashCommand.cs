@@ -1,5 +1,5 @@
-﻿using Discord;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +32,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             if (builder.Length > 0)
                 await arg.RespondAsync(builder.ToString());
             else
-                await arg.RespondAsync("В данный момент никто не зарегистрирован на турнир.");
+                await arg.RespondAsync(OfKey(nameof(S.Players_NobodyRegistered)));
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,9 +32,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 enabled = await _botApi.ToggleWaitingRole(context, arg.User.Id, null);
 
             if (enabled)
-                await arg.ModifyOriginalResponseAsync(x => x.Content = $"> Вы будете получать уведомления о начинающихся турнирах");
+                await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(S.Wait_Enabled).Build());
             else
-                await arg.ModifyOriginalResponseAsync(x => x.Content = $"> Турниры вас не побеспокоят");
+                await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(S.Wait_Disabled).Build());
         }
 
         protected override void Configure(SlashCommandBuilder builder)

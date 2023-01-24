@@ -1,9 +1,7 @@
-﻿
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
-using System;
 using System.Threading.Tasks;
-using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
@@ -28,7 +26,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (userData == null)
             {
-                await arg.RespondAsync("> Вы не зарегистрированы в системе. Используйте команду */play*.");
+                await arg.RespondAsync(OfKey(nameof(S.CheckIn_YouAreNotRegisteredInTheSystem)));
                 return;
             }
 
@@ -36,29 +34,29 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsNotRegisteredIn)
             {
-                await arg.RespondAsync($"> Вы не регистрировались на текущий турнир.");
+                await arg.RespondAsync(OfKey(nameof(S.CheckIn_YouAreNotRegisteredInTournament)));
                 return;
             }
 
             if (result.IsNotCheckInStageNow || result.IsNoTournament)
             {
-                await arg.RespondAsync($"> В данный момент чекин не проводится.");
+                await arg.RespondAsync(OfKey(nameof(S.CheckIn_NotActiveNow)));
                 return;
             }
 
             if (result.IsAlreadyCheckIned)
             {
-                await arg.RespondAsync($"> Вы уже подтведили свое участие.");
+                await arg.RespondAsync(OfKey(nameof(S.CheckIn_YouAreAlreadyCheckined)));
                 return;
             }
 
             if (result.IsDone)
             {
-                await arg.RespondAsync($"> Вы успешно подтведили свое участие!");
+                await arg.RespondAsync(OfKey(nameof(S.CheckIn_CheckInedSuccessfully)));
                 return;
             }
 
-            await arg.RespondAsync("> Произошла ошибка");
+            await arg.RespondAsync(OfKey(nameof(S.CheckIn_Error)));
         }
     }
 }

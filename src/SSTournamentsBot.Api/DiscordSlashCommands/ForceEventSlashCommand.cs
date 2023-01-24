@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Threading.Tasks;
 using static SSTournaments.SecondaryDomain;
@@ -28,12 +29,12 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             if (nextEvent != null)
             {
                 _timeline.RemoveEventInfo(nextEvent);
-                await arg.RespondAsync($"> Следующее событие было формировано.");
+                await arg.RespondAsync(OfKey(nameof(S.ForceEvent_Done)));
                 await SwitchEvent(nextEvent.Event, _handler);
             }
             else
             {
-                await arg.RespondAsync($"> Сейчас нет запланированных событий.");
+                await arg.RespondAsync(OfKey(nameof(S.ForceEvent_NoEvents)));
             }
         }
 

@@ -4,6 +4,7 @@ using Microsoft.FSharp.Core;
 using SSTournamentsBot.Api.DataDomain;
 using SSTournamentsBot.Api.Domain;
 using SSTournamentsBot.Api.Helpers;
+using SSTournamentsBot.Api.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,7 +92,7 @@ namespace SSTournamentsBot.Api.Services
                     if (matches.Length == 1 && !_tournamentApi.SingleMatchTimeAlreadyExtended)
                     {
                         _tournamentApi.SingleMatchTimeAlreadyExtended = true;
-                        await _botApi.SendMessage(context, "> Единственный матч в этой стадии еще не доигран. Завершение стадии отложено на __**5 минут.**__", GuildThread.EventsTape | GuildThread.TournamentChat);
+                        await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_SingleMatchNotFinished)), GuildThread.EventsTape | GuildThread.TournamentChat);
                         _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.AdditionalTimeForStageMinutes));
                         return;
                     }

@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (userData == null)
             {
-                await arg.RespondAsync("> Вы не зарегистрированы в системе.");
+                await arg.RespondAsync(OfKey(nameof(S.Bot_YouAreNotRegistered)));
                 return;
             }
 
@@ -37,7 +38,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsDone)
             {
-                await arg.RespondAsync($"> Вы успешно покинули турнир.");
+                await arg.RespondAsync(OfKey(nameof(S.Leave_Successfull)));
 
                 if (_api.IsTournamentStarted && _api.ActiveMatches.All(x => !x.Result.IsNotCompleted))
                     await _eventsHandler.DoCompleteStage(context.Name);
@@ -46,13 +47,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsNotRegistered)
             {
-                await arg.RespondAsync($"> Вы не были зарегистрированы в следующем турнире.");
+                await arg.RespondAsync(OfKey(nameof(S.Bot_AreNotregisteredInEvent)));
                 return;
             }
 
             if (result.IsNoTournament)
             {
-                await arg.RespondAsync($"> В данный момент нет турнира.");
+                await arg.RespondAsync(OfKey(nameof(S.Bot_NoActiveTournament)));
                 return;
             }
 
@@ -62,25 +63,25 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (reason.IsVoting)
                 {
-                    await arg.RespondAsync("> Вы не можете покинуть турнир, так как вы уже покинули его путем голосования.");
+                    await arg.RespondAsync(OfKey(nameof(S.Leave_YouAreAlreadyKickedByVoting)));
                     return;
                 }
 
                 if (reason.IsOpponentsLeft)
                 {
-                    await arg.RespondAsync("> Вы уже покинули этот турнир.");
+                    await arg.RespondAsync(OfKey(nameof(S.Bot_AreAlreadyLeftTheEvent)));
                     return;
                 }
 
                 if (reason.IsOpponentsBan)
                 {
-                    await arg.RespondAsync("> Вы не можете покинуть турнир, так как вы были забанены.");
+                    await arg.RespondAsync(OfKey(nameof(S.Leave_ImposibleToLeaveCauseBanned)));
                     return;
                 }
 
                 if (reason.IsOpponentsKicked)
                 {
-                    await arg.RespondAsync("> Вы не можете покинуть турнир, так как вы были исключены из него администрацией.");
+                    await arg.RespondAsync(OfKey(nameof(S.Leave_ImposibleToLeaveCauseKickedByAdmin)));
                     return;
                 }
             }

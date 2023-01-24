@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SSTournamentsBot.Api {
+namespace SSTournamentsBot.Api.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace SSTournamentsBot.Api {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SSTournamentsBot.Api.S", typeof(S).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SSTournamentsBot.Api.Resources.S", typeof(S).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,14 +61,556 @@ namespace SSTournamentsBot.Api {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Нет изменений во времени следующего события, так как указано 0 минут..
+        /// </summary>
+        public static string AddTime_NoMinutes {
+            get {
+                return ResourceManager.GetString("AddTime_NoMinutes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Ваш список банов успешно обновлен, но изменения будут учтены только на следующих турнирах..
+        /// </summary>
+        public static string BanMaps_MapsUpdatedButForNextTournaments {
+            get {
+                return ResourceManager.GetString("BanMaps_MapsUpdatedButForNextTournaments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Ваш список банов успешно обновлен..
+        /// </summary>
+        public static string BanMaps_UpdatedSuccessfully {
+            get {
+                return ResourceManager.GetString("BanMaps_UpdatedSuccessfully", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы уже покинули данную активность..
+        /// </summary>
+        public static string Bot_AreAlreadyLeftTheEvent {
+            get {
+                return ResourceManager.GetString("Bot_AreAlreadyLeftTheEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы не были зарегистрированы..
+        /// </summary>
+        public static string Bot_AreNotregisteredInEvent {
+            get {
+                return ResourceManager.GetString("Bot_AreNotregisteredInEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Данная команда еще не реализована..
+        /// </summary>
+        public static string Bot_CommandNotImplemented {
+            get {
+                return ResourceManager.GetString("Bot_CommandNotImplemented", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Не удалось обновить данные в базе..
+        /// </summary>
+        public static string Bot_DataBaseUpdateError {
+            get {
+                return ResourceManager.GetString("Bot_DataBaseUpdateError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Привет, друзья! 
         ///**SS Tournaments Bot** к вашим услугам и готов устраивать для Вас ивенты.
         ///Для регистрации на них используйте **/slash** команды.
         ///Удачной игры!**.
         /// </summary>
-        public static string Greetings {
+        public static string Bot_Greetings {
             get {
-                return ResourceManager.GetString("Greetings", resourceCulture);
+                return ResourceManager.GetString("Bot_Greetings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Не удалось обновить данные в базе..
+        /// </summary>
+        public static string Bot_ImposibleToUpdateDataBase {
+            get {
+                return ResourceManager.GetString("Bot_ImposibleToUpdateDataBase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Нет активности..
+        /// </summary>
+        public static string Bot_NoActiveTournament {
+            get {
+                return ResourceManager.GetString("Bot_NoActiveTournament", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Сейчас нет запланированных событий..
+        /// </summary>
+        public static string Bot_NoEvents {
+            get {
+                return ResourceManager.GetString("Bot_NoEvents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Такого пользователя не существует..
+        /// </summary>
+        public static string Bot_NoUserInDataBase {
+            get {
+                return ResourceManager.GetString("Bot_NoUserInDataBase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; В данный момент активность уже идет..
+        /// </summary>
+        public static string Bot_TournamentInProgress {
+            get {
+                return ResourceManager.GetString("Bot_TournamentInProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Активность еще не началась.
+        /// </summary>
+        public static string Bot_TournamentNotStartedYet {
+            get {
+                return ResourceManager.GetString("Bot_TournamentNotStartedYet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Неизвестная команда &apos;{0}&apos;..
+        /// </summary>
+        public static string Bot_UnknownCommand {
+            get {
+                return ResourceManager.GetString("Bot_UnknownCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы не зарегистрированы в системе..
+        /// </summary>
+        public static string Bot_YouAreNotRegistered {
+            get {
+                return ResourceManager.GetString("Bot_YouAreNotRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Твой оппонент под ником **{opponent.Name}** вызван через личные сообщения..
+        /// </summary>
+        public static string Call_CalledSuccessfully {
+            get {
+                return ResourceManager.GetString("Call_CalledSuccessfully", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Игрок под ником {0} призывает тебя начать матч. Пожалуйста, свяжись с ним в чат канале активности..
+        /// </summary>
+        public static string Call_DirectMessageText {
+            get {
+                return ResourceManager.GetString("Call_DirectMessageText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Возникла ошибка при вызове игрока.
+        /// </summary>
+        public static string Call_Error {
+            get {
+                return ResourceManager.GetString("Call_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Твой оппонент под ником **{0}** не может быть вызван. Возможно, он покинул сервер.\nЕму будет присуждено техническое поражение..
+        /// </summary>
+        public static string Call_ImposibleToComply {
+            get {
+                return ResourceManager.GetString("Call_ImposibleToComply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; В данный момент ваш оппонент еще не определен..
+        /// </summary>
+        public static string Call_NoOpponent {
+            get {
+                return ResourceManager.GetString("Call_NoOpponent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; {0} исключен из турнира, так как недоступен..
+        /// </summary>
+        public static string Call_UserKickedFromTournament {
+            get {
+                return ResourceManager.GetString("Call_UserKickedFromTournament", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; У вас нет активных матчей в данный момент..
+        /// </summary>
+        public static string Call_YouHaveNotActiveMatches {
+            get {
+                return ResourceManager.GetString("Call_YouHaveNotActiveMatches", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы успешно подтведили свое участие!.
+        /// </summary>
+        public static string CheckIn_CheckInedSuccessfully {
+            get {
+                return ResourceManager.GetString("CheckIn_CheckInedSuccessfully", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Произошла ошибка.
+        /// </summary>
+        public static string CheckIn_Error {
+            get {
+                return ResourceManager.GetString("CheckIn_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; В данный момент чекин не проводится..
+        /// </summary>
+        public static string CheckIn_NotActiveNow {
+            get {
+                return ResourceManager.GetString("CheckIn_NotActiveNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы уже подтведили свое участие..
+        /// </summary>
+        public static string CheckIn_YouAreAlreadyCheckined {
+            get {
+                return ResourceManager.GetString("CheckIn_YouAreAlreadyCheckined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы не зарегистрированы в системе. Используйте команду */play*..
+        /// </summary>
+        public static string CheckIn_YouAreNotRegisteredInTheSystem {
+            get {
+                return ResourceManager.GetString("CheckIn_YouAreNotRegisteredInTheSystem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы не регистрировались на текущую активность..
+        /// </summary>
+        public static string CheckIn_YouAreNotRegisteredInTournament {
+            get {
+                return ResourceManager.GetString("CheckIn_YouAreNotRegisteredInTournament", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Единственный матч в этой стадии еще не доигран. Завершение стадии отложено на __**5 минут.**__.
+        /// </summary>
+        public static string Events_SingleMatchNotFinished {
+            get {
+                return ResourceManager.GetString("Events_SingleMatchNotFinished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Следующее событие было форсировано..
+        /// </summary>
+        public static string ForceEvent_Done {
+            get {
+                return ResourceManager.GetString("ForceEvent_Done", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Сейчас нет запланированных событий..
+        /// </summary>
+        public static string ForceEvent_NoEvents {
+            get {
+                return ResourceManager.GetString("ForceEvent_NoEvents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Пока никто не зарегистрировался, но, возможно, вы будете первым :).
+        /// </summary>
+        public static string Info_NobodyRegisteredMessage {
+            get {
+                return ResourceManager.GetString("Info_NobodyRegisteredMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Зарегистрировано участников: {0}.
+        /// </summary>
+        public static string Info_RegisteredPlayers {
+            get {
+                return ResourceManager.GetString("Info_RegisteredPlayers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Тип турнира: {0}.
+        /// </summary>
+        public static string Info_TournamentType {
+            get {
+                return ResourceManager.GetString("Info_TournamentType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Игрок уже был забанен..
+        /// </summary>
+        public static string KickPlayer_AlreadyBanned {
+            get {
+                return ResourceManager.GetString("KickPlayer_AlreadyBanned", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Игрок уже был исключен из активности администрацией..
+        /// </summary>
+        public static string KickPlayer_AlreadyKickedByAdmin {
+            get {
+                return ResourceManager.GetString("KickPlayer_AlreadyKickedByAdmin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Игрок уже покинул эту активность..
+        /// </summary>
+        public static string KickPlayer_AlreadyLeftTheTournament {
+            get {
+                return ResourceManager.GetString("KickPlayer_AlreadyLeftTheTournament", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Нельзя исключить игрока из активност, в которой он не зарегистрирован..
+        /// </summary>
+        public static string KickPlayer_ImposibleToKickNotRegisteredPlayer {
+            get {
+                return ResourceManager.GetString("KickPlayer_ImposibleToKickNotRegisteredPlayer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы не можете покинуть активность, так как вы уже покинули ее путем голосования..
+        /// </summary>
+        public static string KickPlayer_ImposibleToLeaveWhenAlreadyLeftByVoting {
+            get {
+                return ResourceManager.GetString("KickPlayer_ImposibleToLeaveWhenAlreadyLeftByVoting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Не удалось исключить игрока из активности..
+        /// </summary>
+        public static string KickPlayer_NotSucceded {
+            get {
+                return ResourceManager.GetString("KickPlayer_NotSucceded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Пользователь не зарегистрирован в системе..
+        /// </summary>
+        public static string KickPlayer_NoUser {
+            get {
+                return ResourceManager.GetString("KickPlayer_NoUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Игрок **{0}** покинул активность..
+        /// </summary>
+        public static string KickPlayer_PlayerLeftTournament {
+            get {
+                return ResourceManager.GetString("KickPlayer_PlayerLeftTournament", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы не можете покинуть активность, так как вы были забанены..
+        /// </summary>
+        public static string Leave_ImposibleToLeaveCauseBanned {
+            get {
+                return ResourceManager.GetString("Leave_ImposibleToLeaveCauseBanned", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы не можете покинуть турнир, так как вы были исключены из него администрацией..
+        /// </summary>
+        public static string Leave_ImposibleToLeaveCauseKickedByAdmin {
+            get {
+                return ResourceManager.GetString("Leave_ImposibleToLeaveCauseKickedByAdmin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы покинули текущую активность..
+        /// </summary>
+        public static string Leave_Successfull {
+            get {
+                return ResourceManager.GetString("Leave_Successfull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы не можете покинуть активность, так как вы уже покинули ее путем голосования..
+        /// </summary>
+        public static string Leave_YouAreAlreadyKickedByVoting {
+            get {
+                return ResourceManager.GetString("Leave_YouAreAlreadyKickedByVoting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Активность уже началась, изменения в данный момент невозможны..
+        /// </summary>
+        public static string Play_ActivityStarted {
+            get {
+                return ResourceManager.GetString("Play_ActivityStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Вы уже зарегистрированы на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}.
+        /// </summary>
+        public static string Play_AlreadyRegistered {
+            get {
+                return ResourceManager.GetString("Play_AlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Вы уже зарегистрированы на активность, но смена расы на данный момент невозможна.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}.
+        /// </summary>
+        public static string Play_AlreadyRegisteredButNoChanges {
+            get {
+                return ResourceManager.GetString("Play_AlreadyRegisteredButNoChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Не удалось выполнить регистрацию..
+        /// </summary>
+        public static string Play_Imposible {
+            get {
+                return ResourceManager.GetString("Play_Imposible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Для участия в активностях бота нужно подтвердить связь своей учетной записи со Steam. 
+        ///Для этого нужно сперва добавить учетную запись стим в интеграции в настройках профиля вашего Discord аккаунта. 
+        ///Сделать интеграцию видимой публично и затем перейти по ссылке ниже для подтверждения. Регистрироваться на активности могут только Steam аккаунты, имеющие не менее 300 сыгранных игр всего в сервисе DowStats..
+        /// </summary>
+        public static string Play_InstructionsMessage {
+            get {
+                return ResourceManager.GetString("Play_InstructionsMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &quot;&gt;&gt;&gt; Недостаточно игр на аккаунте Steam.\nРегистрироваться на турнирах могут только Steam аккаунты, имеющие не менее **300 сыгранных игр** всего в сервисе DowStats.\nВозвращайтесь, когда наиграете больше игр :).
+        /// </summary>
+        public static string Play_NotEnoughGames {
+            get {
+                return ResourceManager.GetString("Play_NotEnoughGames", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Для регистрации в системе необходимо присоединить Steam аккаунт к вашему профилю. Инструкция отправлена в личные сообщения..
+        /// </summary>
+        public static string Play_RegisterIntroMessage {
+            get {
+                return ResourceManager.GetString("Play_RegisterIntroMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Вы были успешно зарегистрированы на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}.
+        /// </summary>
+        public static string Play_Successfull {
+            get {
+                return ResourceManager.GetString("Play_Successfull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Вы были успешно зарегистрированы и зачекинены на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}.
+        /// </summary>
+        public static string Play_SuccessfullAndChekined {
+            get {
+                return ResourceManager.GetString("Play_SuccessfullAndChekined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на В данный момент никто не зарегистрирован на активность..
+        /// </summary>
+        public static string Players_NobodyRegistered {
+            get {
+                return ResourceManager.GetString("Players_NobodyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Следующее событие &apos;**{0}**&apos; наступит через **{1}**..
+        /// </summary>
+        public static string Time_NextEvent {
+            get {
+                return ResourceManager.GetString("Time_NextEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Ваше время **&lt;t:{0}:t&gt;**\nМосковское время **{1}**.
+        /// </summary>
+        public static string Time_Time {
+            get {
+                return ResourceManager.GetString("Time_Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Активности вас не побеспокоят.
+        /// </summary>
+        public static string Wait_Disabled {
+            get {
+                return ResourceManager.GetString("Wait_Disabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Вы будете получать уведомления о начинающихся активностях.
+        /// </summary>
+        public static string Wait_Enabled {
+            get {
+                return ResourceManager.GetString("Wait_Enabled", resourceCulture);
             }
         }
     }

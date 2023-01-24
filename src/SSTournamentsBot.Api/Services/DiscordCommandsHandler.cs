@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SSTournamentsBot.Api.DiscordSlashCommands;
 using SSTournamentsBot.Api.Domain;
+using SSTournamentsBot.Api.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,14 +49,14 @@ namespace SSTournamentsBot.Api.Services
                 new KickBotsSlashCommand(api),
                 new KickPlayerSlashCommand(dataService, eventsHandler, api),
                 new LeaveSlashCommand(dataService, eventsHandler, api),
-                new MyIdSlashCommand(),
+                //new MyIdSlashCommand(),
                 new PlayersShashCommand(api),
                 new PlaySlashCommand(dataService, statsApi, api, timeline, tournamentOptions),
                 new StatusSlashCommand(),
                 new TimelineSlashCommand(timeline),
                 new TimeSlashCommand(timeline),
                 new ViewSlashCommand(api),
-                new StartSlashCommand(timeline, botApi, api, tournamentOptions),
+                //new StartSlashCommand(timeline, botApi, api, tournamentOptions),
                 new DeleteUserDataSlashCommand(dataService),
                 new AddTimeSlashCommand(timeline),
                 new KickBotSlashCommand(api),
@@ -113,12 +114,12 @@ namespace SSTournamentsBot.Api.Services
                 }
                 catch (NotImplementedException)
                 {
-                    await arg.RespondAsync($"Данная команда еще не реализована.");
+                    await arg.RespondAsync(Text.OfKey(nameof(S.Bot_CommandNotImplemented)).Build());
                 }
             }
             else
             {
-                await arg.RespondAsync($"Неизвестная команда '{arg.CommandName}'.");
+                await arg.RespondAsync(Text.OfKey(nameof(S.Bot_UnknownCommand)).Format(arg.CommandName).Build());
             }
         }
 
@@ -132,7 +133,7 @@ namespace SSTournamentsBot.Api.Services
             var mainGuild = _client.GetGuild(_options.MainGuildId);
 
             await UpdateOrCreateCommandsForGuild(mainGuild);
-            await mainGuild.GetTextChannel(_options.MainThreads.Values.First()).SendMessageAsync(Text.OfLambda(() => S.Greetings).Format(_tournamentOptions.MinimumPlayersToStartCheckin));
+            await mainGuild.GetTextChannel(_options.MainThreads.Values.First()).SendMessageAsync(Text.OfKey(nameof(S.Bot_Greetings)).Format(_tournamentOptions.MinimumPlayersToStartCheckin));
         }
 
         private async Task UpdateOrCreateCommandsForGuild(SocketGuild guild)

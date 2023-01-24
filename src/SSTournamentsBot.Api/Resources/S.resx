@@ -117,10 +117,192 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Greetings" xml:space="preserve">
+  <data name="AddTime_NoMinutes" xml:space="preserve">
+    <value>&gt; Нет изменений во времени следующего события, так как указано 0 минут.</value>
+  </data>
+  <data name="BanMaps_MapsUpdatedButForNextTournaments" xml:space="preserve">
+    <value>&gt; Ваш список банов успешно обновлен, но изменения будут учтены только на следующих турнирах.</value>
+  </data>
+  <data name="BanMaps_UpdatedSuccessfully" xml:space="preserve">
+    <value>&gt; Ваш список банов успешно обновлен.</value>
+  </data>
+  <data name="Bot_AreAlreadyLeftTheEvent" xml:space="preserve">
+    <value>&gt; Вы уже покинули данную активность.</value>
+  </data>
+  <data name="Bot_AreNotregisteredInEvent" xml:space="preserve">
+    <value>&gt; Вы не были зарегистрированы.</value>
+  </data>
+  <data name="Bot_CommandNotImplemented" xml:space="preserve">
+    <value>Данная команда еще не реализована.</value>
+  </data>
+  <data name="Bot_DataBaseUpdateError" xml:space="preserve">
+    <value>&gt; Не удалось обновить данные в базе.</value>
+  </data>
+  <data name="Bot_Greetings" xml:space="preserve">
     <value>Привет, друзья! 
 **SS Tournaments Bot** к вашим услугам и готов устраивать для Вас ивенты.
 Для регистрации на них используйте **/slash** команды.
 Удачной игры!**</value>
+  </data>
+  <data name="Bot_ImposibleToUpdateDataBase" xml:space="preserve">
+    <value>&gt; Не удалось обновить данные в базе.</value>
+  </data>
+  <data name="Bot_NoActiveTournament" xml:space="preserve">
+    <value>&gt; Нет активности.</value>
+  </data>
+  <data name="Bot_NoEvents" xml:space="preserve">
+    <value>Сейчас нет запланированных событий.</value>
+  </data>
+  <data name="Bot_NoUserInDataBase" xml:space="preserve">
+    <value>&gt; Такого пользователя не существует.</value>
+  </data>
+  <data name="Bot_TournamentInProgress" xml:space="preserve">
+    <value>&gt;&gt;&gt; В данный момент активность уже идет.</value>
+  </data>
+  <data name="Bot_TournamentNotStartedYet" xml:space="preserve">
+    <value>&gt;&gt;&gt; Активность еще не началась</value>
+  </data>
+  <data name="Bot_UnknownCommand" xml:space="preserve">
+    <value>Неизвестная команда '{0}'.</value>
+  </data>
+  <data name="Bot_YouAreNotRegistered" xml:space="preserve">
+    <value>&gt; Вы не зарегистрированы в системе.</value>
+  </data>
+  <data name="Call_CalledSuccessfully" xml:space="preserve">
+    <value>&gt; Твой оппонент под ником **{opponent.Name}** вызван через личные сообщения.</value>
+  </data>
+  <data name="Call_DirectMessageText" xml:space="preserve">
+    <value>&gt; Игрок под ником {0} призывает тебя начать матч. Пожалуйста, свяжись с ним в чат канале активности.</value>
+  </data>
+  <data name="Call_Error" xml:space="preserve">
+    <value>&gt; Возникла ошибка при вызове игрока</value>
+  </data>
+  <data name="Call_ImposibleToComply" xml:space="preserve">
+    <value>&gt;&gt;&gt; Твой оппонент под ником **{0}** не может быть вызван. Возможно, он покинул сервер.\nЕму будет присуждено техническое поражение.</value>
+  </data>
+  <data name="Call_NoOpponent" xml:space="preserve">
+    <value>&gt; В данный момент ваш оппонент еще не определен.</value>
+  </data>
+  <data name="Call_UserKickedFromTournament" xml:space="preserve">
+    <value>&gt; {0} исключен из турнира, так как недоступен.</value>
+  </data>
+  <data name="Call_YouHaveNotActiveMatches" xml:space="preserve">
+    <value>&gt; У вас нет активных матчей в данный момент.</value>
+  </data>
+  <data name="CheckIn_CheckInedSuccessfully" xml:space="preserve">
+    <value>&gt; Вы успешно подтведили свое участие!</value>
+  </data>
+  <data name="CheckIn_Error" xml:space="preserve">
+    <value>&gt; Произошла ошибка</value>
+  </data>
+  <data name="CheckIn_NotActiveNow" xml:space="preserve">
+    <value>&gt; В данный момент чекин не проводится.</value>
+  </data>
+  <data name="CheckIn_YouAreAlreadyCheckined" xml:space="preserve">
+    <value>&gt; Вы уже подтведили свое участие.</value>
+  </data>
+  <data name="CheckIn_YouAreNotRegisteredInTheSystem" xml:space="preserve">
+    <value>&gt; Вы не зарегистрированы в системе. Используйте команду */play*.</value>
+  </data>
+  <data name="CheckIn_YouAreNotRegisteredInTournament" xml:space="preserve">
+    <value>&gt; Вы не регистрировались на текущую активность.</value>
+  </data>
+  <data name="Events_SingleMatchNotFinished" xml:space="preserve">
+    <value>&gt; Единственный матч в этой стадии еще не доигран. Завершение стадии отложено на __**5 минут.**__</value>
+  </data>
+  <data name="ForceEvent_Done" xml:space="preserve">
+    <value>&gt; Следующее событие было форсировано.</value>
+  </data>
+  <data name="ForceEvent_NoEvents" xml:space="preserve">
+    <value>&gt; Сейчас нет запланированных событий.</value>
+  </data>
+  <data name="Info_NobodyRegisteredMessage" xml:space="preserve">
+    <value>Пока никто не зарегистрировался, но, возможно, вы будете первым :)</value>
+  </data>
+  <data name="Info_RegisteredPlayers" xml:space="preserve">
+    <value>Зарегистрировано участников: {0}</value>
+  </data>
+  <data name="Info_TournamentType" xml:space="preserve">
+    <value>Тип турнира: {0}</value>
+  </data>
+  <data name="KickPlayer_AlreadyBanned" xml:space="preserve">
+    <value>&gt; Игрок уже был забанен.</value>
+  </data>
+  <data name="KickPlayer_AlreadyKickedByAdmin" xml:space="preserve">
+    <value>&gt; Игрок уже был исключен из активности администрацией.</value>
+  </data>
+  <data name="KickPlayer_AlreadyLeftTheTournament" xml:space="preserve">
+    <value>&gt; Игрок уже покинул эту активность.</value>
+  </data>
+  <data name="KickPlayer_ImposibleToKickNotRegisteredPlayer" xml:space="preserve">
+    <value>&gt; Нельзя исключить игрока из активност, в которой он не зарегистрирован.</value>
+  </data>
+  <data name="KickPlayer_ImposibleToLeaveWhenAlreadyLeftByVoting" xml:space="preserve">
+    <value>&gt; Вы не можете покинуть активность, так как вы уже покинули ее путем голосования.</value>
+  </data>
+  <data name="KickPlayer_NotSucceded" xml:space="preserve">
+    <value>&gt; Не удалось исключить игрока из активности.</value>
+  </data>
+  <data name="KickPlayer_NoUser" xml:space="preserve">
+    <value>&gt; Пользователь не зарегистрирован в системе.</value>
+  </data>
+  <data name="KickPlayer_PlayerLeftTournament" xml:space="preserve">
+    <value>&gt; Игрок **{0}** покинул активность.</value>
+  </data>
+  <data name="Leave_ImposibleToLeaveCauseBanned" xml:space="preserve">
+    <value>&gt; Вы не можете покинуть активность, так как вы были забанены.</value>
+  </data>
+  <data name="Leave_ImposibleToLeaveCauseKickedByAdmin" xml:space="preserve">
+    <value>&gt; Вы не можете покинуть турнир, так как вы были исключены из него администрацией.</value>
+  </data>
+  <data name="Leave_Successfull" xml:space="preserve">
+    <value>&gt; Вы покинули текущую активность.</value>
+  </data>
+  <data name="Leave_YouAreAlreadyKickedByVoting" xml:space="preserve">
+    <value>&gt; Вы не можете покинуть активность, так как вы уже покинули ее путем голосования.</value>
+  </data>
+  <data name="Players_NobodyRegistered" xml:space="preserve">
+    <value>В данный момент никто не зарегистрирован на активность.</value>
+  </data>
+  <data name="Play_ActivityStarted" xml:space="preserve">
+    <value>&gt; Активность уже началась, изменения в данный момент невозможны.</value>
+  </data>
+  <data name="Play_AlreadyRegistered" xml:space="preserve">
+    <value>&gt;&gt;&gt; Вы уже зарегистрированы на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}</value>
+  </data>
+  <data name="Play_AlreadyRegisteredButNoChanges" xml:space="preserve">
+    <value>&gt;&gt;&gt; Вы уже зарегистрированы на активность, но смена расы на данный момент невозможна.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}</value>
+  </data>
+  <data name="Play_Imposible" xml:space="preserve">
+    <value>&gt; Не удалось выполнить регистрацию.</value>
+  </data>
+  <data name="Play_InstructionsMessage" xml:space="preserve">
+    <value>Для участия в активностях бота нужно подтвердить связь своей учетной записи со Steam. 
+Для этого нужно сперва добавить учетную запись стим в интеграции в настройках профиля вашего Discord аккаунта. 
+Сделать интеграцию видимой публично и затем перейти по ссылке ниже для подтверждения. Регистрироваться на активности могут только Steam аккаунты, имеющие не менее 300 сыгранных игр всего в сервисе DowStats.</value>
+  </data>
+  <data name="Play_NotEnoughGames" xml:space="preserve">
+    <value>"&gt;&gt;&gt; Недостаточно игр на аккаунте Steam.\nРегистрироваться на турнирах могут только Steam аккаунты, имеющие не менее **300 сыгранных игр** всего в сервисе DowStats.\nВозвращайтесь, когда наиграете больше игр :)</value>
+  </data>
+  <data name="Play_RegisterIntroMessage" xml:space="preserve">
+    <value>&gt;&gt;&gt; Для регистрации в системе необходимо присоединить Steam аккаунт к вашему профилю. Инструкция отправлена в личные сообщения.</value>
+  </data>
+  <data name="Play_Successfull" xml:space="preserve">
+    <value>&gt;&gt;&gt; Вы были успешно зарегистрированы на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}</value>
+  </data>
+  <data name="Play_SuccessfullAndChekined" xml:space="preserve">
+    <value>&gt;&gt;&gt; Вы были успешно зарегистрированы и зачекинены на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}</value>
+  </data>
+  <data name="Time_NextEvent" xml:space="preserve">
+    <value>Следующее событие '**{0}**' наступит через **{1}**.</value>
+  </data>
+  <data name="Time_Time" xml:space="preserve">
+    <value>&gt;&gt;&gt; Ваше время **&lt;t:{0}:t&gt;**\nМосковское время **{1}**</value>
+  </data>
+  <data name="Wait_Disabled" xml:space="preserve">
+    <value>&gt; Активности вас не побеспокоят</value>
+  </data>
+  <data name="Wait_Enabled" xml:space="preserve">
+    <value>&gt; Вы будете получать уведомления о начинающихся активностях</value>
   </data>
 </root>

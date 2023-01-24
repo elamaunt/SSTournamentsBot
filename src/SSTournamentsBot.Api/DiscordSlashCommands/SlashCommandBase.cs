@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Domain;
 using SSTournamentsBot.Api.Services;
 using System.Threading.Tasks;
 
@@ -21,5 +22,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         }
 
         protected virtual void Configure(SlashCommandBuilder builder) { }
+
+        protected Text OfKey(string key) => Text.OfKey(key);
     }
 }

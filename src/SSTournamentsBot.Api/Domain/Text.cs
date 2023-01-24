@@ -1,10 +1,12 @@
-﻿using System;
+﻿using SSTournamentsBot.Api.Resources;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 
 namespace SSTournamentsBot.Api.Domain
 {
-    public class Text
+    public class Text: IText
     {
         public string Value { get; }
         public string Key { get; }
@@ -128,6 +130,12 @@ namespace SSTournamentsBot.Api.Domain
         public static Text OfLambda(Expression<Func<string>> p)
         {
             return p;
+        }
+
+
+        public override string ToString()
+        {
+            return Build();
         }
     }
 }
