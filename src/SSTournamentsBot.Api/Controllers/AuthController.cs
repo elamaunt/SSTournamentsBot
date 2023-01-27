@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SSTournamentsBot.Api.Domain;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using SSTournamentsBot.Services;
 using System.Threading.Tasks;
@@ -29,12 +31,13 @@ namespace SSTournamentsBot.Api.Controllers
         public async Task<ContentResult> Get(string code)
         {
             var result = await _api.TryGetDiscordIdAndSteamId(code);
+            var culture = System.Globalization.CultureInfo.GetCultureInfo("en");
 
             if (!result.HasValue)
             {
                 return new ContentResult
                 {
-                    Content = "<p>Не удалось загрузить информацию о вашем пользователе, либо SteamId не был обнаружен.</p>",
+                    Content = Text.OfKey(nameof(S.Bot_SteamIdNotFoundHtml)).Build(culture),
                     ContentType = "text/html; charset=UTF-8"
                 };
             }
@@ -43,15 +46,15 @@ namespace SSTournamentsBot.Api.Controllers
             {
                 return new ContentResult
                 {
-                    Content = "Такой SteamId уже зарегистрирован на другого пользователя.",
+                    Content = Text.OfKey(nameof(S.Bot_SteamIdAlreadyUsedHtml)).Build(culture),
                     ContentType = "text/html; charset=UTF-8"
                 };
             }
 
-            var html = $"<h1>SS Tournaments Bot by elamaunt</h1><br/><p>Привязка аккаунта завершена успешно. Добро пожаловать на участие в турнирах! Выполните команду play повторно на турнирном канале в Discord, чтобы зарегистрироваться.</p>";
+            var html = Text.OfKey(nameof(S.Bot_AccountRegisteredSuccessfullyHtml)).Build(culture);
 
             // TODO: get users locale
-            await _botApi.SendMessageToUser(_contextService.GetMainContext(), "Привязка аккаунта завершена успешно. Добро пожаловать на участие в турнирах! Выполните команду __**/play повторно**__ на турнирном канале, чтобы зарегистрироваться.", result.Value.discordId);
+            await _botApi.SendMessageToUser(_contextService.GetMainContext(), Text.OfKey(nameof(S.Bot_AccountRegisteredSuccessfully)), result.Value.discordId);
 
             return new ContentResult
             {

@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _tournamentApi = tournamentApi;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var players = _tournamentApi.RegisteredPlayers;
             var count = (long?)arg.Data.Options.FirstOrDefault(x => x.Name == "count")?.Value ?? null;

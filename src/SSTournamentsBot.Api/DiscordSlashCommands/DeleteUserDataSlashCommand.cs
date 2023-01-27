@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Удаляет профиль пользователя (для админов)";
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var userOption = arg.Data.Options.First(x => x.Name == "player");
             var user = (IUser)userOption.Value;

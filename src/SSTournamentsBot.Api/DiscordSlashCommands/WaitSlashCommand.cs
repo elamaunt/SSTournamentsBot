@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,7 +19,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _botApi = botApi;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var valueOption = arg.Data.Options.FirstOrDefault(x => x.Name == "value");
 
@@ -32,9 +33,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 enabled = await _botApi.ToggleWaitingRole(context, arg.User.Id, null);
 
             if (enabled)
-                await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(S.Wait_Enabled).Build());
+                await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(S.Wait_Enabled).Build(culture));
             else
-                await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(S.Wait_Disabled).Build());
+                await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(S.Wait_Disabled).Build(culture));
         }
 
         protected override void Configure(SlashCommandBuilder builder)

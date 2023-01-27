@@ -21,7 +21,7 @@ namespace SSTournamentsBot.Api.Tests
             var data = new InMemoryDataService();
             var api = new TournamentApi(skia, data);
             var botApi = new VirtualBotApi();
-            var context = new Context("test", api, null, new SetupOptions());
+            var context = new Context("test", api, null, botApi, new SetupOptions());
 
             Assert.IsTrue(data.StoreUsersSteamId(1, 1));
             Assert.IsTrue(data.StoreUsersSteamId(2, 2));
@@ -98,7 +98,7 @@ namespace SSTournamentsBot.Api.Tests
             var data = new InMemoryDataService();
             var api = new TournamentApi(skia, data);
             var botApi = new VirtualBotApi();
-            var context = new Context("test", api, null, new SetupOptions());
+            var context = new Context("test", api, null, botApi, new SetupOptions());
 
             Assert.IsTrue(data.StoreUsersSteamId(1, 1));
             Assert.IsTrue(data.StoreUsersSteamId(2, 2));
@@ -219,7 +219,7 @@ namespace SSTournamentsBot.Api.Tests
 
             var contextService = new VirtualContextService();
             var handler = new TournamentEventsHandler(new LoggerMock<TournamentEventsHandler>(), contextService, data, botApi, scanner, timeline, api, options);
-            var context = contextService.Context = new Context("test", api, handler, new SetupOptions());
+            var context = contextService.Context = new Context("test", api, handler, botApi, new SetupOptions());
 
             // Store users in db
             Assert.IsTrue(data.StoreUsersSteamId(1, 1));

@@ -28,7 +28,7 @@ namespace SSTournamentsBot.Api.Services
                 var name = pair.Key;
                 var opt = pair.Value;
 
-                var context = new Context(name, GetService<TournamentApi>(), GetService<ITournamentEventsHandler>(), opt);
+                var context = new Context(name, GetService<TournamentApi>(), GetService<ITournamentEventsHandler>(), GetService<IBotApi>(), opt);
 
                 if (!_contexts.TryAdd(name, context))
                     throw new InvalidOperationException("Context must have an unique name");

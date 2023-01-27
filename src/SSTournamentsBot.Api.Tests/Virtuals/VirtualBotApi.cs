@@ -37,7 +37,7 @@ namespace SSTournamentsBot.Api.Tests.Virtuals
             return Task.CompletedTask;
         }
 
-        public Task ModifyLastMessage(Context context, Text message, SecondaryDomain.GuildThread thread)
+        public Task ModifyLastMessage(Context context, IText message, SecondaryDomain.GuildThread thread)
         {
             var last = Messages.FindLast(x => x.Thread == thread);
 
@@ -48,24 +48,24 @@ namespace SSTournamentsBot.Api.Tests.Virtuals
             return Task.CompletedTask;
         }
 
-        public Task SendFile(Context context, byte[] file, string fileName, Text text, SecondaryDomain.GuildThread thread)
+        public Task SendFile(Context context, byte[] file, string fileName, IText text, SecondaryDomain.GuildThread thread)
         {
             Messages.Add(new VirtualMessage(file, fileName, text.Build(), thread));
             return Task.CompletedTask;
         }
 
-        public Task SendMessage(Context context, Text message, SecondaryDomain.GuildThread thread, params ulong[] mentions)
+        public Task SendMessage(Context context, IText message, SecondaryDomain.GuildThread thread, params ulong[] mentions)
         {
             Messages.Add(new VirtualMessage(message.Build(), mentions, thread));
             return Task.CompletedTask;
         }
 
-        public Task SendMessageToUser(Context context, Text message, ulong id)
+        public Task SendMessageToUser(Context context, IText message, ulong id)
         {
             return Task.CompletedTask;
         }
 
-        public Task<IButtonsController> SendVotingButtons(Context context, Text message, SecondaryDomain.VotingOption[] buttons, SecondaryDomain.GuildThread thread, params ulong[] mentions)
+        public Task<IButtonsController> SendVotingButtons(Context context, IText message, SecondaryDomain.VotingOption[] buttons, SecondaryDomain.GuildThread thread, params ulong[] mentions)
         {
             return Task.FromResult((IButtonsController)new ButtonsControllerMock());
         }

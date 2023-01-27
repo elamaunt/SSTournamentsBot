@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Threading.Tasks;
 using static SSTournaments.SecondaryDomain;
 
@@ -22,7 +23,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _handler = handler;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             _timeline.RemoveAllEvents();
             await _tournamentApi.DropTournament();

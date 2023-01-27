@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using SSTournamentsBot.Api.Domain;
 using SSTournamentsBot.Api.Helpers;
 using System;
 using System.Threading;
@@ -56,9 +57,9 @@ namespace SSTournamentsBot.Api.Services
                 if (_isReady)
                 {
                     if (msg.Severity == LogSeverity.Error || msg.Severity == LogSeverity.Critical)
-                        await _botApi.SendMessage(context, s, GuildThread.Logging, 272710324484833281);
+                        await _botApi.SendMessage(context, Text.OfValue(s), GuildThread.Logging, 272710324484833281);
                     else
-                        await _botApi.SendMessage(context, s, GuildThread.Logging);
+                        await _botApi.SendMessage(context, Text.OfValue(s), GuildThread.Logging);
                 }
             };
 

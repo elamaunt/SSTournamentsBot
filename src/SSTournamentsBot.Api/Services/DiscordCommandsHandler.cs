@@ -6,6 +6,7 @@ using SSTournamentsBot.Api.Domain;
 using SSTournamentsBot.Api.Resources;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -109,17 +110,16 @@ namespace SSTournamentsBot.Api.Services
                 try
                 {
                     var (locale, context) = _contextService.GetLocaleAndContext(arg.Channel.Id);
-
-                    await command.Handle(context, arg);
+                    await command.Handle(context, arg, CultureInfo.GetCultureInfo(locale));
                 }
                 catch (NotImplementedException)
                 {
-                    await arg.RespondAsync(Text.OfKey(nameof(S.Bot_CommandNotImplemented)).Build());
+                    await arg.RespondAsync(Text.OfKey(nameof(S.Bot_CommandNotImplemented)).Build(CultureInfo.GetCultureInfo("en")));
                 }
             }
             else
             {
-                await arg.RespondAsync(Text.OfKey(nameof(S.Bot_UnknownCommand)).Format(arg.CommandName).Build());
+                await arg.RespondAsync(Text.OfKey(nameof(S.Bot_UnknownCommand)).Format(arg.CommandName).Build(CultureInfo.GetCultureInfo("en")));
             }
         }
 
@@ -133,7 +133,7 @@ namespace SSTournamentsBot.Api.Services
             var mainGuild = _client.GetGuild(_options.MainGuildId);
 
             await UpdateOrCreateCommandsForGuild(mainGuild);
-            await mainGuild.GetTextChannel(_options.MainThreads.Values.First()).SendMessageAsync(Text.OfKey(nameof(S.Bot_Greetings)).Format(_tournamentOptions.MinimumPlayersToStartCheckin));
+            await mainGuild.GetTextChannel(_options.MainThreads.Values.First()).SendMessageAsync(Text.OfKey(nameof(S.Bot_Greetings)).Format(_tournamentOptions.MinimumPlayersToStartCheckin).Build(CultureInfo.GetCultureInfo("ru")));
         }
 
         private async Task UpdateOrCreateCommandsForGuild(SocketGuild guild)

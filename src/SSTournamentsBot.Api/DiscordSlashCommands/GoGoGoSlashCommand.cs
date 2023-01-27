@@ -28,7 +28,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _options = options.Value;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             await arg.DeferAsync();
 

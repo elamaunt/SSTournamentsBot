@@ -1,6 +1,8 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
@@ -23,7 +25,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _tournamentApi = tournamentApi;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var userOption = arg.Data.Options.FirstOrDefault(x => x.Name == "player");
 
@@ -39,7 +41,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             if ((await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsBan)).IsDone)
             {
                 var mention = await _botApi.GetMention(context, userData.DiscordId);
-                await _botApi.SendMessage(context, $"{mention} исключен из турнира.", GuildThread.EventsTape | GuildThread.TournamentChat);
+                await _botApi.SendMessage(context, OfKey(nameof(S.BanPlayer_Kicked)).Format(mention), GuildThread.EventsTape | GuildThread.TournamentChat);
             }
 
             userData.Banned = true;

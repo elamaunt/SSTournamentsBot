@@ -2,6 +2,7 @@
 using SSTournamentsBot.Api.Domain;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
@@ -19,7 +20,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Получить текущую информацию о следующем турнире";
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var infoBuilder = new CompoundText();
 

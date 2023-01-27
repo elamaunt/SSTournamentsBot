@@ -1,6 +1,7 @@
 ﻿using Discord.WebSocket;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _tournamentApi = tournamentApi;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var builder = new StringBuilder();
 
@@ -32,7 +33,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             if (builder.Length > 0)
                 await arg.RespondAsync(builder.ToString());
             else
-                await arg.RespondAsync(OfKey(nameof(S.Players_NobodyRegistered)));
+                await arg.RespondAsync(OfKey(nameof(S.Players_NobodyRegistered)).Build(culture));
         }
 
     }

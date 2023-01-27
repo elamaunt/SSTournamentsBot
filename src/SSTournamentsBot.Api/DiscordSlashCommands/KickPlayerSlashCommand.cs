@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
@@ -24,7 +25,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _tournamentApi = tournamentApi;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var userOption = arg.Data.Options.First(x => x.Name == "player");
             var user = (IUser)userOption.Value;
@@ -32,7 +33,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (userData == null)
             {
-                await arg.RespondAsync(OfKey(nameof(S.KickPlayer_NoUser)));
+                await arg.RespondAsync(OfKey(nameof(S.KickPlayer_NoUser)).Build(culture));
                 return;
             }
 
@@ -40,7 +41,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsDone)
             {
-                await arg.RespondAsync(OfKey(nameof(S.KickPlayer_PlayerLeftTournament)).Format(user.Username));
+                await arg.RespondAsync(OfKey(nameof(S.KickPlayer_PlayerLeftTournament)).Format(user.Username).Build(culture));
 
                 if (_tournamentApi.IsTournamentStarted)
                 {
@@ -57,13 +58,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsNoTournament)
             {
-                await arg.RespondAsync(OfKey(nameof(S.Bot_NoActiveTournament)));
+                await arg.RespondAsync(OfKey(nameof(S.Bot_NoActiveTournament)).Build(culture));
                 return;
             }
 
             if (result.IsNotRegistered)
             {
-                await arg.RespondAsync(OfKey(nameof(S.KickPlayer_ImposibleToKickNotRegisteredPlayer)));
+                await arg.RespondAsync(OfKey(nameof(S.KickPlayer_ImposibleToKickNotRegisteredPlayer)).Build(culture));
                 return;
             }
 
@@ -73,30 +74,30 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (reason.IsVoting)
                 {
-                    await arg.RespondAsync(OfKey(nameof(S.KickPlayer_ImposibleToLeaveWhenAlreadyLeftByVoting)));
+                    await arg.RespondAsync(OfKey(nameof(S.KickPlayer_ImposibleToLeaveWhenAlreadyLeftByVoting)).Build(culture));
                     return;
                 }
 
                 if (reason.IsOpponentsLeft)
                 {
-                    await arg.RespondAsync(OfKey(nameof(S.KickPlayer_AlreadyLeftTheTournament)));
+                    await arg.RespondAsync(OfKey(nameof(S.KickPlayer_AlreadyLeftTheTournament)).Build(culture));
                     return;
                 }
 
                 if (reason.IsOpponentsBan)
                 {
-                    await arg.RespondAsync(OfKey(nameof(S.KickPlayer_AlreadyBanned)));
+                    await arg.RespondAsync(OfKey(nameof(S.KickPlayer_AlreadyBanned)).Build(culture));
                     return;
                 }
 
                 if (reason.IsOpponentsKicked)
                 {
-                    await arg.RespondAsync(OfKey(nameof(S.KickPlayer_AlreadyKickedByAdmin)));
+                    await arg.RespondAsync(OfKey(nameof(S.KickPlayer_AlreadyKickedByAdmin)).Build(culture));
                     return;
                 }
             }
 
-            await arg.RespondAsync(OfKey(nameof(S.KickPlayer_NotSucceded)));
+            await arg.RespondAsync(OfKey(nameof(S.KickPlayer_NotSucceded)).Build(culture));
         }
 
         protected override void Configure(SlashCommandBuilder builder)

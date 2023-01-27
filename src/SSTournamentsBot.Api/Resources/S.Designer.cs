@@ -61,6 +61,33 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Следующее событие &apos;**{0}**&apos; отложено на **{1}**.
+        /// </summary>
+        public static string AddTime_NextEventDelayed {
+            get {
+                return ResourceManager.GetString("AddTime_NextEventDelayed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Следующее событие &apos;**{0}**&apos; ускорено на -**{1}**.
+        /// </summary>
+        public static string AddTime_NextEventSpeedUp {
+            get {
+                return ResourceManager.GetString("AddTime_NextEventSpeedUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Сейчас нет запланированных событий..
+        /// </summary>
+        public static string AddTime_NoEvents {
+            get {
+                return ResourceManager.GetString("AddTime_NoEvents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на &gt; Нет изменений во времени следующего события, так как указано 0 минут..
         /// </summary>
         public static string AddTime_NoMinutes {
@@ -84,6 +111,33 @@ namespace SSTournamentsBot.Api.Resources {
         public static string BanMaps_UpdatedSuccessfully {
             get {
                 return ResourceManager.GetString("BanMaps_UpdatedSuccessfully", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на {0} исключен из активности..
+        /// </summary>
+        public static string BanPlayer_Kicked {
+            get {
+                return ResourceManager.GetString("BanPlayer_Kicked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Привязка аккаунта завершена успешно. Добро пожаловать на участие в соревновательных активностях бота. Выполните команду __**/play повторно**__ на канале проведения интересующего события, чтобы зарегистрироваться..
+        /// </summary>
+        public static string Bot_AccountRegisteredSuccessfully {
+            get {
+                return ResourceManager.GetString("Bot_AccountRegisteredSuccessfully", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &lt;h1&gt;SS Tournaments Bot by elamaunt&lt;/h1&gt;&lt;br/&gt;&lt;p&gt;Привязка аккаунта завершена успешно. Добро пожаловать на участие в турнирах! Выполните команду play повторно на турнирном канале в Discord, чтобы зарегистрироваться.&lt;/p&gt;.
+        /// </summary>
+        public static string Bot_AccountRegisteredSuccessfullyHtml {
+            get {
+                return ResourceManager.GetString("Bot_AccountRegisteredSuccessfullyHtml", resourceCulture);
             }
         }
         
@@ -168,6 +222,24 @@ namespace SSTournamentsBot.Api.Resources {
         public static string Bot_NoUserInDataBase {
             get {
                 return ResourceManager.GetString("Bot_NoUserInDataBase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Такой SteamId уже зарегистрирован на другого пользователя..
+        /// </summary>
+        public static string Bot_SteamIdAlreadyUsedHtml {
+            get {
+                return ResourceManager.GetString("Bot_SteamIdAlreadyUsedHtml", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &lt;p&gt;Не удалось загрузить информацию о вашем пользователе, либо SteamId не был обнаружен.&lt;/p&gt;.
+        /// </summary>
+        public static string Bot_SteamIdNotFoundHtml {
+            get {
+                return ResourceManager.GetString("Bot_SteamIdNotFoundHtml", resourceCulture);
             }
         }
         
@@ -325,11 +397,281 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Начинается следующая стадия! Генерация сетки...
+        /// </summary>
+        public static string Event_NextStageStarted {
+            get {
+                return ResourceManager.GetString("Event_NextStageStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Внимание! Началась стадия чекина *{0} AutoCup {1}*.\nВсем участникам нужно выполнить команду __**/checkin**__ на канале активности для подтверждения своего участия.\nДлительность чек-ина {2} минут.\nРегистрация открыта до окончания чекина, при этом новым участникам вызов команды */checkin* не требуется, достаточно команды */play*.
+        /// </summary>
+        public static string Events_ActivityCheckinStarted {
+            get {
+                return ResourceManager.GetString("Events_ActivityCheckinStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на __**{0} успешно завершен**__\n==================================================================================================\n.
+        /// </summary>
+        public static string Events_ActivityCompleted {
+            get {
+                return ResourceManager.GetString("Events_ActivityCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Определился победитель, но турнир не будет засчитан, так как он полностью состоит из технических поражений. Должна быть сыграна хотя бы одна игра..
+        /// </summary>
+        public static string Events_ActivityNotCounted {
+            get {
+                return ResourceManager.GetString("Events_ActivityNotCounted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Начинается активность *{0} AutoCup {1}*!.
+        /// </summary>
+        public static string Events_ActivityStarted {
+            get {
+                return ResourceManager.GetString("Events_ActivityStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на __**{0}**__ благополучно завершен!\nПоздравляем с победой игрока под ником __**{1}**__. Всем остальным желаем удачи на следующих турнирах!.
+        /// </summary>
+        public static string Events_ArchiveHeader {
+            get {
+                return ResourceManager.GetString("Events_ArchiveHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Сетка:.
+        /// </summary>
+        public static string Events_Bracket {
+            get {
+                return ResourceManager.GetString("Events_Bracket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; **Матчи, которые должны быть сыграны в текущей стадии турнира:**.
+        /// </summary>
+        public static string Events_CurrentStageMatches {
+            get {
+                return ResourceManager.GetString("Events_CurrentStageMatches", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Быстрое голосование по незавершенному матчу. Кому присудить техническое поражение?.
+        /// </summary>
+        public static string Events_FastVotingForUncompletedMatch {
+            get {
+                return ResourceManager.GetString("Events_FastVotingForUncompletedMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на __**{0} завершен без учета результатов**__\n==================================================================================================\n.
+        /// </summary>
+        public static string Events_FinishedWithNoResults {
+            get {
+                return ResourceManager.GetString("Events_FinishedWithNoResults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Первая стадия турнира началась. Пошел отсчет времени __**{TimeSpan.FromMinutes(_options.StageTimeoutMinutes).PrettyPrint()}**__ до конца стадии..
+        /// </summary>
+        public static string Events_FirstStageStarted {
+            get {
+                return ResourceManager.GetString("Events_FirstStageStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Полная сетка:.
+        /// </summary>
+        public static string Events_FullBracket {
+            get {
+                return ResourceManager.GetString("Events_FullBracket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на ---\nИгру хостят вот эти ребята:.
+        /// </summary>
+        public static string Events_Hosts {
+            get {
+                return ResourceManager.GetString("Events_Hosts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Таблица лидеров была обновлена..
+        /// </summary>
+        public static string Events_LeaderboardHasBeenUpdated {
+            get {
+                return ResourceManager.GetString("Events_LeaderboardHasBeenUpdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на --- __**Таблица лидеров**__ ---.
+        /// </summary>
+        public static string Events_LeaderBoardHeader {
+            get {
+                return ResourceManager.GetString("Events_LeaderBoardHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Московское время {0}\nСледующее событие &apos;**{1}**&apos; наступит через **{2}**..
+        /// </summary>
+        public static string Events_NextEvent {
+            get {
+                return ResourceManager.GetString("Events_NextEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Без турниров сегодня :).
+        /// </summary>
+        public static string Events_NoTournamentsToday {
+            get {
+                return ResourceManager.GetString("Events_NoTournamentsToday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Сыгранные матчи:.
+        /// </summary>
+        public static string Events_PlayedMatches {
+            get {
+                return ResourceManager.GetString("Events_PlayedMatches", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на ---\nНа скамейке отдыхающих на этот раз:.
+        /// </summary>
+        public static string Events_Relaxing {
+            get {
+                return ResourceManager.GetString("Events_Relaxing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на **Не забывайте использовать DowStats и прикрепленный Steam аккаунт, иначе матч не будет засчитан!**.
+        /// </summary>
+        public static string Events_RulesRemind {
+            get {
+                return ResourceManager.GetString("Events_RulesRemind", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на &gt; Единственный матч в этой стадии еще не доигран. Завершение стадии отложено на __**5 минут.**__.
         /// </summary>
         public static string Events_SingleMatchNotFinished {
             get {
                 return ResourceManager.GetString("Events_SingleMatchNotFinished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Стадия была успешно завершена! Следующая стадия начнется после {0}-минутного перерыва..
+        /// </summary>
+        public static string Events_StageCompleted {
+            get {
+                return ResourceManager.GetString("Events_StageCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Половина или более матчей еще не доиграны. Завершение стадии отложено на __**5 минут**__..
+        /// </summary>
+        public static string Events_StageCompletionDelayed {
+            get {
+                return ResourceManager.GetString("Events_StageCompletionDelayed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Новая стадия началась. Пошел отсчет времени __**{0}**__ до конца стадии..
+        /// </summary>
+        public static string Events_StageTimeInfo {
+            get {
+                return ResourceManager.GetString("Events_StageTimeInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Присуждено техническое поражение игроку под ником **{0}**..
+        /// </summary>
+        public static string Events_TechLoseToPlayer {
+            get {
+                return ResourceManager.GetString("Events_TechLoseToPlayer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Турнир отменен, так как участников недостаточно. Список зарегистрированных был обнулен.\nСледующий турнир начнется, когда снова зарегистрируются {0} участника..
+        /// </summary>
+        public static string Events_TournamentCancelledNoPlayers {
+            get {
+                return ResourceManager.GetString("Events_TournamentCancelledNoPlayers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на В данный момент активность невозможно начать, так как участников недостаточно.\nМинимальное количество участников 4.\nСписок зарегистрированных был обнулен..
+        /// </summary>
+        public static string Events_UnableToStartNoPlayers {
+            get {
+                return ResourceManager.GetString("Events_UnableToStartNoPlayers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Результат голосования не принят, так как матч был завершен..
+        /// </summary>
+        public static string Events_VotingCancelledCauseMatchFinished {
+            get {
+                return ResourceManager.GetString("Events_VotingCancelledCauseMatchFinished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Голосование завершено..
+        /// </summary>
+        public static string Events_VotingHasBeenEnded {
+            get {
+                return ResourceManager.GetString("Events_VotingHasBeenEnded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Результат голосования не принят, так как голоса разделились поровну, либо никто не проголосовал.\nНо решение все равно нужно принять, поэтому техническое поражение выдается игроку на усмотрение бота..
+        /// </summary>
+        public static string Events_VotingResultNotDefined {
+            get {
+                return ResourceManager.GetString("Events_VotingResultNotDefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Определился победитель турнира!.
+        /// </summary>
+        public static string Events_WeGotWinner {
+            get {
+                return ResourceManager.GetString("Events_WeGotWinner", resourceCulture);
             }
         }
         
@@ -575,6 +917,15 @@ namespace SSTournamentsBot.Api.Resources {
         public static string Players_NobodyRegistered {
             get {
                 return ResourceManager.GetString("Players_NobodyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Засчитана победа **{0}** в матче против **{1}**.\nСсылка на игру: {2}.
+        /// </summary>
+        public static string Scanner_MatchAccepted {
+            get {
+                return ResourceManager.GetString("Scanner_MatchAccepted", resourceCulture);
             }
         }
         

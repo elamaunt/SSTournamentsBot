@@ -58,7 +58,7 @@ namespace SSTournamentsBot.Api.Domain
             return this;
         }
 
-        public string Build(CultureInfo culture = null)
+        public string Build(CultureInfo culture)
         {
             if (Value != null)
                 return Value;
@@ -70,27 +70,32 @@ namespace SSTournamentsBot.Api.Domain
                 if (Arg2 != null)
                 {
                     if (Arg3 != null)
-                        return value.FormatWith(Arg, Arg2, Arg3);
-                    return value.FormatWith(Arg, Arg2);
+                        return value.FormatWith(PrepareArg(Arg, culture), PrepareArg(Arg2, culture), PrepareArg(Arg3, culture));
+                    return value.FormatWith(PrepareArg(Arg, culture), PrepareArg(Arg2, culture));
                 }
 
-                return value.FormatWith(Arg);
+                return value.FormatWith(PrepareArg(Arg, culture));
             }
 
             if (Args != null)
-                return value.FormatWith(Args);
+                return value.FormatWith(PrepareArg(Args, culture));
 
             return value;
+        }
+
+        private object PrepareArg(object arg, CultureInfo info)
+        {
+            if (arg is Func<CultureInfo, object> func)
+            {
+                return func(info);
+            }
+
+            return arg;
         }
 
         public static implicit operator Text(string value)
         {
             return OfValue(value);
-        }
-
-        public static implicit operator string(Text text)
-        {
-            return text.Build();
         }
 
         public static implicit operator Text(Expression<Func<string>> memberSelector)
@@ -130,12 +135,6 @@ namespace SSTournamentsBot.Api.Domain
         public static Text OfLambda(Expression<Func<string>> p)
         {
             return p;
-        }
-
-
-        public override string ToString()
-        {
-            return Build();
         }
     }
 }

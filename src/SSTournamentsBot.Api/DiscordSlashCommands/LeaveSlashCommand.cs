@@ -1,6 +1,7 @@
 ﻿using Discord.WebSocket;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
@@ -24,13 +25,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "leave";
         public override string Description => "Покинуть турнир или исключить себя из регистрации";
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var userData = _dataService.FindUserByDiscordId(arg.User.Id);
 
             if (userData == null)
             {
-                await arg.RespondAsync(OfKey(nameof(S.Bot_YouAreNotRegistered)));
+                await arg.RespondAsync(OfKey(nameof(S.Bot_YouAreNotRegistered)).Build(culture));
                 return;
             }
 
@@ -38,7 +39,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsDone)
             {
-                await arg.RespondAsync(OfKey(nameof(S.Leave_Successfull)));
+                await arg.RespondAsync(OfKey(nameof(S.Leave_Successfull)).Build(culture));
 
                 if (_api.IsTournamentStarted && _api.ActiveMatches.All(x => !x.Result.IsNotCompleted))
                     await _eventsHandler.DoCompleteStage(context.Name);
@@ -47,13 +48,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsNotRegistered)
             {
-                await arg.RespondAsync(OfKey(nameof(S.Bot_AreNotregisteredInEvent)));
+                await arg.RespondAsync(OfKey(nameof(S.Bot_AreNotregisteredInEvent)).Build(culture));
                 return;
             }
 
             if (result.IsNoTournament)
             {
-                await arg.RespondAsync(OfKey(nameof(S.Bot_NoActiveTournament)));
+                await arg.RespondAsync(OfKey(nameof(S.Bot_NoActiveTournament)).Build(culture));
                 return;
             }
 
@@ -63,25 +64,25 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (reason.IsVoting)
                 {
-                    await arg.RespondAsync(OfKey(nameof(S.Leave_YouAreAlreadyKickedByVoting)));
+                    await arg.RespondAsync(OfKey(nameof(S.Leave_YouAreAlreadyKickedByVoting)).Build(culture));
                     return;
                 }
 
                 if (reason.IsOpponentsLeft)
                 {
-                    await arg.RespondAsync(OfKey(nameof(S.Bot_AreAlreadyLeftTheEvent)));
+                    await arg.RespondAsync(OfKey(nameof(S.Bot_AreAlreadyLeftTheEvent)).Build(culture));
                     return;
                 }
 
                 if (reason.IsOpponentsBan)
                 {
-                    await arg.RespondAsync(OfKey(nameof(S.Leave_ImposibleToLeaveCauseBanned)));
+                    await arg.RespondAsync(OfKey(nameof(S.Leave_ImposibleToLeaveCauseBanned)).Build(culture));
                     return;
                 }
 
                 if (reason.IsOpponentsKicked)
                 {
-                    await arg.RespondAsync(OfKey(nameof(S.Leave_ImposibleToLeaveCauseKickedByAdmin)));
+                    await arg.RespondAsync(OfKey(nameof(S.Leave_ImposibleToLeaveCauseKickedByAdmin)).Build(culture));
                     return;
                 }
             }

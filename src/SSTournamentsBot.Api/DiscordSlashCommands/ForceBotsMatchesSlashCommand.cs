@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
 
@@ -19,7 +20,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _api = api;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var random = new Random();
             var matches = _api.ActiveMatches;

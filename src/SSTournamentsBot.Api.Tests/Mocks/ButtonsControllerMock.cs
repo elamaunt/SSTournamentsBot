@@ -1,4 +1,6 @@
 ﻿using SSTournamentsBot.Api.Domain;
+using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.Tests.Mocks
@@ -12,7 +14,7 @@ namespace SSTournamentsBot.Api.Tests.Mocks
             return Task.FromResult(true);
         }
 
-        public Task DisableButtons(Text resultMessage)
+        public Task DisableButtons(Text resultMessage, Func<ulong, CultureInfo> cultureSelector)
         {
             return Task.CompletedTask;
         }

@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
@@ -18,7 +19,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Перестраивает все команды бота (для админов)";
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             await arg.DeferAsync();
             await _handler.RebuildCommands();

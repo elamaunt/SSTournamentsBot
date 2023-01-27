@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddTime_NextEventDelayed" xml:space="preserve">
+    <value>&gt; Следующее событие '**{0}**' отложено на **{1}**</value>
+  </data>
+  <data name="AddTime_NextEventSpeedUp" xml:space="preserve">
+    <value>&gt; Следующее событие '**{0}**' ускорено на -**{1}**</value>
+  </data>
+  <data name="AddTime_NoEvents" xml:space="preserve">
+    <value>&gt; Сейчас нет запланированных событий.</value>
+  </data>
   <data name="AddTime_NoMinutes" xml:space="preserve">
     <value>&gt; Нет изменений во времени следующего события, так как указано 0 минут.</value>
   </data>
@@ -125,6 +134,15 @@
   </data>
   <data name="BanMaps_UpdatedSuccessfully" xml:space="preserve">
     <value>&gt; Ваш список банов успешно обновлен.</value>
+  </data>
+  <data name="BanPlayer_Kicked" xml:space="preserve">
+    <value>{0} исключен из активности.</value>
+  </data>
+  <data name="Bot_AccountRegisteredSuccessfully" xml:space="preserve">
+    <value>Привязка аккаунта завершена успешно. Добро пожаловать на участие в соревновательных активностях бота. Выполните команду __**/play повторно**__ на канале проведения интересующего события, чтобы зарегистрироваться.</value>
+  </data>
+  <data name="Bot_AccountRegisteredSuccessfullyHtml" xml:space="preserve">
+    <value>&lt;h1&gt;SS Tournaments Bot by elamaunt&lt;/h1&gt;&lt;br/&gt;&lt;p&gt;Привязка аккаунта завершена успешно. Добро пожаловать на участие в турнирах! Выполните команду play повторно на турнирном канале в Discord, чтобы зарегистрироваться.&lt;/p&gt;</value>
   </data>
   <data name="Bot_AreAlreadyLeftTheEvent" xml:space="preserve">
     <value>&gt; Вы уже покинули данную активность.</value>
@@ -155,6 +173,12 @@
   </data>
   <data name="Bot_NoUserInDataBase" xml:space="preserve">
     <value>&gt; Такого пользователя не существует.</value>
+  </data>
+  <data name="Bot_SteamIdAlreadyUsedHtml" xml:space="preserve">
+    <value>Такой SteamId уже зарегистрирован на другого пользователя.</value>
+  </data>
+  <data name="Bot_SteamIdNotFoundHtml" xml:space="preserve">
+    <value>&lt;p&gt;Не удалось загрузить информацию о вашем пользователе, либо SteamId не был обнаружен.&lt;/p&gt;</value>
   </data>
   <data name="Bot_TournamentInProgress" xml:space="preserve">
     <value>&gt;&gt;&gt; В данный момент активность уже идет.</value>
@@ -207,8 +231,98 @@
   <data name="CheckIn_YouAreNotRegisteredInTournament" xml:space="preserve">
     <value>&gt; Вы не регистрировались на текущую активность.</value>
   </data>
+  <data name="Events_ActivityCheckinStarted" xml:space="preserve">
+    <value>Внимание! Началась стадия чекина *{0} AutoCup {1}*.\nВсем участникам нужно выполнить команду __**/checkin**__ на канале активности для подтверждения своего участия.\nДлительность чек-ина {2} минут.\nРегистрация открыта до окончания чекина, при этом новым участникам вызов команды */checkin* не требуется, достаточно команды */play*</value>
+  </data>
+  <data name="Events_ActivityCompleted" xml:space="preserve">
+    <value>__**{0} успешно завершен**__\n==================================================================================================\n</value>
+  </data>
+  <data name="Events_ActivityNotCounted" xml:space="preserve">
+    <value>Определился победитель, но турнир не будет засчитан, так как он полностью состоит из технических поражений. Должна быть сыграна хотя бы одна игра.</value>
+  </data>
+  <data name="Events_ActivityStarted" xml:space="preserve">
+    <value>Начинается активность *{0} AutoCup {1}*!</value>
+  </data>
+  <data name="Events_ArchiveHeader" xml:space="preserve">
+    <value>__**{0}**__ благополучно завершен!\nПоздравляем с победой игрока под ником __**{1}**__. Всем остальным желаем удачи на следующих турнирах!</value>
+  </data>
+  <data name="Events_Bracket" xml:space="preserve">
+    <value>Сетка:</value>
+  </data>
+  <data name="Events_CurrentStageMatches" xml:space="preserve">
+    <value>&gt;&gt;&gt; **Матчи, которые должны быть сыграны в текущей стадии турнира:**</value>
+  </data>
+  <data name="Events_FastVotingForUncompletedMatch" xml:space="preserve">
+    <value>&gt;&gt;&gt; Быстрое голосование по незавершенному матчу. Кому присудить техническое поражение?</value>
+  </data>
+  <data name="Events_FinishedWithNoResults" xml:space="preserve">
+    <value>__**{0} завершен без учета результатов**__\n==================================================================================================\n</value>
+  </data>
+  <data name="Events_FirstStageStarted" xml:space="preserve">
+    <value>Первая стадия турнира началась. Пошел отсчет времени __**{TimeSpan.FromMinutes(_options.StageTimeoutMinutes).PrettyPrint()}**__ до конца стадии.</value>
+  </data>
+  <data name="Events_FullBracket" xml:space="preserve">
+    <value>Полная сетка:</value>
+  </data>
+  <data name="Events_Hosts" xml:space="preserve">
+    <value>---\nИгру хостят вот эти ребята:</value>
+  </data>
+  <data name="Events_LeaderboardHasBeenUpdated" xml:space="preserve">
+    <value>Таблица лидеров была обновлена.</value>
+  </data>
+  <data name="Events_LeaderBoardHeader" xml:space="preserve">
+    <value>--- __**Таблица лидеров**__ ---</value>
+  </data>
+  <data name="Events_NextEvent" xml:space="preserve">
+    <value>Московское время {0}\nСледующее событие '**{1}**' наступит через **{2}**.</value>
+  </data>
+  <data name="Events_NoTournamentsToday" xml:space="preserve">
+    <value>Без турниров сегодня :)</value>
+  </data>
+  <data name="Events_PlayedMatches" xml:space="preserve">
+    <value>&gt;&gt;&gt; Сыгранные матчи:</value>
+  </data>
+  <data name="Events_Relaxing" xml:space="preserve">
+    <value>---\nНа скамейке отдыхающих на этот раз:</value>
+  </data>
+  <data name="Events_RulesRemind" xml:space="preserve">
+    <value>**Не забывайте использовать DowStats и прикрепленный Steam аккаунт, иначе матч не будет засчитан!**</value>
+  </data>
   <data name="Events_SingleMatchNotFinished" xml:space="preserve">
     <value>&gt; Единственный матч в этой стадии еще не доигран. Завершение стадии отложено на __**5 минут.**__</value>
+  </data>
+  <data name="Events_StageCompleted" xml:space="preserve">
+    <value>Стадия была успешно завершена! Следующая стадия начнется после {0}-минутного перерыва.</value>
+  </data>
+  <data name="Events_StageCompletionDelayed" xml:space="preserve">
+    <value>&gt; Половина или более матчей еще не доиграны. Завершение стадии отложено на __**5 минут**__.</value>
+  </data>
+  <data name="Events_StageTimeInfo" xml:space="preserve">
+    <value>Новая стадия началась. Пошел отсчет времени __**{0}**__ до конца стадии.</value>
+  </data>
+  <data name="Events_TechLoseToPlayer" xml:space="preserve">
+    <value>&gt; Присуждено техническое поражение игроку под ником **{0}**.</value>
+  </data>
+  <data name="Events_TournamentCancelledNoPlayers" xml:space="preserve">
+    <value>Турнир отменен, так как участников недостаточно. Список зарегистрированных был обнулен.\nСледующий турнир начнется, когда снова зарегистрируются {0} участника.</value>
+  </data>
+  <data name="Events_UnableToStartNoPlayers" xml:space="preserve">
+    <value>В данный момент активность невозможно начать, так как участников недостаточно.\nМинимальное количество участников 4.\nСписок зарегистрированных был обнулен.</value>
+  </data>
+  <data name="Events_VotingCancelledCauseMatchFinished" xml:space="preserve">
+    <value>&gt; Результат голосования не принят, так как матч был завершен.</value>
+  </data>
+  <data name="Events_VotingHasBeenEnded" xml:space="preserve">
+    <value>&gt; Голосование завершено.</value>
+  </data>
+  <data name="Events_VotingResultNotDefined" xml:space="preserve">
+    <value>&gt;&gt;&gt; Результат голосования не принят, так как голоса разделились поровну, либо никто не проголосовал.\nНо решение все равно нужно принять, поэтому техническое поражение выдается игроку на усмотрение бота.</value>
+  </data>
+  <data name="Events_WeGotWinner" xml:space="preserve">
+    <value>Определился победитель турнира!</value>
+  </data>
+  <data name="Event_NextStageStarted" xml:space="preserve">
+    <value>&gt;&gt;&gt; Начинается следующая стадия! Генерация сетки..</value>
   </data>
   <data name="ForceEvent_Done" xml:space="preserve">
     <value>&gt; Следующее событие было форсировано.</value>
@@ -292,6 +406,9 @@
   </data>
   <data name="Play_SuccessfullAndChekined" xml:space="preserve">
     <value>&gt;&gt;&gt; Вы были успешно зарегистрированы и зачекинены на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}</value>
+  </data>
+  <data name="Scanner_MatchAccepted" xml:space="preserve">
+    <value>&gt; Засчитана победа **{0}** в матче против **{1}**.\nСсылка на игру: {2}</value>
   </data>
   <data name="Time_NextEvent" xml:space="preserve">
     <value>Следующее событие '**{0}**' наступит через **{1}**.</value>

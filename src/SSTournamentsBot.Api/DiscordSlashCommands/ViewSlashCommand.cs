@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Выводит текущую сетку турнира (для тестов)";
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             if (!_api.IsTournamentStarted)
             {

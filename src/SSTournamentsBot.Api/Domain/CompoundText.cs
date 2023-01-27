@@ -6,9 +6,9 @@ namespace SSTournamentsBot.Api.Domain
 {
     public class CompoundText: IText
     {
-        readonly List<Text> _parts = new List<Text>();
+        readonly List<IText> _parts = new List<IText>();
 
-        public CompoundText AppendLine(Text text)
+        public CompoundText AppendLine(IText text)
         {
             _parts.Add(text);
             return this;

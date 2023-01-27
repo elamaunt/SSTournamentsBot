@@ -1,10 +1,10 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using SSTournamentsBot.Api.Domain;
 using SSTournamentsBot.Api.Helpers;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,14 +23,15 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Откладывает или ускоряет следующее событие (для админов)";
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
+            var isRussian = culture.Name == "ru";
             var minutesOption = arg.Data.Options.FirstOrDefault(x => x.Name == "minutes");
             var minutes = (long)minutesOption.Value;
 
             if (minutes == 0)
             {
-                await arg.RespondAsync(OfKey(nameof(S.AddTime_NoMinutes)).Format(arg.CommandName).Build());
+                await arg.RespondAsync(OfKey(nameof(S.AddTime_NoMinutes)).Format(arg.CommandName).Build(culture));
                 return;
             }
 
@@ -43,13 +44,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 _timeline.AddTimeToNextEventWithType(e.Event, time);
 
                 if (minutes < 0)
-                    await arg.RespondAsync($"> Следующее событие '**{e.Event.PrettyPrint()}**' ускорено на -**{time.Negate().PrettyPrint()}**");
+                    await arg.RespondAsync(OfKey(nameof(S.AddTime_NextEventSpeedUp)).Format(e.Event.PrettyPrint(isRussian), time.Negate().PrettyPrint(isRussian)).Build(culture));
                 else
-                    await arg.RespondAsync($"> Следующее событие '**{e.Event.PrettyPrint()}**' отложено на **{time.PrettyPrint()}**");
+                    await arg.RespondAsync(OfKey(nameof(S.AddTime_NextEventDelayed)).Format(e.Event.PrettyPrint(isRussian), time.PrettyPrint(isRussian)).Build(culture));
             }
             else
             {
-                await arg.RespondAsync("> Сейчас нет запланированных событий.");
+                await arg.RespondAsync(OfKey(nameof(S.AddTime_NoEvents)).Build(culture));
             }
         }
 

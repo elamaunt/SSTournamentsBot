@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
@@ -22,13 +23,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _tournamentApi = tournamentApi;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var userData = _dataService.FindUserByDiscordId(arg.User.Id);
 
             if (userData == null)
             {
-                await arg.RespondAsync(OfKey(nameof(S.Bot_YouAreNotRegistered)).Build());
+                await arg.RespondAsync(OfKey(nameof(S.Bot_YouAreNotRegistered)).Build(culture));
                 return;
             }
 
@@ -40,13 +41,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (!_dataService.UpdateUser(userData))
             {
-                await Responce(OfKey(nameof(S.Bot_DataBaseUpdateError)));
+                await Responce(OfKey(nameof(S.Bot_DataBaseUpdateError)).Build(culture));
                 return;
             }
 
             if (_tournamentApi.IsTournamentStarted)
             {
-                await Responce(OfKey(nameof(S.BanMaps_MapsUpdatedButForNextTournaments)));
+                await Responce(OfKey(nameof(S.BanMaps_MapsUpdatedButForNextTournaments)).Build(culture));
             }
             else
             {
@@ -54,11 +55,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (result.IsCompleted || result.IsNoTournament || result.IsNotRegistered)
                 {
-                    await Responce(OfKey(nameof(S.BanMaps_UpdatedSuccessfully)));
+                    await Responce(OfKey(nameof(S.BanMaps_UpdatedSuccessfully)).Build(culture));
                     return;
                 }
 
-                await Responce(OfKey(nameof(S.BanMaps_MapsUpdatedButForNextTournaments)));
+                await Responce(OfKey(nameof(S.BanMaps_MapsUpdatedButForNextTournaments)).Build(culture));
             }
         }
 

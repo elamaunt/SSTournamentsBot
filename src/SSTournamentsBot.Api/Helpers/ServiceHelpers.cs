@@ -1,4 +1,6 @@
 ﻿using SSTournamentsBot.Api.DataDomain;
+using SSTournamentsBot.Api.Domain;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Linq;
 using System.Text;
@@ -15,18 +17,33 @@ namespace SSTournamentsBot.Api.Helpers
             return $"https://dowstats.ru/player.php?sid={steamId}&server=steam#tab0";
         }
 
-        public static string PrettyPrint(this Event ev)
+        public static string PrettyPrint(this Event ev, bool isRussian)
         {
+            if (isRussian)
+            {
+                if (ev.IsCompleteStage)
+                    return "Завершение стадии";
+                if (ev.IsCompleteVoting)
+                    return "Завершение голосования";
+                if (ev.IsStartCheckIn)
+                    return "Открытие чекина";
+                if (ev.IsStartNextStage)
+                    return "Начало следующей стадии";
+                if (ev.IsStartCurrentTournament)
+                    return "Начало турнира";
+                return ev.ToString();
+            }
+
             if (ev.IsCompleteStage)
-                return "Завершение стадии";
+                return "Stage completion";
             if (ev.IsCompleteVoting)
-                return "Завершение голосования";
+                return "Voting copmletion";
             if (ev.IsStartCheckIn)
-                return "Открытие чекина";
+                return "Checkin opening";
             if (ev.IsStartNextStage)
-                return "Начало следующей стадии";
+                return "Next stage opening";
             if (ev.IsStartCurrentTournament)
-                return "Начало турнира";
+                return "Event start";
             return ev.ToString();
         }
 
@@ -72,25 +89,23 @@ namespace SSTournamentsBot.Api.Helpers
 
         private static async Task PrintAndUpdateLeaders(Context context, IBotApi botApi, bool notify, UserData[] leaders)
         {
-            var builder = new StringBuilder();
-            builder.AppendLine("--- __**Таблица лидеров**__ ---");
-            builder.AppendLine();
+            var text = new CompoundText();
+            text.AppendLine(Text.OfKey(nameof(S.Events_LeaderBoardHeader)));
+            text.AppendLine(Text.OfValue("\n"));
 
             for (int i = 0; i < leaders.Length; i++)
             {
                 var user = leaders[i];
 
-                builder.AppendLine($"{i + 1}. {user.Score}   {await botApi.GetUserName(context, user.DiscordId)}");
+                text.AppendLine(Text.OfValue($"{i + 1}. {user.Score}   {await botApi.GetUserName(context, user.DiscordId)}"));
             }
 
-            builder.AppendLine();
+            text.AppendLine(Text.OfValue("\n"));
 
-            await botApi.ModifyLastMessage(context, builder.ToString(), GuildThread.Leaderboard);
-
-            builder.Clear();
+            await botApi.ModifyLastMessage(context, text, GuildThread.Leaderboard);
 
             if (notify)
-                await botApi.SendMessage(context, "Таблица лидеров была обновлена.", GuildThread.EventsTape | GuildThread.TournamentChat);
+                await botApi.SendMessage(context, Text.OfKey(nameof(S.Events_LeaderboardHasBeenUpdated)), GuildThread.EventsTape | GuildThread.TournamentChat);
         }
     }
 }

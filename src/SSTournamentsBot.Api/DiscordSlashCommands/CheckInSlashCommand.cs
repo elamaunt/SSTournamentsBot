@@ -1,6 +1,7 @@
 ﻿using Discord.WebSocket;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
@@ -20,13 +21,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _timeLine = timeLine;
             _api = api;
         }
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var userData =  _dataService.FindUserByDiscordId(arg.User.Id);
 
             if (userData == null)
             {
-                await arg.RespondAsync(OfKey(nameof(S.CheckIn_YouAreNotRegisteredInTheSystem)));
+                await arg.RespondAsync(OfKey(nameof(S.CheckIn_YouAreNotRegisteredInTheSystem)).Build(culture));
                 return;
             }
 
@@ -34,29 +35,29 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (result.IsNotRegisteredIn)
             {
-                await arg.RespondAsync(OfKey(nameof(S.CheckIn_YouAreNotRegisteredInTournament)));
+                await arg.RespondAsync(OfKey(nameof(S.CheckIn_YouAreNotRegisteredInTournament)).Build(culture));
                 return;
             }
 
             if (result.IsNotCheckInStageNow || result.IsNoTournament)
             {
-                await arg.RespondAsync(OfKey(nameof(S.CheckIn_NotActiveNow)));
+                await arg.RespondAsync(OfKey(nameof(S.CheckIn_NotActiveNow)).Build(culture));
                 return;
             }
 
             if (result.IsAlreadyCheckIned)
             {
-                await arg.RespondAsync(OfKey(nameof(S.CheckIn_YouAreAlreadyCheckined)));
+                await arg.RespondAsync(OfKey(nameof(S.CheckIn_YouAreAlreadyCheckined)).Build(culture));
                 return;
             }
 
             if (result.IsDone)
             {
-                await arg.RespondAsync(OfKey(nameof(S.CheckIn_CheckInedSuccessfully)));
+                await arg.RespondAsync(OfKey(nameof(S.CheckIn_CheckInedSuccessfully)).Build(culture));
                 return;
             }
 
-            await arg.RespondAsync(OfKey(nameof(S.CheckIn_Error)));
+            await arg.RespondAsync(OfKey(nameof(S.CheckIn_Error)).Build(culture));
         }
     }
 }

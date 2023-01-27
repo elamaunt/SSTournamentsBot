@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Options;
 using SSTournamentsBot.Api.Services;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using static SSTournaments.SecondaryDomain;
@@ -28,7 +29,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _options = options.Value;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var result = await _tournamentApi.TryStartTheCheckIn();
 

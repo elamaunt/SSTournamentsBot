@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
+using System.Globalization;
 using System.Threading.Tasks;
 using static SSTournaments.SecondaryDomain;
 
@@ -22,19 +23,19 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Форсирует следующее событие (для админов)";
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var nextEvent = _timeline.GetNextEventInfo();
 
             if (nextEvent != null)
             {
                 _timeline.RemoveEventInfo(nextEvent);
-                await arg.RespondAsync(OfKey(nameof(S.ForceEvent_Done)));
+                await arg.RespondAsync(OfKey(nameof(S.ForceEvent_Done)).Build(culture));
                 await SwitchEvent(nextEvent.Event, _handler);
             }
             else
             {
-                await arg.RespondAsync(OfKey(nameof(S.ForceEvent_NoEvents)));
+                await arg.RespondAsync(OfKey(nameof(S.ForceEvent_NoEvents)).Build(culture));
             }
         }
 

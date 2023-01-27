@@ -5,6 +5,7 @@ using SSTournamentsBot.Api.Helpers;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
@@ -31,7 +32,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _timeLine = timeline;
             _options = options.Value;
         }
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var user = arg.User;
             if (user == null || user.IsBot)
@@ -41,8 +42,8 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             if (userData == null)
             {
-                await arg.RespondAsync(OfKey(nameof(S.Play_RegisterIntroMessage)));
-                await user.SendMessageAsync(OfKey(nameof(S.Play_InstructionsMessage)));
+                await arg.RespondAsync(OfKey(nameof(S.Play_RegisterIntroMessage)).Build(culture));
+                await user.SendMessageAsync(OfKey(nameof(S.Play_InstructionsMessage)).Build(culture));
                 await user.SendMessageAsync("https://discord.com/api/oauth2/authorize?client_id=1052638908820750386&redirect_uri=http%3A%2F%2F145.239.239.58%2Fauth&response_type=code&scope=connections%20identify");
                 return;
             }
@@ -57,14 +58,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (stats.Games < 300)
                 {
-                    await Responce(OfKey(nameof(S.Play_NotEnoughGames)));
+                    await Responce(OfKey(nameof(S.Play_NotEnoughGames)).Build(culture));
                     return;
                 }
 
                 userData.StatsVerified = true;
                 if (!_dataService.UpdateUser(userData))
                 {
-                    await Responce(OfKey(nameof(S.Bot_ImposibleToUpdateDataBase)));
+                    await Responce(OfKey(nameof(S.Bot_ImposibleToUpdateDataBase)).Build(culture));
                     return;
                 }
             }
@@ -95,7 +96,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (!_dataService.UpdateUser(userData))
                 {
-                    await Responce(OfKey(nameof(S.Bot_ImposibleToUpdateDataBase)));
+                    await Responce(OfKey(nameof(S.Bot_ImposibleToUpdateDataBase)).Build(culture));
                     return;
                 }
             }
@@ -105,7 +106,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             switch (result)
             {
                 case Domain.RegistrationResult.TournamentAlreadyStarted:
-                    await Responce(OfKey(nameof(S.Play_ActivityStarted)));
+                    await Responce(OfKey(nameof(S.Play_ActivityStarted)).Build(culture));
                     break;
                     
                 case Domain.RegistrationResult.Registered:
@@ -113,7 +114,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                     if (result == Domain.RegistrationResult.Registered)
                     {
-                        await Responce(OfKey(nameof(S.Play_Successfull)).Format(userData.SteamId.BuildStatsUrl(), userData.Race));
+                        await Responce(OfKey(nameof(S.Play_Successfull)).Format(userData.SteamId.BuildStatsUrl(), userData.Race).Build(culture));
 
                         if (_tournamentApi.RegisteredPlayers.Length >= _options.MinimumPlayersToStartCheckin)
                         {
@@ -123,7 +124,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     }
                     else
                     {
-                        await Responce(OfKey(nameof(S.Play_SuccessfullAndChekined)).Format(userData.SteamId.BuildStatsUrl(), userData.Race));
+                        await Responce(OfKey(nameof(S.Play_SuccessfullAndChekined)).Format(userData.SteamId.BuildStatsUrl(), userData.Race).Build(culture));
                     }
 
                     break;
@@ -136,14 +137,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                         {
                             var player = _tournamentApi.RegisteredPlayers.First(x => x.DiscordId == arg.User.Id);
 
-                            await Responce(OfKey(nameof(S.Play_AlreadyRegisteredButNoChanges)).Format(userData.SteamId.BuildStatsUrl(), player.Race));
+                            await Responce(OfKey(nameof(S.Play_AlreadyRegisteredButNoChanges)).Format(userData.SteamId.BuildStatsUrl(), player.Race).Build(culture));
                             return;
                         }
                     }
-                    await Responce(OfKey(nameof(S.Play_AlreadyRegistered)).Format(userData.SteamId.BuildStatsUrl(), userData.Race));
+                    await Responce(OfKey(nameof(S.Play_AlreadyRegistered)).Format(userData.SteamId.BuildStatsUrl(), userData.Race).Build(culture));
                     break;
                 default:
-                    await Responce(OfKey(nameof(S.Play_Imposible)));
+                    await Responce(OfKey(nameof(S.Play_Imposible)).Build(culture));
                     break;
             }
         }

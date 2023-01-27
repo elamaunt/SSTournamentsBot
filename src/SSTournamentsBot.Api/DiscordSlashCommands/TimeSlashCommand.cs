@@ -4,6 +4,7 @@ using SSTournamentsBot.Api.Helpers;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
@@ -23,8 +24,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Description => "Выводит текущее время и оставшееся время до следующего события";
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
+            var isRussian = culture.Name == "ru";
             var nextEvent = _timeline.GetNextEventInfo();
 
             var text = new CompoundText();
@@ -35,7 +37,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             if (nextEvent != null)
             {
                 var e = nextEvent;
-                text.AppendLine(OfKey(S.Time_NextEvent).Format(e.Event.PrettyPrint(), GetTimeBeforeEvent(e).PrettyPrint()));
+                text.AppendLine(OfKey(S.Time_NextEvent).Format(e.Event.PrettyPrint(isRussian), GetTimeBeforeEvent(e).PrettyPrint(isRussian)));
             }
             else
             {

@@ -7,13 +7,15 @@ namespace SSTournamentsBot.Api.Services
         public string Name { get; }
         public TournamentApi TournamentApi { get; }
         public ITournamentEventsHandler EventsHandler { get; }
+        public IBotApi BotApi { get; }
         public SetupOptions Options { get; }
 
-        public Context(string name, TournamentApi api, ITournamentEventsHandler eventsHandler, SetupOptions options)
+        public Context(string name, TournamentApi api, ITournamentEventsHandler eventsHandler, IBotApi botApi, SetupOptions options)
         {
             Name = name;
             TournamentApi = api;
             EventsHandler = eventsHandler;
+            BotApi = botApi;
             Options = options;
         }
     }

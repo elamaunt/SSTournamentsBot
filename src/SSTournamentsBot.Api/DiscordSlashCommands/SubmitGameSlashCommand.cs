@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Services;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using static SSTournaments.Domain;
@@ -23,7 +24,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             _timeline = timeline;
         }
 
-        public override async Task Handle(Context context, SocketSlashCommand arg)
+        public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var botIdOption = arg.Data.Options.FirstOrDefault(x => x.Name == "winner-id");
             var id = (ulong)(long)botIdOption.Value;
