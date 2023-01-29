@@ -11,7 +11,7 @@ using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.Services
 {
-    public class ContextService : IHostedService, IContextService
+    public class ContextService : IContextService
     {
         readonly ConcurrentDictionary<string, Context> _contexts = new ConcurrentDictionary<string, Context>();
         readonly ConcurrentDictionary<ulong, (string, Context)> _contextsByChannels = new ConcurrentDictionary<ulong, (string, Context)>();
@@ -24,10 +24,7 @@ namespace SSTournamentsBot.Api.Services
         {
             _serviceProvider = serviceProvider;
             _options = options.Value;
-        }
-
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
+       
             foreach (var pair in _options.Setups)
             {
                 var name = pair.Key;
@@ -38,7 +35,7 @@ namespace SSTournamentsBot.Api.Services
                 var context = new Context(name, tournamentApi, GetService<ITournamentEventsHandler>(), GetService<IBotApi>(), opt);
 
                 if (!_contexts.TryAdd(name, context))
-                    throw new InvalidOperationException("Context must have an unique name");
+                    throw new InvalidOperationException("Context must have an unique name. Name duplicate: " + name);
 
                 foreach (var channelPair in opt.Channels)
                 {
@@ -55,7 +52,6 @@ namespace SSTournamentsBot.Api.Services
             }
 
             _mainContext = _contexts.First(x => x.Key == "Soulstorm").Value ?? _contexts.First().Value;
-            return Task.CompletedTask;
         }
 
         private Mod ResolveMod(string mod)
@@ -90,10 +86,5 @@ namespace SSTournamentsBot.Api.Services
         }
 
         public IEnumerable<Context> AllContexts => _contexts.Values;
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
     }
 }
