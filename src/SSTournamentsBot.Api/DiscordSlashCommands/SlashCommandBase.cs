@@ -27,9 +27,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 .WithDescriptionLocalizations(new Dictionary<string, string>() 
                 {
                     { "ru", ru },
-                    { "ru-RU", ru },
-                    { "en", en },
-                    { "en-EN", en }
+                    { "en-US", en }
                 });
             Configure(builder);
             return builder;

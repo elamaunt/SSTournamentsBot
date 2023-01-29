@@ -16,20 +16,18 @@ namespace SSTournamentsBot.Api.Services
     public class DiscordBot : IHostedService
     {
         readonly DiscordSocketClient _client;
-        readonly ContextService _contextService;
+        readonly IContextService _contextService;
         readonly DiscordBotOptions _options;
-        readonly IEventsTimeline _timeLine;
 
         private volatile bool _isReady;
 
         public DiscordBot(DiscordSocketClient client,
-            ContextService contextService,
+            IContextService contextService,
             IEventsTimeline timeLine,
             IOptions<DiscordBotOptions> options)
         {
             _client = client;
             _contextService = contextService;
-            _timeLine = timeLine;
             _options = options.Value;
         }
 

@@ -42,7 +42,7 @@ namespace SSTournamentsBot.Api
                 .AddSingleton(config)
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<HttpService, CustomHttpService>()
-                //.AddSingleton<CommandService>()
+                .AddSingleton<IContextService, ContextService>()
                 .AddSingleton<IEventsTimeline, InMemoryEventsTimeline>()
                 .AddTransient<ITournamentEventsHandler, TournamentEventsHandler>()
                 .AddSingleton<IGameScanner, DowStatsGameScanner>()
@@ -56,11 +56,8 @@ namespace SSTournamentsBot.Api
 
                 .AddTransient<IDrawingService, SkiaDrawingService>()
                 .AddTransient<IBotApi, DiscordBotApi>()
-                .AddSingleton<IContextService, ContextService>()
                 .AddTransient<TournamentApi>()
                 .AddSingleton<DiscordApi>()
-                .AddSingleton<ContextService>()
-                
                 .AddHostedService<DiscordCommandsHandler>()
                 .AddHostedService<DiscordBot>()
                 .AddHostedService<TimeSchedulerService>();
