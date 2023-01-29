@@ -10,26 +10,19 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
     public class ViewSlashCommand : SlashCommandBase
     {
-        private TournamentApi _api;
-
-        public ViewSlashCommand(TournamentApi api)
-        {
-            _api = api;
-        }
-
         public override string Name => "view";
 
         public override string DescriptionKey=> nameof(S.Commands_View);
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
-            if (!_api.IsTournamentStarted)
+            if (!context.TournamentApi.IsTournamentStarted)
             {
                 await arg.RespondAsync("Нет активного турнира.");
                 return;
             }
 
-            await arg.RespondWithFileAsync(new MemoryStream(await _api.RenderTournamentImage()), "tournament.png");
+            await arg.RespondWithFileAsync(new MemoryStream(await context.TournamentApi.RenderTournamentImage()), "tournament.png");
         }
 
         protected override void Configure(SlashCommandBuilder builder)

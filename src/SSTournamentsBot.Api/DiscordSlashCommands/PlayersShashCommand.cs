@@ -12,17 +12,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "players";
         public override string DescriptionKey=> nameof(S.Commands_Players);
 
-        protected readonly TournamentApi _tournamentApi;
-        public PlayersShashCommand(TournamentApi tournamentApi)
-        {
-            _tournamentApi = tournamentApi;
-        }
-
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var builder = new StringBuilder();
 
-            var players = _tournamentApi.RegisteredPlayers;
+            var players = context.TournamentApi.RegisteredPlayers;
 
             for (int i = 0; i < players.Length; i++)
             {

@@ -17,38 +17,24 @@ namespace SSTournamentsBot.Api.Services
     {
         readonly DiscordSocketClient _client;
         readonly ContextService _contextService;
-        readonly TournamentApi _tournamentApi;
-        readonly IBotApi _botApi;
         readonly DiscordBotOptions _options;
         readonly IEventsTimeline _timeLine;
-        readonly ITournamentEventsHandler _eventsHandler;
-        readonly TournamentEventsOptions _tournamentOptions;
 
         private volatile bool _isReady;
 
         public DiscordBot(DiscordSocketClient client,
             ContextService contextService,
-            TournamentApi tournamentApi,
-            IBotApi botApi,
             IEventsTimeline timeLine,
-            ITournamentEventsHandler eventsHandler, 
-            IOptions<DiscordBotOptions> options,
-            IOptions<TournamentEventsOptions> tournamentOptions)
+            IOptions<DiscordBotOptions> options)
         {
             _client = client;
             _contextService = contextService;
-            _tournamentApi = tournamentApi;
-            _botApi = botApi;
             _timeLine = timeLine;
-            _eventsHandler = eventsHandler;
             _options = options.Value;
-            _tournamentOptions = tournamentOptions.Value;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _timeLine.RemoveAllEvents();
-
             var context = _contextService.GetMainContext();
 
             _client.Log += async (msg) =>
@@ -59,9 +45,9 @@ namespace SSTournamentsBot.Api.Services
                 if (_isReady)
                 {
                     if (msg.Severity == LogSeverity.Error || msg.Severity == LogSeverity.Critical)
-                        await _botApi.SendMessage(context, Text.OfValue(s), GuildThread.Logging, 272710324484833281);
+                        await context.BotApi.SendMessage(context, Text.OfValue(s), GuildThread.Logging, 272710324484833281);
                     else
-                        await _botApi.SendMessage(context, Text.OfValue(s), GuildThread.Logging);
+                        await context.BotApi.SendMessage(context, Text.OfValue(s), GuildThread.Logging);
                 }
             };
 
@@ -90,9 +76,8 @@ namespace SSTournamentsBot.Api.Services
             if (guildUser.GuildPermissions.Administrator)
                 guildRole = GuildRole.Administrator;
 
-            var result = await _tournamentApi.TryAcceptVote(arg.User.Id, int.Parse(arg.Data.CustomId), guildRole);
-
-            var culture = CultureInfo.GetCultureInfo("ru");
+            var result = await context.TournamentApi.TryAcceptVote(arg.User.Id, int.Parse(arg.Data.CustomId), guildRole);
+            var culture = CultureInfo.GetCultureInfo(locale);
 
             if (result == AcceptVoteResult.Accepted)
             {
@@ -127,7 +112,7 @@ namespace SSTournamentsBot.Api.Services
             if (result == AcceptVoteResult.CompletedByThisVote)
             {
                 await arg.RespondAsync(Text.OfKey(nameof(S.AcceptVote_ForcedByAdmin)).Format(arg.User.Mention).Build(culture));
-                await _eventsHandler.DoCompleteVoting(context.Name);
+                await context.EventsHandler.DoCompleteVoting(context.Name);
                 return;
             }
 

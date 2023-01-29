@@ -16,12 +16,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "submit-game";
         public override string DescriptionKey=> nameof(S.Commands_SubmitGame);
 
-        readonly TournamentApi _tournamentApi;
         readonly IEventsTimeline _timeline;
 
-        public SubmitGameSlashCommand(TournamentApi tournamentApi, IEventsTimeline timeline)
+        public SubmitGameSlashCommand(IEventsTimeline timeline)
         {
-            _tournamentApi = tournamentApi;
             _timeline = timeline;
         }
 
@@ -30,7 +28,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             var botIdOption = arg.Data.Options.FirstOrDefault(x => x.Name == "winner-id");
             var id = (ulong)(long)botIdOption.Value;
 
-            var match = _tournamentApi.ActiveMatches.FirstOrDefault(x => x.Player1.ValueOrDefault()?.Item1.DiscordId == id || x.Player2.ValueOrDefault()?.Item1.DiscordId == id);
+            var match = context.TournamentApi.ActiveMatches.FirstOrDefault(x => x.Player1.ValueOrDefault()?.Item1.DiscordId == id || x.Player2.ValueOrDefault()?.Item1.DiscordId == id);
 
             if (match == null)
             {
@@ -51,7 +49,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             var usedMod = ModInfo.NewMod(Mod.Soulstorm);
             var replayLink = "";
 
-            var result = await _tournamentApi.TrySubmitGame(new FinishedGameInfo(winners, losers, gameType, duration, map, usedMod, replayLink));
+            var result = await context.TournamentApi.TrySubmitGame(new FinishedGameInfo(winners, losers, gameType, duration, map, usedMod, replayLink));
 
             if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
             {
@@ -59,7 +57,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (result.IsCompletedAndFinishedTheStage)
                 {
-                    _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(context.Name), TimeSpan.FromSeconds(10));
+                    _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(context.Name), TimeSpan.FromSeconds(10));
                 }
             }
             else

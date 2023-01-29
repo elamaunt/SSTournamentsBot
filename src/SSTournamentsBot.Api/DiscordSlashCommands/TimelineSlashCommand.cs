@@ -39,7 +39,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             for (int i = 0; i < events.Length; i++)
             {
                 var e = events[i];
-                builder.AppendLine($"{i + 1}. [{e.StartDate.ToString("s")}] {e.Event} - {GetStringFor(e.Period, isRussian)}");
+                builder.AppendLine($"{i + 1}. [{e.StartDate.ToString("s")}] {e.ContextName} | {e.Event} - {GetStringFor(e.Period, isRussian)}");
             }
 
             await arg.RespondAsync(builder.ToString());

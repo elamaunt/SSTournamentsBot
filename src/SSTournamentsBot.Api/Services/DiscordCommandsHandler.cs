@@ -10,7 +10,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.Services
 {
@@ -26,11 +25,8 @@ namespace SSTournamentsBot.Api.Services
         public DiscordCommandsHandler(
             DiscordSocketClient client,
             IContextService contextService,
-            TournamentApi api,
             IDataService dataService,
             IStatsApi statsApi,
-            IBotApi botApi,
-            ITournamentEventsHandler eventsHandler,
             IEventsTimeline timeline,
             IOptions<DiscordBotOptions> options,
             IOptions<TournamentEventsOptions> tournamentOptions)
@@ -42,43 +38,43 @@ namespace SSTournamentsBot.Api.Services
 
             _commands = new SlashCommandBase[]
             {
-                new AddBotsSlashCommand(api),
-                new CallSlashCommand(client, dataService, botApi, api),
-                new CheckInSlashCommand(dataService, timeline, api),
-                new ChekInBotsSlashCommand(api),
-                new InfoSlashCommand(api),
-                new KickBotsSlashCommand(api),
-                new KickPlayerSlashCommand(dataService, eventsHandler, api),
-                new LeaveSlashCommand(dataService, eventsHandler, api),
+                new AddBotsSlashCommand(),
+                new CallSlashCommand(client, dataService),
+                new CheckInSlashCommand(dataService, timeline),
+                new ChekInBotsSlashCommand(),
+                new InfoSlashCommand(),
+                new KickBotsSlashCommand(),
+                new KickPlayerSlashCommand(dataService),
+                new LeaveSlashCommand(dataService),
                 //new MyIdSlashCommand(),
-                new PlayersShashCommand(api),
-                new PlaySlashCommand(dataService, statsApi, api, timeline, tournamentOptions),
+                new PlayersShashCommand(),
+                new PlaySlashCommand(dataService, statsApi, timeline, tournamentOptions),
                 new StatusSlashCommand(),
                 new TimelineSlashCommand(timeline),
                 new TimeSlashCommand(timeline),
-                new ViewSlashCommand(api),
-                //new StartSlashCommand(timeline, botApi, api, tournamentOptions),
+                new ViewSlashCommand(),
+                //new StartSlashCommand(timeline, tournamentOptions),
                 new DeleteUserDataSlashCommand(dataService),
                 new AddTimeSlashCommand(timeline),
-                new KickBotSlashCommand(api),
-                new SubmitGameSlashCommand(api, timeline),
-                new RatedUsersSlashCommand(botApi, dataService),
-                new RefreshLeaderboardSlashCommand(botApi, dataService),
-                new RefreshLeaderboardV2SlashCommand(botApi, dataService),
+                new KickBotSlashCommand(),
+                new SubmitGameSlashCommand(timeline),
+                new RatedUsersSlashCommand(dataService),
+                new RefreshLeaderboardSlashCommand(dataService),
+                new RefreshLeaderboardV2SlashCommand(dataService),
                 new UserSlashCommand(dataService),
-                new AllUsersSlashCommand(botApi, dataService),
+                new AllUsersSlashCommand(dataService),
                 new SetUsersScoreSlashCommand(dataService),
                 new RegisterUserSlashCommand(dataService),
                 new RebuildCommandsSlashCommand(this),
-                new WaitSlashCommand(botApi),
-                new BanMapsSlashCommand(dataService, api),
-                new DropTournamentSlashCommand(api, timeline, eventsHandler),
-                new ForceEventSlashCommand(timeline, eventsHandler),
+                new WaitSlashCommand(),
+                new BanMapsSlashCommand(dataService),
+                new DropTournamentSlashCommand(timeline),
+                new ForceEventSlashCommand(timeline),
                // new GoGoGoSlashCommand(botApi),
                // new VoteAddTimeSlashCommand(api),
                // new VoteBanSlashCommand(api),
                // new VoteKickSlashCommand(api),
-                new MatchesSlashCommand(api)
+                new MatchesSlashCommand()
             }.ToDictionary(x => x.Name);
         }
 

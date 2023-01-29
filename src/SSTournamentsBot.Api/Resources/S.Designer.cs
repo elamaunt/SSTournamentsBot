@@ -802,7 +802,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; The next stage begins! Grid Generation....
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; The next stage begins! Generating brackets....
         /// </summary>
         public static string Event_NextStageStarted {
             get {
@@ -838,7 +838,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на The AutoCup activity *{0} AutoCup {1}* begins!.
+        ///   Ищет локализованную строку, похожую на The activity *{0} AutoCup {1}* begins!.
         /// </summary>
         public static string Events_ActivityStarted {
             get {

@@ -1,5 +1,4 @@
 ﻿using LiteDB;
-using System.Collections.Generic;
 using static SSTournaments.Domain;
 
 namespace SSTournamentsBot.Api.DataDomain
@@ -14,8 +13,6 @@ namespace SSTournamentsBot.Api.DataDomain
         public bool VotingDisabled { get; set; }
         public bool HasLowPriority { get; set; }
         public int Score { get; set; }
-
-        public Dictionary<Mod, int> Scores { get; set; }
 
         public int Penalties { get; set; }
         public int Map1v1BansRaw { get; set; }

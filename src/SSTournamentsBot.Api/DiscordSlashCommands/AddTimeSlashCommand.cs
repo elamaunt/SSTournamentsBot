@@ -35,13 +35,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            var nextEvent = _timeline.GetNextEventInfo();
+            var nextEvent = _timeline.GetNextEventInfoForContext(context.Name);
 
             if (nextEvent != null)
             {
                 var time = TimeSpan.FromMinutes(minutes);
                 var e = nextEvent;
-                _timeline.AddTimeToNextEventWithType(e.Event, time);
+                _timeline.AddTimeToNextEventWithType(context.Name, e.Event, time);
 
                 if (minutes < 0)
                     await arg.RespondAsync(OfKey(nameof(S.AddTime_NextEventSpeedUp)).Format(e.Event.PrettyPrint(isRussian), time.Negate().PrettyPrint(isRussian)).Build(culture));

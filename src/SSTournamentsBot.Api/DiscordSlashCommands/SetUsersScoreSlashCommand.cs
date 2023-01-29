@@ -14,6 +14,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string DescriptionKey=> nameof(S.Commands_SetUsersScore);
 
         readonly IDataService _dataService;
+
         public SetUsersScoreSlashCommand(IDataService dataService)
         {
             _dataService = dataService;

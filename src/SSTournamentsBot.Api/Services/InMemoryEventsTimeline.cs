@@ -15,7 +15,7 @@ namespace SSTournamentsBot.Api.Services
         readonly ScheduledEventInfo[] _events = new ScheduledEventInfo[MaxSimultaneousEvents];
         readonly static Event[] ZeroEvents = new Event[0];
 
-        public void AddOneTimeEventAfterTime(Event ev, TimeSpan time)
+        public void AddOneTimeEventAfterTime(string contextName, Event ev, TimeSpan time)
         {
             Add(new ScheduledEventInfo()
             {
@@ -23,20 +23,22 @@ namespace SSTournamentsBot.Api.Services
                 Type = EventType.AfterTime,
                 Time = time,
                 Date = GetMoscowTime(),
+                ContextName = contextName
             });
         }
 
-        public void AddOneTimeEventOnDate(Event ev, DateTime date)
+        public void AddOneTimeEventOnDate(string contextName, Event ev, DateTime date)
         {
             Add(new ScheduledEventInfo()
             { 
                 Event = ev,
                 Type = EventType.ExactTime,
-                Date = date
+                Date = date,
+                ContextName = contextName
             });
         }
 
-        public void AddPeriodicalEventOnSingleDayTime(Event ev, DateTime date)
+        public void AddPeriodicalEventOnSingleDayTime(string contextName, Event ev, DateTime date)
         {
             Add(new ScheduledEventInfo()
             {
@@ -44,11 +46,12 @@ namespace SSTournamentsBot.Api.Services
                 Type = EventType.ExactTime,
                 Date = date,
                 Time = TimeSpan.FromDays(1),
-                Periodic = true
+                Periodic = true,
+                ContextName = contextName
             });
         }
 
-        public void AddPeriodicalEventWithPeriod(Event ev, TimeSpan time)
+        public void AddPeriodicalEventWithPeriod(string contextName, Event ev, TimeSpan time)
         {
             Add(new ScheduledEventInfo()
             {
@@ -56,7 +59,8 @@ namespace SSTournamentsBot.Api.Services
                 Type = EventType.AfterTime,
                 Time = time,
                 Periodic = true,
-                Date = GetMoscowTime()
+                Date = GetMoscowTime(),
+                ContextName = contextName
             });
         }
 
@@ -83,10 +87,14 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        public void RemoveAllEvents()
+        public void RemoveAllEvents(string contextName)
         {
             for (int i = 0; i < _events.Length; i++)
-                _events[i] = null;
+            {
+                var info = _events[i];
+                if (info?.ContextName == contextName)
+                    Interlocked.Exchange(ref _events[i], null);
+            }
         }
 
         public Event[] GetEventsRaisedInPeriod(DateTime time, TimeSpan period, bool removeIfOneTime = false)
@@ -147,9 +155,9 @@ namespace SSTournamentsBot.Api.Services
             return list.ToArray();
         }
 
-        public EventInfo GetNextEventInfo()
+        public EventInfo GetNextEventInfoForContext(string contextName)
         {
-            return _events.Where(x => x != null).OrderBy(GetEventsDate)
+            return _events.Where(x => x != null && x.ContextName == contextName).OrderBy(GetEventsDate)
             .Select(x =>
             {
                 var period = x.Periodic ? new FSharpOption<TimeSpan>(x.Time) : FSharpOption<TimeSpan>.None;
@@ -157,11 +165,11 @@ namespace SSTournamentsBot.Api.Services
                 switch (x.Type)
                 {
                     case EventType.AfterTime:
-                        return new EventInfo(x.Event, x.Date + x.Time + x.TimeExtension, period);
+                        return new EventInfo(x.ContextName, x.Event, x.Date + x.Time + x.TimeExtension, period);
                     case EventType.ExactTime:
-                        return new EventInfo(x.Event, x.Date + x.TimeExtension, period);
+                        return new EventInfo(x.ContextName, x.Event, x.Date + x.TimeExtension, period);
                     default:
-                        return new EventInfo(x.Event, x.Date + x.TimeExtension, period);
+                        return new EventInfo(x.ContextName, x.Event, x.Date + x.TimeExtension, period);
                 }
             })
             .FirstOrDefault();
@@ -177,11 +185,11 @@ namespace SSTournamentsBot.Api.Services
                 switch (x.Type)
                 {
                     case EventType.AfterTime:
-                        return new EventInfo(x.Event, x.Date + x.Time + x.TimeExtension, period);
+                        return new EventInfo(x.ContextName, x.Event, x.Date + x.Time + x.TimeExtension, period);
                     case EventType.ExactTime:
-                        return new EventInfo(x.Event, x.Date + x.TimeExtension, period);
+                        return new EventInfo(x.ContextName, x.Event, x.Date + x.TimeExtension, period);
                     default:
-                        return new EventInfo(x.Event, x.Date + x.TimeExtension, period);
+                        return new EventInfo(x.ContextName, x.Event, x.Date + x.TimeExtension, period);
                 }
             }).ToArray();
         }
@@ -199,24 +207,24 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        public void RemoveAllEventsWithType(Event ev)
+        public void RemoveAllEventsWithType(string contextName, Event ev)
         {
             for (int i = 0; i < _events.Length; i++)
             {
                 var info = _events[i];
 
-                if (info?.Event == ev)
+                if (info?.Event == ev && info?.ContextName == contextName)
                     Interlocked.CompareExchange(ref _events[i], null, info);
             }
         }
 
-        public void AddTimeToNextEventWithType(Event ev, TimeSpan time)
+        public void AddTimeToNextEventWithType(string contextName, Event ev, TimeSpan time)
         {
             for (int i = 0; i < _events.Length; i++)
             {
                 var info = _events[i];
 
-                if (info?.Event == ev)
+                if (info?.Event == ev && info?.ContextName == contextName)
                 {
                     info.TimeExtension += time;
                     break;
@@ -224,13 +232,13 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        public bool HasEventToday(Event ev)
+        public bool HasEventToday(string contextName, Event ev)
         {
             for (int i = 0; i < _events.Length; i++)
             {
                 var info = _events[i];
 
-                if (info?.Event == ev)
+                if (info?.Event == ev && info?.ContextName == contextName)
                 {
                     var date = GetEventsDate(info);
 
@@ -256,6 +264,7 @@ namespace SSTournamentsBot.Api.Services
             public Event Event;
             public bool Periodic;
             public TimeSpan TimeExtension;
+            public string ContextName;
         }
     }
 }

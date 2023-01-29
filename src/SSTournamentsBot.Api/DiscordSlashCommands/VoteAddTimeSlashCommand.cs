@@ -10,21 +10,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
     public class VoteAddTimeSlashCommand : SlashCommandBase
     {
-        readonly TournamentApi _api;
-
         public override string Name => "vote-addtime";
         public override string DescriptionKey=> nameof(S.Commands_VoteAddTime);
-
-        public VoteAddTimeSlashCommand(TournamentApi api)
-        {
-            _api = api;
-        }
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var type = (long?)arg.Data.Options.FirstOrDefault(x => x.Name == "type")?.Value ?? null;
 
-            // _api.TryStartVoting(Voting.)
+            // context.TournamentApi.TryStartVoting(Voting.)
         }
 
         protected override void Configure(SlashCommandBuilder builder)

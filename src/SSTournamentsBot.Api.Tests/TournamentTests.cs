@@ -218,7 +218,7 @@ namespace SSTournamentsBot.Api.Tests
             });
 
             var contextService = new VirtualContextService();
-            var handler = new TournamentEventsHandler(new LoggerMock<TournamentEventsHandler>(), contextService, data, botApi, scanner, timeline, api, options);
+            var handler = new TournamentEventsHandler(new LoggerMock<TournamentEventsHandler>(), contextService, data, scanner, timeline, options);
             var context = contextService.Context = new Context("test", api, handler, botApi, new SetupOptions());
 
             // Store users in db
@@ -236,16 +236,16 @@ namespace SSTournamentsBot.Api.Tests
                     Assert.IsTrue((await api.TryRegisterUser(user, await botApi.GetUserName(context, user.DiscordId))) == Domain.RegistrationResult.Registered);
                 }
 
-                timeline.AddOneTimeEventAfterTime(Event.NewStartCheckIn(context.Name), TimeSpan.FromMinutes(options.Value.CheckInTimeoutMinutes));
+                timeline.AddOneTimeEventAfterTime(context.Name, Event.NewStartCheckIn(context.Name), TimeSpan.FromMinutes(options.Value.CheckInTimeoutMinutes));
 
                 // Start checkin
-                await GoNextEvent(timeline, handler);
+                await GoNextEvent(context.Name, timeline, handler);
 
                 for (ulong i = 1; i < 5; i++)
                     Assert.IsTrue((await api.TryCheckInUser(i)).IsDone);
 
                 // Start tournament
-                await GoNextEvent(timeline, handler);
+                await GoNextEvent(context.Name, timeline, handler);
 
                 foreach (var match in api.ActiveMatches)
                 {
@@ -267,9 +267,9 @@ namespace SSTournamentsBot.Api.Tests
                 }
 
                 // Complete stage
-                await GoNextEvent(timeline, handler);
+                await GoNextEvent(context.Name, timeline, handler);
                 // Start new stage
-                await GoNextEvent(timeline, handler);
+                await GoNextEvent(context.Name, timeline, handler);
 
                 foreach (var match in api.ActiveMatches)
                 {
@@ -291,7 +291,7 @@ namespace SSTournamentsBot.Api.Tests
                 }
 
                 // Complete the tournament
-                await GoNextEvent(timeline, handler);
+                await GoNextEvent(context.Name, timeline, handler);
 
                 Assert.AreEqual("The tournament is finished normally", botApi.Messages.Last().Message);
             }
@@ -315,10 +315,10 @@ namespace SSTournamentsBot.Api.Tests
             }
         }
 
-        private static async Task GoNextEvent(InMemoryEventsTimeline timeline, TournamentEventsHandler handler)
+        private static async Task GoNextEvent(string contextName, InMemoryEventsTimeline timeline, TournamentEventsHandler handler)
         {
-            var next = timeline.GetNextEventInfo().Event;
-            timeline.RemoveAllEvents();
+            var next = timeline.GetNextEventInfoForContext(contextName).Event;
+            timeline.RemoveAllEvents(contextName);
             await SwitchEvent(next, handler);
         }
     }

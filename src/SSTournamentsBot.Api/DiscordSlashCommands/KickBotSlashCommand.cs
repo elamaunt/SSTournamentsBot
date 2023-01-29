@@ -14,17 +14,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "kick-bot";
         public override string DescriptionKey=> nameof(S.Commands_KickBot);
 
-        readonly TournamentApi _tournamentApi;
-        public KickBotSlashCommand(TournamentApi tournamentApi)
-        {
-            _tournamentApi = tournamentApi;
-        }
-
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var botIdOption = arg.Data.Options.FirstOrDefault(x => x.Name == "bot-id");
             var reasonOption = arg.Data.Options.FirstOrDefault(x => x.Name == "reason");
-            var players = _tournamentApi.RegisteredPlayers;
+            var players = context.TournamentApi.RegisteredPlayers;
 
             var id = (ulong)(long)botIdOption.Value;
             TechnicalWinReason reason;
@@ -49,7 +43,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             }
 
-            if ((await _tournamentApi.TryLeaveUser(id, id, reason)).IsDone)
+            if ((await context.TournamentApi.TryLeaveUser(id, id, reason)).IsDone)
                 await arg.RespondAsync("Бот исключен.");
             else
                 await arg.RespondAsync("Не удалось исключить бота.");

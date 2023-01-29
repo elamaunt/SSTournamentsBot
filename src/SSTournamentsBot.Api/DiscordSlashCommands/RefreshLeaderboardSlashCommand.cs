@@ -13,17 +13,16 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "refresh-leaderboard";
         public override string DescriptionKey => nameof(S.Commands_RefreshLeaderboard);
 
-        readonly IBotApi _botApi;
         readonly IDataService _dataService;
-        public RefreshLeaderboardSlashCommand(IBotApi botApi, IDataService dataService)
+
+        public RefreshLeaderboardSlashCommand(IDataService dataService)
         {
-            _botApi = botApi;
             _dataService = dataService;
         }
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
-            await ServiceHelpers.RefreshLeaders(context, _botApi, _dataService, false);
+            await ServiceHelpers.RefreshLeaders(context, _dataService, false);
             await arg.RespondAsync("Таблица лидеров обновлена.");
         }
 

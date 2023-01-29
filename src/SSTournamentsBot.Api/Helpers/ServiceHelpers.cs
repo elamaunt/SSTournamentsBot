@@ -73,21 +73,21 @@ namespace SSTournamentsBot.Api.Helpers
             timeline.AddPeriodicalEventOnSingleDayTime(Event.StartPreCheckingTimeVote, preCheckinVoteStartTime);
         }*/
 
-        public static async Task RefreshLeaders(Context context, IBotApi botApi, IDataService dataService, bool notify = true)
+        public static async Task RefreshLeaders(Context context, IDataService dataService, bool notify = true)
         {
-            await PrintAndUpdateLeaders(context, botApi, notify, dataService.LoadLeaders());
+            await PrintAndUpdateLeaders(context, notify, dataService.LoadLeaders());
         }
-        public static async Task RefreshLeadersV2(Context context, IBotApi botApi, IDataService dataService, bool notify = true)
+        public static async Task RefreshLeadersV2(Context context, IDataService dataService, bool notify = true)
         {
             var leaders = dataService.EnumerateAllUsers()
                 .Where(x => x.Score != 0)
                 .OrderByDescending(x => x.Score)
                 .ToArray();
 
-            await PrintAndUpdateLeaders(context, botApi, notify, leaders);
+            await PrintAndUpdateLeaders(context, notify, leaders);
         }
 
-        private static async Task PrintAndUpdateLeaders(Context context, IBotApi botApi, bool notify, UserData[] leaders)
+        private static async Task PrintAndUpdateLeaders(Context context, bool notify, UserData[] leaders)
         {
             var text = new CompoundText();
             text.AppendLine(Text.OfKey(nameof(S.Events_LeaderBoardHeader)));
@@ -97,15 +97,15 @@ namespace SSTournamentsBot.Api.Helpers
             {
                 var user = leaders[i];
 
-                text.AppendLine(Text.OfValue($"{i + 1}. {user.Score}   {await botApi.GetUserName(context, user.DiscordId)}"));
+                text.AppendLine(Text.OfValue($"{i + 1}. {user.Score}   {await context.BotApi.GetUserName(context, user.DiscordId)}"));
             }
 
             text.AppendLine(Text.OfValue("\n"));
 
-            await botApi.ModifyLastMessage(context, text, GuildThread.Leaderboard);
+            await context.BotApi.ModifyLastMessage(context, text, GuildThread.Leaderboard);
 
             if (notify)
-                await botApi.SendMessage(context, Text.OfKey(nameof(S.Events_LeaderboardHasBeenUpdated)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_LeaderboardHasBeenUpdated)), GuildThread.EventsTape | GuildThread.TournamentChat);
         }
     }
 }

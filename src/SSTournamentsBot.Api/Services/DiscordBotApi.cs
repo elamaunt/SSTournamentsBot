@@ -343,7 +343,10 @@ namespace SSTournamentsBot.Api.Services
 
         public async Task SendMessageToUser(Context context, IText message, ulong id)
         {
-            await (await _client.GetUserAsync(id)).SendMessageAsync(message.Build());
+            var user = await _client.GetUserAsync(id);
+
+            await user.SendMessageAsync(message.Build(CultureInfo.GetCultureInfo("ru")));
+            await user.SendMessageAsync(message.Build(CultureInfo.GetCultureInfo("en")));
         }
 
         public async Task<bool> ToggleWaitingRole(Context context, ulong id, bool? toValue)

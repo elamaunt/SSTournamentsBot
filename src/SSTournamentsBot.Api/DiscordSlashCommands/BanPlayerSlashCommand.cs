@@ -16,13 +16,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string DescriptionKey=> nameof(S.Commands_BanPlayer);
 
         readonly IDataService _dataService;
-        readonly IBotApi _botApi;
-        readonly TournamentApi _tournamentApi;
-        public BanPlayerSlashCommand(IDataService dataService, IBotApi botApi, TournamentApi tournamentApi)
+
+        public BanPlayerSlashCommand(IDataService dataService)
         {
             _dataService = dataService;
-            _botApi = botApi;
-            _tournamentApi = tournamentApi;
         }
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
@@ -38,10 +35,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            if ((await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsBan)).IsDone)
+            if ((await context.TournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsBan)).IsDone)
             {
-                var mention = await _botApi.GetMention(context, userData.DiscordId);
-                await _botApi.SendMessage(context, OfKey(nameof(S.BanPlayer_Kicked)).Format(mention), GuildThread.EventsTape | GuildThread.TournamentChat);
+                var mention = await context.BotApi.GetMention(context, userData.DiscordId);
+                await context.BotApi.SendMessage(context, OfKey(nameof(S.BanPlayer_Kicked)).Format(mention), GuildThread.EventsTape | GuildThread.TournamentChat);
             }
 
             userData.Banned = true;

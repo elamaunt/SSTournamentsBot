@@ -25,6 +25,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Resources\S.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>S.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="Resources\S.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>S.Designer.cs</LastGenOutput>

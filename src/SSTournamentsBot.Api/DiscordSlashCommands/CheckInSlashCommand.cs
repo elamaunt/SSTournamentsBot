@@ -13,14 +13,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         
         readonly IDataService _dataService;
         readonly IEventsTimeline _timeLine;
-        readonly TournamentApi _api;
 
-        public CheckInSlashCommand(IDataService dataService, IEventsTimeline timeLine, TournamentApi api)
+        public CheckInSlashCommand(IDataService dataService, IEventsTimeline timeLine)
         {
             _dataService = dataService;
             _timeLine = timeLine;
-            _api = api;
         }
+
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var userData =  _dataService.FindUserByDiscordId(arg.User.Id);
@@ -31,7 +30,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            var result = await _api.TryCheckInUser(userData.SteamId);
+            var result = await context.TournamentApi.TryCheckInUser(userData.SteamId);
 
             if (result.IsNotRegisteredIn)
             {

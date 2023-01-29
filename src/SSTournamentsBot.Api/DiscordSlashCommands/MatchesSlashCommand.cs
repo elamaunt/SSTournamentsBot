@@ -14,17 +14,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string DescriptionKey=> nameof(S.Commands_Matches);
 
-        readonly TournamentApi _tournamentApi;
-        public MatchesSlashCommand(TournamentApi tournamentApi)
-        {
-            _tournamentApi = tournamentApi;
-        }
-
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var builder = new StringBuilder();
 
-            var matches = _tournamentApi.ActiveMatches;
+            var matches = context.TournamentApi.ActiveMatches;
 
             for (int i = 0; i < matches.Length; i++)
             {

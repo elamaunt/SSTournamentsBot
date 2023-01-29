@@ -9,13 +9,6 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
     public class InfoSlashCommand : SlashCommandBase
     {
-        readonly TournamentApi _api;
-
-        public InfoSlashCommand(TournamentApi api)
-        {
-            _api = api;
-        }
-
         public override string Name => "info";
 
         public override string DescriptionKey=> nameof(S.Commands_Info);
@@ -24,7 +17,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         {
             var infoBuilder = new CompoundText();
 
-            if (_api.IsTournamentStarted)
+            if (context.TournamentApi.IsTournamentStarted)
             {
                 infoBuilder.AppendLine(OfKey(nameof(S.Bot_TournamentInProgress)));
             }
@@ -33,9 +26,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 infoBuilder.AppendLine(OfKey(nameof(S.Bot_TournamentNotStartedYet)));
             }
 
-            infoBuilder.AppendLine(OfKey(nameof(S.Info_TournamentType)).Format(_api.TournamentType?.ToString() ?? "Неопределен"));
+            infoBuilder.AppendLine(OfKey(nameof(S.Info_TournamentType)).Format(context.TournamentApi.TournamentType?.ToString() ?? "Неопределен"));
 
-            var players = _api.RegisteredPlayers;
+            var players = context.TournamentApi.RegisteredPlayers;
 
             if (players.Length == 0)
                 infoBuilder.AppendLine(OfKey(nameof(S.Info_NobodyRegisteredMessage)));

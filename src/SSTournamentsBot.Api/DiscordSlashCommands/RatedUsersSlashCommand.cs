@@ -13,11 +13,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "rated-users";
         public override string DescriptionKey=> nameof(S.Commands_RatedUsers);
 
-        readonly IBotApi _botApi;
         readonly IDataService _dataService;
-        public RatedUsersSlashCommand(IBotApi botApi, IDataService dataService)
+
+        public RatedUsersSlashCommand(IDataService dataService)
         {
-            _botApi = botApi;
             _dataService = dataService;
         }
 
@@ -30,7 +29,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             for (int i = 0; i < users.Length; i++)
             {
                 var user = users[i];
-                builder.AppendLine($"{i + 1}. {user.Score} - **{await _botApi.GetUserName(context, user.DiscordId)}**");
+                builder.AppendLine($"{i + 1}. {user.Score} - **{await context.BotApi.GetUserName(context, user.DiscordId)}**");
             }
 
             if (builder.Length > 0)

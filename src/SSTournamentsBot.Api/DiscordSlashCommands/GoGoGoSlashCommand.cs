@@ -52,7 +52,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         private async Task CallForTournament(Context context)
         {
             _lastCallDate = GetMoscowTime();
-            await _botApi.SendMessage(context, "@everyone Призываю всех играть турниры!", GuildThread.TournamentChat);
+            await context.BotApi.SendMessage(context, "@everyone Призываю всех играть турниры!", GuildThread.TournamentChat);
         }
     }*/
 }

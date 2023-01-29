@@ -36,5 +36,10 @@ namespace SSTournamentsBot.Api.Tests.Virtuals
             Message = text;
             Thread = thread;
         }
+
+        public override string ToString()
+        {
+            return $"[{Thread}] {Message ?? FileName}";
+        }
     }
 }

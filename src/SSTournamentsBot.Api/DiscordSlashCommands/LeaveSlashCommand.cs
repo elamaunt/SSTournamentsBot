@@ -12,14 +12,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class LeaveSlashCommand : SlashCommandBase
     {
         readonly IDataService _dataService;
-        readonly ITournamentEventsHandler _eventsHandler;
-        readonly TournamentApi _api;
 
-        public LeaveSlashCommand(IDataService dataService, ITournamentEventsHandler tournamentEventsHandler, TournamentApi api)
+        public LeaveSlashCommand(IDataService dataService)
         {
             _dataService = dataService;
-            _eventsHandler = tournamentEventsHandler;
-            _api = api;
         }
 
         public override string Name => "leave";
@@ -35,14 +31,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            var result = await _api.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsLeft);
+            var result = await context.TournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsLeft);
 
             if (result.IsDone)
             {
                 await arg.RespondAsync(OfKey(nameof(S.Leave_Successfull)).Build(culture));
 
-                if (_api.IsTournamentStarted && _api.ActiveMatches.All(x => !x.Result.IsNotCompleted))
-                    await _eventsHandler.DoCompleteStage(context.Name);
+                if (context.TournamentApi.IsTournamentStarted && context.TournamentApi.ActiveMatches.All(x => !x.Result.IsNotCompleted))
+                    await context.EventsHandler.DoCompleteStage(context.Name);
                 return;
             }
 

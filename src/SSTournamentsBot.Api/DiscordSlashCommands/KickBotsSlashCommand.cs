@@ -13,21 +13,15 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "kick-bots";
         public override string DescriptionKey=> nameof(S.Commands_KickBots);
 
-        readonly TournamentApi _tournamentApi;
-        public KickBotsSlashCommand(TournamentApi tournamentApi)
-        {
-            _tournamentApi = tournamentApi;
-        }
-
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
-            var players = _tournamentApi.RegisteredPlayers;
+            var players = context.TournamentApi.RegisteredPlayers;
 
             for (int i = 0; i < players.Length; i++)
             {
                 var p = players[i];
                 if (p.IsBot)
-                    await _tournamentApi.TryLeaveUser(p.DiscordId, p.SteamId, TechnicalWinReason.OpponentsLeft);
+                    await context.TournamentApi.TryLeaveUser(p.DiscordId, p.SteamId, TechnicalWinReason.OpponentsLeft);
             }
 
             await arg.RespondAsync("Все боты покинули игру.");

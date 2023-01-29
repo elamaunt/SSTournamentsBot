@@ -17,13 +17,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "add-bots";
         public override string DescriptionKey => nameof(S.Commands_AddBots);
         
-        protected readonly TournamentApi _tournamentApi;
         private volatile int _botsCounter;
-
-        public AddBotsSlashCommand(TournamentApi tournamentApi)
-        {
-            _tournamentApi = tournamentApi;
-        }
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
@@ -35,7 +29,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             {
                 var race = RaceOrRandom.NewRace(GetRaceByIndex(new Random().Next(9)));
                 var botId = (ulong)Interlocked.Increment(ref _botsCounter);
-                await _tournamentApi.TryRegisterUser(new UserData()
+                await context.TournamentApi.TryRegisterUser(new UserData()
                 {
                     DiscordId = botId,
                     SteamId = botId,

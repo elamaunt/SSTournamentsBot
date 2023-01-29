@@ -13,11 +13,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "all-users";
         public override string DescriptionKey=> nameof(S.Commands_Users);
 
-        readonly IBotApi _botApi;
         readonly IDataService _dataService;
-        public AllUsersSlashCommand(IBotApi botApi, IDataService dataService)
+        public AllUsersSlashCommand(IDataService dataService)
         {
-            _botApi = botApi;
             _dataService = dataService;
         }
 
@@ -29,7 +27,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             foreach (var user in _dataService.EnumerateAllUsers())
             {
-                builder.AppendLine($"{i++}. {user.Score} | {user.Penalties} | {user.SteamId} | {user.DiscordId} | **{await _botApi.GetUserName(context, user.DiscordId)}**");
+                builder.AppendLine($"{i++}. {user.Score} | {user.Penalties} | {user.SteamId} | {user.DiscordId} | **{await context.BotApi.GetUserName(context, user.DiscordId)}**");
             }
 
             if (builder.Length > 0)

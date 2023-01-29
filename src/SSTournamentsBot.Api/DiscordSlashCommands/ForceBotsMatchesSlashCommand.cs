@@ -11,20 +11,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
     public class ForceBotsMatchesSlashCommand : SlashCommandBase
     {
-        readonly TournamentApi _api;
-
         public override string Name => "force-bots-matches";
         public override string DescriptionKey=> nameof(S.Commands_ForceBotMatches);
-
-        public ForceBotsMatchesSlashCommand(TournamentApi api)
-        {
-            _api = api;
-        }
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var random = new Random();
-            var matches = _api.ActiveMatches;
+            var matches = context.TournamentApi.ActiveMatches;
 
             foreach (var match in matches)
             {
@@ -32,14 +25,14 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 var p2 = match.Player2.Value.Item1;
                 if (random.Next(2) == 0 && p1.IsBot)
                 {
-                    await _api.TryLeaveUser(p1.DiscordId, p1.SteamId, TechnicalWinReason.OpponentsLeft);
+                    await context.TournamentApi.TryLeaveUser(p1.DiscordId, p1.SteamId, TechnicalWinReason.OpponentsLeft);
                 } else if (p2.IsBot)
                 {
-                    await _api.TryLeaveUser(p2.DiscordId, p2.SteamId, TechnicalWinReason.OpponentsLeft);
+                    await context.TournamentApi.TryLeaveUser(p2.DiscordId, p2.SteamId, TechnicalWinReason.OpponentsLeft);
                 }
                 else if (p1.IsBot)
                 {
-                    await _api.TryLeaveUser(p1.DiscordId, p1.SteamId, TechnicalWinReason.OpponentsLeft);
+                    await context.TournamentApi.TryLeaveUser(p1.DiscordId, p1.SteamId, TechnicalWinReason.OpponentsLeft);
                 }
             }
         }

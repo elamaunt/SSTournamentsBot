@@ -5,18 +5,18 @@ namespace SSTournamentsBot.Api.Services
 {
     public interface IEventsTimeline
     {
-        void AddPeriodicalEventOnSingleDayTime(Event ev, DateTime time);
-        void AddPeriodicalEventWithPeriod(Event ev, TimeSpan time);
-        void AddOneTimeEventAfterTime(Event ev, TimeSpan time);
-        void AddOneTimeEventOnDate(Event ev, DateTime date);
-        void RemoveAllEventsWithType(Event ev);
-        void RemoveAllEvents();
+        void AddPeriodicalEventOnSingleDayTime(string contextName, Event ev, DateTime time);
+        void AddPeriodicalEventWithPeriod(string contextName, Event ev, TimeSpan time);
+        void AddOneTimeEventAfterTime(string contextName, Event ev, TimeSpan time);
+        void AddOneTimeEventOnDate(string contextName, Event ev, DateTime date);
+        void RemoveAllEventsWithType(string contextName, Event ev);
+        void RemoveAllEvents(string contextName);
 
         Event[] GetEventsRaisedInPeriod(DateTime time, TimeSpan period, bool removeIfOneTime = false);
-        EventInfo GetNextEventInfo();
+        EventInfo GetNextEventInfoForContext(string contextName);
         EventInfo[] GetAllScheduledEvents();
-        void AddTimeToNextEventWithType(Event ev, TimeSpan time);
-        bool HasEventToday(Event ev);
+        void AddTimeToNextEventWithType(string contextName, Event ev, TimeSpan time);
+        bool HasEventToday(string contextName, Event ev);
         void RemoveEventInfo(EventInfo ev);
     }
 }

@@ -15,12 +15,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string DescriptionKey=> nameof(S.Commands_BanMaps);
 
         readonly IDataService _dataService;
-        readonly TournamentApi _tournamentApi;
 
-        public BanMapsSlashCommand(IDataService dataService, TournamentApi tournamentApi)
+        public BanMapsSlashCommand(IDataService dataService)
         {
             _dataService = dataService;
-            _tournamentApi = tournamentApi;
         }
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
@@ -45,13 +43,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            if (_tournamentApi.IsTournamentStarted)
+            if (context.TournamentApi.IsTournamentStarted)
             {
                 await Responce(OfKey(nameof(S.BanMaps_MapsUpdatedButForNextTournaments)).Build(culture));
             }
             else
             {
-                var result = await _tournamentApi.TryUpdatePlayer(userData);
+                var result = await context.TournamentApi.TryUpdatePlayer(userData);
 
                 if (result.IsCompleted || result.IsNoTournament || result.IsNotRegistered)
                 {

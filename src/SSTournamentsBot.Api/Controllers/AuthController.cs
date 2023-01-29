@@ -53,7 +53,6 @@ namespace SSTournamentsBot.Api.Controllers
 
             var html = Text.OfKey(nameof(S.Bot_AccountRegisteredSuccessfullyHtml)).Build(culture);
 
-            // TODO: get users locale
             await _botApi.SendMessageToUser(_contextService.GetMainContext(), Text.OfKey(nameof(S.Bot_AccountRegisteredSuccessfully)), result.Value.discordId);
 
             return new ContentResult

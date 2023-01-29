@@ -16,13 +16,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string DescriptionKey=> nameof(S.Commands_KickPlayer);
 
         readonly IDataService _dataService;
-        readonly ITournamentEventsHandler _eventsHandler;
-        readonly TournamentApi _tournamentApi;
-        public KickPlayerSlashCommand(IDataService dataService, ITournamentEventsHandler tournamentEventsHandler, TournamentApi tournamentApi)
+
+        public KickPlayerSlashCommand(IDataService dataService)
         {
             _dataService = dataService;
-            _eventsHandler = tournamentEventsHandler;
-            _tournamentApi = tournamentApi;
         }
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
@@ -37,21 +34,21 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 return;
             }
 
-            var result = await _tournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsKicked);
+            var result = await context.TournamentApi.TryLeaveUser(userData.DiscordId, userData.SteamId, TechnicalWinReason.OpponentsKicked);
 
             if (result.IsDone)
             {
                 await arg.RespondAsync(OfKey(nameof(S.KickPlayer_PlayerLeftTournament)).Format(user.Username).Build(culture));
 
-                if (_tournamentApi.IsTournamentStarted)
+                if (context.TournamentApi.IsTournamentStarted)
                 {
-                    if (_tournamentApi.ActiveMatches.All(x => !x.Result.IsNotCompleted))
-                        await _eventsHandler.DoCompleteStage(context.Name);
+                    if (context.TournamentApi.ActiveMatches.All(x => !x.Result.IsNotCompleted))
+                        await context.EventsHandler.DoCompleteStage(context.Name);
                 }
                 else
                 {
-                    if (_tournamentApi.IsCheckinStage && _tournamentApi.IsAllPlayersCheckIned)
-                        await _eventsHandler.DoStartCurrentTournament(context.Name);
+                    if (context.TournamentApi.IsCheckinStage && context.TournamentApi.IsAllPlayersCheckIned)
+                        await context.EventsHandler.DoStartCurrentTournament(context.Name);
                 }
                 return;
             }

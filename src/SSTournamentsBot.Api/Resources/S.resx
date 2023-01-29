@@ -376,7 +376,7 @@ Have fun playing!</value>
     <value>A winner is determined, but the tournament will not be counted, as it consists entirely of technical defeats. At least one game must be played.</value>
   </data>
   <data name="Events_ActivityStarted" xml:space="preserve">
-    <value>The AutoCup activity *{0} AutoCup {1}* begins!</value>
+    <value>The activity *{0} AutoCup {1}* begins!</value>
   </data>
   <data name="Events_ArchiveHeader" xml:space="preserve">
     <value>_**{0}**__ is safely finished!\nCongratulations to the player named __**{1}**__. We wish the rest of you good luck in the next events!</value>
@@ -457,7 +457,7 @@ Have fun playing!</value>
     <value>A winner has been determined!</value>
   </data>
   <data name="Event_NextStageStarted" xml:space="preserve">
-    <value>&gt;&gt;&gt; The next stage begins! Grid Generation...</value>
+    <value>&gt;&gt;&gt; The next stage begins! Generating brackets...</value>
   </data>
   <data name="ForceEvent_Done" xml:space="preserve">
     <value>&gt; The following event was forced.</value>

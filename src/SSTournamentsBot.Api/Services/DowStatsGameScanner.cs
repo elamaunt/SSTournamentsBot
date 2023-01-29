@@ -21,8 +21,6 @@ namespace SSTournamentsBot.Api.Services
         readonly ILogger<DowStatsGameScanner> _logger;
         private readonly IContextService _contextService;
         readonly HttpService _httpService;
-        readonly TournamentApi _api;
-        readonly IBotApi _botApi;
         readonly IEventsTimeline _timeline;
         readonly object _lock = new object();
         readonly ConcurrentDictionary<string, string> _submitedGames = new ConcurrentDictionary<string, string>();
@@ -36,9 +34,7 @@ namespace SSTournamentsBot.Api.Services
         public DowStatsGameScanner(
             ILogger<DowStatsGameScanner> logger, 
             IContextService contextService,
-            HttpService httpService, 
-            TournamentApi api,
-            IBotApi botApi,
+            HttpService httpService,
             IEventsTimeline timeline,
             IOptions<DowStatsGameScannerOptions> options)
         {
@@ -46,8 +42,6 @@ namespace SSTournamentsBot.Api.Services
             _logger = logger;
             _contextService = contextService;
             _httpService = httpService;
-            _api = api;
-            _botApi = botApi;
             _timeline = timeline;
         }
 
@@ -140,7 +134,7 @@ namespace SSTournamentsBot.Api.Services
                             if (_submitedGames.TryAdd(playersString, playersString))
                             {
 
-                                await _api.TrySubmitGame(info)
+                                await context.TournamentApi.TrySubmitGame(info)
                                     .ContinueWith(async submitTask =>
                                     {
                                         if (submitTask.IsFaulted)
@@ -156,7 +150,7 @@ namespace SSTournamentsBot.Api.Services
 
                                             if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
                                             {
-                                                await _botApi.SendMessage(context, Text.OfKey(nameof(S.Scanner_MatchAccepted)).Format(string.Join(", ", winnersSelection.Select(x => x.name)), string.Join(", ", losersSelection.Select(x => x.name)), game.gameLink), GuildThread.EventsTape | GuildThread.TournamentChat);
+                                                await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Scanner_MatchAccepted)).Format(string.Join(", ", winnersSelection.Select(x => x.name)), string.Join(", ", losersSelection.Select(x => x.name)), game.gameLink), GuildThread.EventsTape | GuildThread.TournamentChat);
                                                 await Log(context, $"The game is counted");
                                             }
                                             else
@@ -166,7 +160,7 @@ namespace SSTournamentsBot.Api.Services
 
                                             if (result.IsCompletedAndFinishedTheStage)
                                             {
-                                                _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(context.Name), TimeSpan.FromSeconds(10));
+                                                _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(context.Name), TimeSpan.FromSeconds(10));
                                             }
                                         }
                                     });
@@ -276,7 +270,7 @@ namespace SSTournamentsBot.Api.Services
         private Task Log(Context context, string message)
         {
             _logger.LogInformation(message);
-            return _botApi.Log(context, message);
+            return context.BotApi.Log(context, message);
         }
 
         public class DowStatsGameDTO

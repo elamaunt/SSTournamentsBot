@@ -20,15 +20,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         readonly IDataService _dataService;
         readonly IStatsApi _statsApi;
-        readonly TournamentApi _tournamentApi;
         readonly IEventsTimeline _timeLine;
         readonly TournamentEventsOptions _options;
 
-        public PlaySlashCommand(IDataService dataService, IStatsApi statsApi, TournamentApi tournamentApi, IEventsTimeline timeline, IOptions<TournamentEventsOptions> options)
+        public PlaySlashCommand(IDataService dataService, IStatsApi statsApi,IEventsTimeline timeline, IOptions<TournamentEventsOptions> options)
         {
             _dataService = dataService;
             _statsApi = statsApi;
-            _tournamentApi = tournamentApi;
             _timeLine = timeline;
             _options = options.Value;
         }
@@ -101,7 +99,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 }
             }
 
-            var result = await _tournamentApi.TryRegisterUser(userData, user.Username);
+            var result = await context.TournamentApi.TryRegisterUser(userData, user.Username);
 
             switch (result)
             {
@@ -116,10 +114,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     {
                         await Responce(OfKey(nameof(S.Play_Successfull)).Format(userData.SteamId.BuildStatsUrl(), userData.Race).Build(culture));
 
-                        if (_tournamentApi.RegisteredPlayers.Length >= _options.MinimumPlayersToStartCheckin)
+                        if (context.TournamentApi.RegisteredPlayers.Length >= _options.MinimumPlayersToStartCheckin)
                         {
-                            _timeLine.RemoveAllEventsWithType(Event.NewStartCheckIn(context.Name));
-                            _timeLine.AddOneTimeEventAfterTime(Event.NewStartCheckIn(context.Name), TimeSpan.FromSeconds(10));
+                            _timeLine.RemoveAllEventsWithType(context.Name, Event.NewStartCheckIn(context.Name));
+                            _timeLine.AddOneTimeEventAfterTime(context.Name, Event.NewStartCheckIn(context.Name), TimeSpan.FromSeconds(10));
                         }
                     }
                     else
@@ -131,11 +129,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 case Domain.RegistrationResult.AlreadyRegistered:
                     if (raceOption != null)
                     {
-                        var updateResult = await _tournamentApi.TryUpdatePlayer(userData);
+                        var updateResult = await context.TournamentApi.TryUpdatePlayer(userData);
 
                         if (!updateResult.IsCompleted)
                         {
-                            var player = _tournamentApi.RegisteredPlayers.First(x => x.DiscordId == arg.User.Id);
+                            var player = context.TournamentApi.RegisteredPlayers.First(x => x.DiscordId == arg.User.Id);
 
                             await Responce(OfKey(nameof(S.Play_AlreadyRegisteredButNoChanges)).Format(userData.SteamId.BuildStatsUrl(), player.Race).Build(culture));
                             return;

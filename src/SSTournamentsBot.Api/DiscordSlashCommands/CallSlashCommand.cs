@@ -15,15 +15,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     {
         readonly DiscordSocketClient _client;
         readonly IDataService _dataService;
-        readonly IBotApi _botApi;
-        readonly TournamentApi _api;
 
-        public CallSlashCommand(DiscordSocketClient client, IDataService dataService, IBotApi botApi, TournamentApi api)
+        public CallSlashCommand(DiscordSocketClient client, IDataService dataService)
         {
             _client = client;
             _dataService = dataService;
-            _botApi = botApi;
-            _api = api;
         }
 
         public override string Name => "call";
@@ -35,7 +31,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             try
             {
-                var match = await _api.FindActiveMatchWith(user.Id);
+                var match = await context.TournamentApi.FindActiveMatchWith(user.Id);
 
                 if (match == null)
                 {
@@ -61,10 +57,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     {
                         var opponentData = _dataService.FindUserByDiscordId(opponent.DiscordId);
                         await arg.RespondAsync(OfKey(nameof(S.Call_ImposibleToComply)).Format(opponent.Name).Build(culture));
-                        if ((await _api.TryLeaveUser(opponentData.DiscordId, opponentData.SteamId, TechnicalWinReason.OpponentsKicked)).IsDone)
+                        if ((await context.TournamentApi.TryLeaveUser(opponentData.DiscordId, opponentData.SteamId, TechnicalWinReason.OpponentsKicked)).IsDone)
                         {
-                            var mention = await _botApi.GetMention(context, opponent.DiscordId);
-                            await _botApi.SendMessage(context, OfKey(S.Call_UserKickedFromTournament).Format(mention), GuildThread.EventsTape | GuildThread.TournamentChat);
+                            var mention = await context.BotApi.GetMention(context, opponent.DiscordId);
+                            await context.BotApi.SendMessage(context, OfKey(S.Call_UserKickedFromTournament).Format(mention), GuildThread.EventsTape | GuildThread.TournamentChat);
                         }
                         return;
                     }

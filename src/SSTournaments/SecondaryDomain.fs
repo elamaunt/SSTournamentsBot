@@ -122,6 +122,7 @@ module SecondaryDomain =
         | CompleteStage of string
 
     type EventInfo = {
+        ContextName: string
         Event: Event
         StartDate: DateTime
         Period: TimeSpan option

@@ -13,22 +13,18 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "drop-tournament";
         public override string DescriptionKey=> nameof(S.Commands_Drop);
 
-        readonly TournamentApi _tournamentApi;
         readonly IEventsTimeline _timeline;
-        readonly ITournamentEventsHandler _handler;
 
-        public DropTournamentSlashCommand(TournamentApi tournamentApi, IEventsTimeline timeline, ITournamentEventsHandler handler)
+        public DropTournamentSlashCommand(IEventsTimeline timeline)
         {
-            _tournamentApi = tournamentApi;
             _timeline = timeline;
-            _handler = handler;
         }
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
-            _timeline.RemoveAllEvents();
-            await _tournamentApi.DropTournament();
-            await _handler.DoCompleteVoting(context.Name);
+            _timeline.RemoveAllEvents(context.Name);
+            await context.TournamentApi.DropTournament();
+            await context.EventsHandler.DoCompleteVoting(context.Name);
             await arg.RespondAsync("Сброс состояния выполнен.");
         }
 

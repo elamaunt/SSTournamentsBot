@@ -22,34 +22,28 @@ namespace SSTournamentsBot.Api.Services
         readonly ILogger<TournamentEventsHandler> _logger;
         readonly IContextService _contextService;
         readonly IDataService _dataService;
-        readonly IBotApi _botApi;
         readonly IGameScanner _scanner;
         readonly IEventsTimeline _timeline;
         readonly TournamentEventsOptions _options;
-        readonly TournamentApi _tournamentApi;
 
         IButtonsController _activeVotingButtons;
         
-        ulong[] Mentions => _tournamentApi.ActivePlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
-        ulong[] AllPlayersMentions => _tournamentApi.RegisteredPlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
+        ulong[] Mentions(Context context) => context.TournamentApi.ActivePlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
+        ulong[] AllPlayersMentions(Context context) => context.TournamentApi.RegisteredPlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
 
         public TournamentEventsHandler(ILogger<TournamentEventsHandler> logger,
             IContextService contextService,
             IDataService dataService,
-            IBotApi botApi,
             IGameScanner scanner,
             IEventsTimeline timeline,
-            TournamentApi tournamentApi,
             IOptions<TournamentEventsOptions> options)
         {
             _logger = logger;
             _contextService = contextService;
             _dataService = dataService;
-            _botApi = botApi;
             _scanner = scanner;
             _timeline = timeline;
             _options = options.Value;
-            _tournamentApi = tournamentApi;
         }
 
         private async Task SetActiveVotingButtons(Text resultMessageForPrevious, IButtonsController buttons = null)
@@ -68,9 +62,9 @@ namespace SSTournamentsBot.Api.Services
             try
             {
                 await Log(context, "An attempt to complete the stage..");
-                _timeline.RemoveAllEventsWithType(Event.NewCompleteStage(contextName));
+                _timeline.RemoveAllEventsWithType(context.Name, Event.NewCompleteStage(contextName));
 
-                var result = await _tournamentApi.TryCompleteCurrentStage();
+                var result = await context.TournamentApi.TryCompleteCurrentStage();
 
                 if (result.IsNoTournament)
                 {
@@ -86,23 +80,23 @@ namespace SSTournamentsBot.Api.Services
 
                 if (result.IsNotAllMatchesFinished)
                 {
-                    var matches = _tournamentApi.ActiveMatches;
+                    var matches = context.TournamentApi.ActiveMatches;
 
                     var countForNotCompleted = matches.Count(x => x.Result.IsNotCompleted);
 
-                    if (matches.Length == 1 && !_tournamentApi.SingleMatchTimeAlreadyExtended)
+                    if (matches.Length == 1 && !context.TournamentApi.SingleMatchTimeAlreadyExtended)
                     {
-                        _tournamentApi.SingleMatchTimeAlreadyExtended = true;
-                        await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_SingleMatchNotFinished)), GuildThread.EventsTape | GuildThread.TournamentChat);
-                        _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.AdditionalTimeForStageMinutes));
+                        context.TournamentApi.SingleMatchTimeAlreadyExtended = true;
+                        await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_SingleMatchNotFinished)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                        _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.AdditionalTimeForStageMinutes));
                         return;
                     }
 
-                    if (countForNotCompleted >= matches.Length / 2 && !_tournamentApi.TimeAlreadyExtended)
+                    if (countForNotCompleted >= matches.Length / 2 && !context.TournamentApi.TimeAlreadyExtended)
                     {
-                        _tournamentApi.TimeAlreadyExtended = true;
-                        await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_StageCompletionDelayed)), GuildThread.EventsTape | GuildThread.TournamentChat);
-                        _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.AdditionalTimeForStageMinutes));
+                        context.TournamentApi.TimeAlreadyExtended = true;
+                        await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_StageCompletionDelayed)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                        _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.AdditionalTimeForStageMinutes));
                         return;
                     }
 
@@ -124,17 +118,17 @@ namespace SSTournamentsBot.Api.Services
                             {
                                 Task.Run(async () =>
                                 {
-                                    var sameMatch = _tournamentApi.ActiveMatches.FirstOrDefault(X => X.Id == activeMatch.Id);
+                                    var sameMatch = context.TournamentApi.ActiveMatches.FirstOrDefault(X => X.Id == activeMatch.Id);
 
                                     if (sameMatch == null || !sameMatch.Result.IsNotCompleted)
                                     {
-                                        await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_VotingCancelledCauseMatchFinished)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                                        await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_VotingCancelledCauseMatchFinished)), GuildThread.EventsTape | GuildThread.TournamentChat);
                                         return;
                                     }
 
                                     if (x.IsNone())
                                     {
-                                        await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_VotingResultNotDefined)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                                        await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_VotingResultNotDefined)), GuildThread.EventsTape | GuildThread.TournamentChat);
                                         await Task.Delay(2000);
                                         x = new FSharpOption<int>(new Random().NextDouble() >= 0.5 ? 0 : 1);
                                     }
@@ -142,20 +136,20 @@ namespace SSTournamentsBot.Api.Services
                                     switch (x.Value)
                                     {
                                         case 0:
-                                            await _tournamentApi.TryLeaveUser(p1.DiscordId, p1.SteamId, TechnicalWinReason.Voting);
-                                            await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_TechLoseToPlayer)).Format(p1.Name), GuildThread.EventsTape | GuildThread.TournamentChat, p1.DiscordId);
+                                            await context.TournamentApi.TryLeaveUser(p1.DiscordId, p1.SteamId, TechnicalWinReason.Voting);
+                                            await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_TechLoseToPlayer)).Format(p1.Name), GuildThread.EventsTape | GuildThread.TournamentChat, p1.DiscordId);
                                             break;
                                         case 1:
-                                            await _tournamentApi.TryLeaveUser(p2.DiscordId, p2.SteamId, TechnicalWinReason.Voting);
-                                            await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_TechLoseToPlayer)).Format(p2.Name), GuildThread.EventsTape | GuildThread.TournamentChat, p2.DiscordId);
+                                            await context.TournamentApi.TryLeaveUser(p2.DiscordId, p2.SteamId, TechnicalWinReason.Voting);
+                                            await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_TechLoseToPlayer)).Format(p2.Name), GuildThread.EventsTape | GuildThread.TournamentChat, p2.DiscordId);
                                             break;
                                         default:
                                             break;
                                     }
 
-                                    if (_tournamentApi.IsAllActiveMatchesCompleted)
+                                    if (context.TournamentApi.IsAllActiveMatchesCompleted)
                                     {
-                                        _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(contextName), TimeSpan.FromSeconds(10));
+                                        _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(contextName), TimeSpan.FromSeconds(10));
                                     }
                                 });
 
@@ -165,20 +159,20 @@ namespace SSTournamentsBot.Api.Services
                         voting = AddVoteOption(voting, p1.Name, BotButtonStyle.Danger);
                         voting = AddVoteOption(voting, p2.Name, BotButtonStyle.Danger);
 
-                        var startVotingResult = await _tournamentApi.TryStartVoting(voting);
+                        var startVotingResult = await context.TournamentApi.TryStartVoting(voting);
 
                         if (startVotingResult.IsCompleted)
                         {
-                            await SetActiveVotingButtons(Text.OfKey(nameof(S.Events_VotingHasBeenEnded)), await _botApi.SendVotingButtons(context, votingText, voting.Options, GuildThread.VotingsTape | GuildThread.TournamentChat, Mentions));
-                            _timeline.AddOneTimeEventAfterTime(Event.NewCompleteVoting(contextName), TimeSpan.FromSeconds(_options.VotingTimeoutSeconds));
+                            await SetActiveVotingButtons(Text.OfKey(nameof(S.Events_VotingHasBeenEnded)), await context.BotApi.SendVotingButtons(context, votingText, voting.Options, GuildThread.VotingsTape | GuildThread.TournamentChat, Mentions(context)));
+                            _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteVoting(contextName), TimeSpan.FromSeconds(_options.VotingTimeoutSeconds));
                         }
 
-                        _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(contextName), TimeSpan.FromSeconds(_options.VotingTimeoutSeconds + 10));
+                        _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(contextName), TimeSpan.FromSeconds(_options.VotingTimeoutSeconds + 10));
                         return;
                     }
                     else
                     {
-                        _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(contextName), TimeSpan.FromSeconds(10));
+                        _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(contextName), TimeSpan.FromSeconds(10));
                         return;
                     }
                 }
@@ -187,15 +181,15 @@ namespace SSTournamentsBot.Api.Services
                 {
                     await Log(context, "The stage has been completed");
 
-                    if (_tournamentApi.PossibleNextStageMatches == 0)
+                    if (context.TournamentApi.PossibleNextStageMatches == 0)
                     {
                         await DoStartNextStage(contextName);
                     }
                     else
                     {
-                        await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_StageCompleted)).Format(_options.StageBreakTimeoutMinutes), GuildThread.EventsTape | GuildThread.TournamentChat);
+                        await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_StageCompleted)).Format(_options.StageBreakTimeoutMinutes), GuildThread.EventsTape | GuildThread.TournamentChat);
 
-                        _timeline.AddOneTimeEventAfterTime(Event.NewStartNextStage(contextName), TimeSpan.FromMinutes(_options.StageBreakTimeoutMinutes));
+                        _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewStartNextStage(contextName), TimeSpan.FromMinutes(_options.StageBreakTimeoutMinutes));
                     }
                     return;
                 }
@@ -216,12 +210,12 @@ namespace SSTournamentsBot.Api.Services
             {
                 await Log(context, "An attempt to start checkin stage..");
 
-                var result = await _tournamentApi.TryStartTheCheckIn();
+                var result = await context.TournamentApi.TryStartTheCheckIn();
 
                 if (result.IsNoTournament)
                 {
                     await Log(context, "No a planned tournament");
-                    await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_NoTournamentsToday)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_NoTournamentsToday)), GuildThread.EventsTape | GuildThread.TournamentChat);
                     return;
                 }
 
@@ -234,8 +228,8 @@ namespace SSTournamentsBot.Api.Services
                 if (result.IsNotEnoughPlayers)
                 {
                     await Log(context, "Not enough players.");
-                    await _tournamentApi.DropTournament();
-                    await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_TournamentCancelledNoPlayers)).Format(_options.MinimumPlayersToStartCheckin), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                    await context.TournamentApi.DropTournament();
+                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_TournamentCancelledNoPlayers)).Format(_options.MinimumPlayersToStartCheckin), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions(context));
                     return;
                 }
 
@@ -243,10 +237,10 @@ namespace SSTournamentsBot.Api.Services
                 {
                     await Log(context, "Checkin stage starting..");
 
-                    await _botApi.MentionWaitingRole(context, GuildThread.EventsTape | GuildThread.TournamentChat);
-                    await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityCheckinStarted)).Format(_tournamentApi.TournamentType, _tournamentApi.Id, _options.CheckInTimeoutMinutes), GuildThread.EventsTape | GuildThread.TournamentChat, AllPlayersMentions);
+                    await context.BotApi.MentionWaitingRole(context, GuildThread.EventsTape | GuildThread.TournamentChat);
+                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityCheckinStarted)).Format(context.TournamentApi.TournamentType, context.TournamentApi.Id, _options.CheckInTimeoutMinutes), GuildThread.EventsTape | GuildThread.TournamentChat, AllPlayersMentions(context));
 
-                    _timeline.AddOneTimeEventAfterTime(Event.NewStartCurrentTournament(contextName), TimeSpan.FromMinutes(_options.CheckInTimeoutMinutes));
+                    _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewStartCurrentTournament(contextName), TimeSpan.FromMinutes(_options.CheckInTimeoutMinutes));
                     return;
                 }
 
@@ -265,9 +259,9 @@ namespace SSTournamentsBot.Api.Services
             try
             {
                 _logger.LogInformation("An attempt to start the tournament..");
-                _timeline.RemoveAllEventsWithType(Event.NewStartCurrentTournament(contextName));
+                _timeline.RemoveAllEventsWithType(context.Name, Event.NewStartCurrentTournament(contextName));
 
-                var result = await _tournamentApi.TryStartTheTournament();
+                var result = await context.TournamentApi.TryStartTheTournament();
 
                 if (result.IsNoTournament)
                 {
@@ -285,26 +279,26 @@ namespace SSTournamentsBot.Api.Services
                 {
                     await Log(context, "Starting the tournament..");
 
-                    await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityStarted)).Format(_tournamentApi.TournamentType, _tournamentApi.Id), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
-                    await _botApi.SendFile(context, await _tournamentApi.RenderTournamentImage(), $"tournament_{_tournamentApi.Id}.png", Text.OfKey(nameof(S.Events_Bracket)), GuildThread.EventsTape | GuildThread.TournamentChat);
-                    _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.StageTimeoutMinutes));
+                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityStarted)).Format(context.TournamentApi.TournamentType, context.TournamentApi.Id), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions(context));
+                    await context.BotApi.SendFile(context, await context.TournamentApi.RenderTournamentImage(), $"tournament_{context.TournamentApi.Id}.png", Text.OfKey(nameof(S.Events_Bracket)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                    _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.StageTimeoutMinutes));
                     _scanner.GameTypeFilter = GameType.Type1v1;
                     _scanner.Active = true;
 
                     await PrintMatches(context);
 
                     Func<CultureInfo, object> arg = (CultureInfo culture) => TimeSpan.FromMinutes(_options.StageTimeoutMinutes).PrettyPrint(culture?.Name == "ru");
-                    await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_FirstStageStarted)).Format(arg), GuildThread.EventsTape | GuildThread.TournamentChat);
+                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_FirstStageStarted)).Format(arg), GuildThread.EventsTape | GuildThread.TournamentChat);
 
                     return;
                 }
 
                 if (result.IsNotEnoughPlayers)
                 {
-                    var players = _tournamentApi.RegisteredPlayers;
+                    var players = context.TournamentApi.RegisteredPlayers;
                     await Log(context, "Not enough players");
-                    await _tournamentApi.DropTournament();
-                    await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_UnableToStartNoPlayers)), GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
+                    await context.TournamentApi.DropTournament();
+                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_UnableToStartNoPlayers)), GuildThread.EventsTape | GuildThread.TournamentChat, players.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray());
                     return;
                 }
 
@@ -319,7 +313,7 @@ namespace SSTournamentsBot.Api.Services
         private async Task PrintMatches(Context context, bool remindRules = true)
         {
             var text = new CompoundText();
-            var matches = _tournamentApi.ActiveMatches;
+            var matches = context.TournamentApi.ActiveMatches;
 
             var newLine = Text.OfValue("\n");
 
@@ -333,8 +327,8 @@ namespace SSTournamentsBot.Api.Services
                 var p1 = m.Player1.Value;
                 var p2 = m.Player2.Value;
 
-                var p1Mention = p1.Item1.IsBot ? p1.Item1.Name : await _botApi.GetMention(context, p1.Item1.DiscordId);
-                var p2Mention = p2.Item1.IsBot ? p2.Item1.Name : await _botApi.GetMention(context, p2.Item1.DiscordId);
+                var p1Mention = p1.Item1.IsBot ? p1.Item1.Name : await context.BotApi.GetMention(context, p1.Item1.DiscordId);
+                var p2Mention = p2.Item1.IsBot ? p2.Item1.Name : await context.BotApi.GetMention(context, p2.Item1.DiscordId);
 
                 text.AppendLine(Text.OfValue($"{m.Id + 1}. {p1Mention} {p2Mention} | {m.Map}"));
                 text.AppendLine(Text.OfValue($"**{p1.Item1.Name}** ({p1.Item2})  VS  **{p2.Item1.Name}** ({p2.Item2})"));
@@ -347,16 +341,16 @@ namespace SSTournamentsBot.Api.Services
                 text.AppendLine(newLine);
             }
 
-            await _botApi.SendMessage(context, text, GuildThread.EventsTape | GuildThread.TournamentChat);
+            await context.BotApi.SendMessage(context, text, GuildThread.EventsTape | GuildThread.TournamentChat);
 
-            var mentions = Mentions;
+            var mentions = Mentions(context);
             var hostingMentions = mentions.Where(x =>
             {
                 return matches.Any(m => m.Player1.Value.Item1.DiscordId == x);
             }).ToArray();
 
-            await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_Hosts)), GuildThread.EventsTape | GuildThread.TournamentChat);
-            await _botApi.Mention(context, GuildThread.EventsTape | GuildThread.TournamentChat, hostingMentions);
+            await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_Hosts)), GuildThread.EventsTape | GuildThread.TournamentChat);
+            await context.BotApi.Mention(context, GuildThread.EventsTape | GuildThread.TournamentChat, hostingMentions);
 
             var relaxingMentions = mentions.Where(x =>
             {
@@ -365,8 +359,8 @@ namespace SSTournamentsBot.Api.Services
 
             if (relaxingMentions.Length > 0)
             {
-                await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_Relaxing)), GuildThread.EventsTape | GuildThread.TournamentChat);
-                await _botApi.Mention(context, GuildThread.EventsTape | GuildThread.TournamentChat, relaxingMentions);
+                await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_Relaxing)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                await context.BotApi.Mention(context, GuildThread.EventsTape | GuildThread.TournamentChat, relaxingMentions);
             }
         }
 
@@ -378,10 +372,10 @@ namespace SSTournamentsBot.Api.Services
             {
                 await Log(context, "An attempt to start the next stage..");
 
-                var result = await _tournamentApi.TryStartNextStage();
+                var result = await context.TournamentApi.TryStartNextStage();
 
-                while (result.IsDone && (await _tournamentApi.TryCompleteCurrentStage()) == CompleteStageResult.Completed)
-                    result = await _tournamentApi.TryStartNextStage();
+                while (result.IsDone && (await context.TournamentApi.TryCompleteCurrentStage()) == CompleteStageResult.Completed)
+                    result = await context.TournamentApi.TryStartNextStage();
 
                 if (result.IsNoTournament)
                 {
@@ -401,29 +395,29 @@ namespace SSTournamentsBot.Api.Services
 
                     await Log(context, "The stage is terminal");
 
-                    var tournamentHeader = _tournamentApi.Header;
+                    var tournamentHeader = context.TournamentApi.Header;
 
-                    if (!_tournamentApi.PlayedMatches.Any(x => x.Result.IsWinner))
+                    if (!context.TournamentApi.PlayedMatches.Any(x => x.Result.IsWinner))
                     {
-                        await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityNotCounted)), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
+                        await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityNotCounted)), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions(context));
                         
-                        await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_FinishedWithNoResults)).Format(tournamentHeader), GuildThread.EventsTape | GuildThread.TournamentChat);
-                        await _tournamentApi.DropTournament();
+                        await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_FinishedWithNoResults)).Format(tournamentHeader), GuildThread.EventsTape | GuildThread.TournamentChat);
+                        await context.TournamentApi.DropTournament();
                         _dataService.IncrementTournamentId();
                         await Log(context, "The tournament is finished without results");
                         return;
                     }
 
-                    await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_WeGotWinner)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_WeGotWinner)), GuildThread.EventsTape | GuildThread.TournamentChat);
 
-                    var tournamentBundle = await _tournamentApi.BuildAllData();
-                    var date = _tournamentApi.StartDate.Value;
-                    await _botApi.SendFile(context, tournamentBundle.Image, $"tournament_{tournamentBundle.Tournament.Id}_completed.png", Text.OfKey(nameof(S.Events_FullBracket)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                    var tournamentBundle = await context.TournamentApi.BuildAllData();
+                    var date = context.TournamentApi.StartDate.Value;
+                    await context.BotApi.SendFile(context, tournamentBundle.Image, $"tournament_{tournamentBundle.Tournament.Id}_completed.png", Text.OfKey(nameof(S.Events_FullBracket)), GuildThread.EventsTape | GuildThread.TournamentChat);
                     await UploadTournamentToHistory(context, tournamentBundle);
                     await UpdateLeaderboardAndUploadChangesToHistory(context, tournamentBundle);
 
-                    await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityCompleted)).Format(tournamentHeader), GuildThread.EventsTape | GuildThread.TournamentChat);
-                    await _tournamentApi.DropTournament();
+                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityCompleted)).Format(tournamentHeader), GuildThread.EventsTape | GuildThread.TournamentChat);
+                    await context.TournamentApi.DropTournament();
                     await Log(context, "The tournament is finished normally");
                     return;
                 }
@@ -431,17 +425,17 @@ namespace SSTournamentsBot.Api.Services
                 if (result.IsDone)
                 {
                     await Log(context, "The stage has been started..");
-                    await _botApi.SendMessage(context, Text.OfKey(nameof(S.Event_NextStageStarted)), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions);
-                    await _botApi.SendFile(context, await _tournamentApi.RenderTournamentImage(), $"tournament_{_tournamentApi.Id}.png", Text.OfKey(nameof(S.Events_Bracket)), GuildThread.EventsTape | GuildThread.TournamentChat);
+                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Event_NextStageStarted)), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions(context));
+                    await context.BotApi.SendFile(context, await context.TournamentApi.RenderTournamentImage(), $"tournament_{context.TournamentApi.Id}.png", Text.OfKey(nameof(S.Events_Bracket)), GuildThread.EventsTape | GuildThread.TournamentChat);
 
-                    _timeline.AddOneTimeEventAfterTime(Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.StageTimeoutMinutes));
+                    _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.StageTimeoutMinutes));
                     _scanner.GameTypeFilter = GameType.Type1v1;
                     _scanner.Active = true;
 
                     await PrintMatches(context, false);
 
                     Func<CultureInfo, object> arg = (CultureInfo culture) => TimeSpan.FromMinutes(_options.StageTimeoutMinutes).PrettyPrint(culture?.Name == "ru");
-                    await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_StageTimeInfo)).Format(arg), GuildThread.EventsTape | GuildThread.TournamentChat);
+                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_StageTimeInfo)).Format(arg), GuildThread.EventsTape | GuildThread.TournamentChat);
                     return;
                 }
 
@@ -459,11 +453,11 @@ namespace SSTournamentsBot.Api.Services
 
             try
             {
-                _timeline.RemoveAllEventsWithType(Event.NewCompleteVoting(contextName));
+                _timeline.RemoveAllEventsWithType(context.Name, Event.NewCompleteVoting(contextName));
                 await SetActiveVotingButtons(Text.OfKey(nameof(S.Events_VotingHasBeenEnded)));
                 await Log(context, "An attempt to complete the voting..");
 
-                var result = await _tournamentApi.TryCompleteVoting();
+                var result = await context.TournamentApi.TryCompleteVoting();
 
                 if (result.IsCompleted)
                 {
@@ -553,10 +547,10 @@ namespace SSTournamentsBot.Api.Services
             }
 
             var (printedChanges, mentions) = PrintChangesAndUpdateUsersInDataService(context, modifiedUsers);
-            await ServiceHelpers.RefreshLeaders(context, _botApi, _dataService);
+            await ServiceHelpers.RefreshLeaders(context, _dataService);
 
             if (printedChanges != null && mentions != null)
-                await _botApi.SendMessage(context, Text.OfValue(printedChanges), GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History, mentions);
+                await context.BotApi.SendMessage(context, Text.OfValue(printedChanges), GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History, Mentions(context));
         }
 
         private (string, ulong[]) PrintChangesAndUpdateUsersInDataService(Context context, Dictionary<ulong, (UserData Data, string Name, int AddedScore, int Penalties)> modifiedUsers)
@@ -624,8 +618,8 @@ namespace SSTournamentsBot.Api.Services
             _dataService.StoreTournamentAndIncrementTournamentId(data);
 
             var tournamentHeader = $"{bundle.Tournament.Type} AutoCup {bundle.Tournament.Id} | {bundle.Tournament.StartDate.Value.PrettyShortDatePrint()}";
-            await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_ArchiveHeader)).Format(tournamentHeader, bundle.Winner.Value.Name), GuildThread.History, AllPlayersMentions);
-            await _botApi.SendFile(context, bundle.Image, $"tournament_{bundle.Tournament.Id}_completed.png", Text.OfKey(nameof(S.Events_Bracket)), GuildThread.History);
+            await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_ArchiveHeader)).Format(tournamentHeader, bundle.Winner.Value.Name), GuildThread.History, AllPlayersMentions(context));
+            await context.BotApi.SendFile(context, bundle.Image, $"tournament_{bundle.Tournament.Id}_completed.png", Text.OfKey(nameof(S.Events_Bracket)), GuildThread.History);
 
             var text = new CompoundText();
             var newLine = Text.OfValue("\n");
@@ -650,12 +644,12 @@ namespace SSTournamentsBot.Api.Services
             }
 
             text.AppendLine(newLine);
-            await _botApi.SendMessage(context, text, GuildThread.History);
+            await context.BotApi.SendMessage(context, text, GuildThread.History);
         }
 
         private async Task PrintTimeAndNextEvent(Context context)
         {
-            var nextEvent = _timeline.GetNextEventInfo();
+            var nextEvent = _timeline.GetNextEventInfoForContext(context.Name);
 
             if (nextEvent != null)
             {
@@ -663,7 +657,7 @@ namespace SSTournamentsBot.Api.Services
 
                 Func<CultureInfo, object> arg1 = (CultureInfo culture) => e.Event.PrettyPrint(culture?.Name == "ru");
                 Func<CultureInfo, object> arg2 = (CultureInfo culture) => GetTimeBeforeEvent(e).PrettyPrint(culture?.Name == "ru");
-                await _botApi.SendMessage(context, Text.OfKey(nameof(S.Events_NextEvent)).Format(GetMoscowTime().PrettyShortTimePrint(), arg1, arg2), GuildThread.TournamentChat | GuildThread.EventsTape);
+                await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_NextEvent)).Format(GetMoscowTime().PrettyShortTimePrint(), arg1, arg2), GuildThread.TournamentChat | GuildThread.EventsTape);
             }
         }
 
@@ -675,7 +669,7 @@ namespace SSTournamentsBot.Api.Services
         private Task Log(Context context, string message)
         {
             _logger.LogInformation(message);
-            return _botApi.Log(context, message);
+            return context.BotApi.Log(context, message);
         }
     }
 }

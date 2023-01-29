@@ -11,12 +11,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class ForceEventSlashCommand : SlashCommandBase
     {
         readonly IEventsTimeline _timeline;
-        readonly ITournamentEventsHandler _handler;
 
-        public ForceEventSlashCommand(IEventsTimeline timeline, ITournamentEventsHandler handler)
+        public ForceEventSlashCommand(IEventsTimeline timeline)
         {
             _timeline = timeline;
-            _handler = handler;
         }
 
         public override string Name => "force-event";
@@ -25,13 +23,13 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
-            var nextEvent = _timeline.GetNextEventInfo();
+            var nextEvent = _timeline.GetNextEventInfoForContext(context.Name);
 
             if (nextEvent != null)
             {
                 _timeline.RemoveEventInfo(nextEvent);
                 await arg.RespondAsync(OfKey(nameof(S.ForceEvent_Done)).Build(culture));
-                await SwitchEvent(nextEvent.Event, _handler);
+                await SwitchEvent(nextEvent.Event, context.EventsHandler);
             }
             else
             {

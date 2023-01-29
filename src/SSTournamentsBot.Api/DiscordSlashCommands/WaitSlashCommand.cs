@@ -13,12 +13,6 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override string Name => "wait";
         public override string DescriptionKey=> nameof(S.Commands_Wait);
 
-        readonly IBotApi _botApi;
-        public WaitSlashCommand(IBotApi botApi)
-        {
-            _botApi = botApi;
-        }
-
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var valueOption = arg.Data.Options.FirstOrDefault(x => x.Name == "value");
@@ -28,9 +22,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             bool enabled;
 
             if (valueOption != null)
-                enabled = await _botApi.ToggleWaitingRole(context, arg.User.Id, (bool)valueOption.Value);
+                enabled = await context.BotApi.ToggleWaitingRole(context, arg.User.Id, (bool)valueOption.Value);
             else
-                enabled = await _botApi.ToggleWaitingRole(context, arg.User.Id, null);
+                enabled = await context.BotApi.ToggleWaitingRole(context, arg.User.Id, null);
 
             if (enabled)
                 await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(S.Wait_Enabled).Build(culture));

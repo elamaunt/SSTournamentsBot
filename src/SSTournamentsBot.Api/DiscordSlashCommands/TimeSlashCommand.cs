@@ -27,12 +27,11 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var isRussian = culture.Name == "ru";
-            var nextEvent = _timeline.GetNextEventInfo();
+            var nextEvent = _timeline.GetNextEventInfoForContext(context.Name);
 
             var text = new CompoundText();
 
             text.AppendLine(OfKey(S.Time_Time).Format(GetUnixTimeStamp(), GetMoscowTime().PrettyShortTimePrint()));
-
 
             if (nextEvent != null)
             {
