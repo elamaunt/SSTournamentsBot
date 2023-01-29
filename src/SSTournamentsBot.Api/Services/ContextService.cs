@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SSTournaments.SecondaryDomain;
@@ -14,6 +15,8 @@ namespace SSTournamentsBot.Api.Services
         readonly ConcurrentDictionary<ulong, (string, Context)> _contextsByChannels = new ConcurrentDictionary<ulong, (string, Context)>();
         readonly IServiceProvider _serviceProvider;
         readonly DiscordBotOptions _options;
+
+        Context _mainContext;
 
         public ContextService(IServiceProvider serviceProvider, IOptions<DiscordBotOptions> options)
         {
@@ -47,12 +50,13 @@ namespace SSTournamentsBot.Api.Services
                 }
             }
 
+            _mainContext = _contexts.First(x => x.Key == "Soulstorm").Value ?? _contexts.First().Value;
             return Task.CompletedTask;
         }
 
         public Context GetMainContext()
         {
-            throw new NotImplementedException();
+            return _mainContext;
         }
 
         private T GetService<T>() where T : class

@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Remove="Resources\S.resx" />
     <EmbeddedResource Remove="S.resx" />
   </ItemGroup>
 
@@ -22,25 +21,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="Resources\S.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>S.Designer.cs</LastGenOutput>
-    </AdditionalFiles>
-    <AdditionalFiles Include="Resources\S.ru.resx">
-      <Generator></Generator>
-    </AdditionalFiles>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\SSTournaments\SSTournaments.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Resources\S.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>S.resx</DependentUpon>
-    </Compile>
+    <EmbeddedResource Update="Resources\S.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>S.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\S.ru.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
   </ItemGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

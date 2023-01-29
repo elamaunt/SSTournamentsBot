@@ -3,6 +3,7 @@ using SSTournamentsBot.Api.Domain;
 using SSTournamentsBot.Api.Services;
 using SSTournamentsBot.Api.Tests.Mocks;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace SSTournamentsBot.Api.Tests.Virtuals
@@ -56,7 +57,8 @@ namespace SSTournamentsBot.Api.Tests.Virtuals
 
         public Task SendMessage(Context context, IText message, SecondaryDomain.GuildThread thread, params ulong[] mentions)
         {
-            Messages.Add(new VirtualMessage(message.Build(), mentions, thread));
+            var text = message.Build(CultureInfo.GetCultureInfo("en"));
+            Messages.Add(new VirtualMessage(text, mentions, thread));
             return Task.CompletedTask;
         }
 

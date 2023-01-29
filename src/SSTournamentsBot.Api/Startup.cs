@@ -56,6 +56,7 @@ namespace SSTournamentsBot.Api
 
                 .AddTransient<IDrawingService, SkiaDrawingService>()
                 .AddTransient<IBotApi, DiscordBotApi>()
+                .AddSingleton<IContextService, ContextService>()
                 .AddTransient<TournamentApi>()
                 .AddSingleton<DiscordApi>()
                 .AddSingleton<ContextService>()
