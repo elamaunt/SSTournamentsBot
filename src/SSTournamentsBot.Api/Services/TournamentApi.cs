@@ -32,6 +32,8 @@ namespace SSTournamentsBot.Api.Services
 
         readonly AsyncQueue _queue = new AsyncQueue();
 
+        public Mod Mod { get; set; } = Mod.Soulstorm;
+
         public TournamentApi(IDrawingService renderingService, IDataService dataService)
         {
             _renderingService = renderingService;
@@ -51,7 +53,7 @@ namespace SSTournamentsBot.Api.Services
                 {
                     var (SeasonId, TournamentId) = _dataService.GetCurrentTournamentIds();
 
-                    _currentTournament = CreateTournament(Mod.Soulstorm, SeasonId, TournamentId);
+                    _currentTournament = CreateTournament(Mod, SeasonId, TournamentId);
                     _excludedUsers = new Dictionary<ulong, TechnicalWinReason>();
                     _checkInedUsers = new HashSet<ulong>();
                     _initialStage = null;
@@ -116,7 +118,7 @@ namespace SSTournamentsBot.Api.Services
         public int PossibleNextStageMatches => ActivePlayersEnumerable.Count() / 2;
         public bool IsCheckinStage => _isCheckInStage;
         public int Id => _currentTournament?.Id ?? 0;
-        public string Header => $"{TournamentType} AutoCup {Id} | {StartDate.Value.PrettyShortDatePrint()}";
+        public string Header => $"{TournamentType} {_currentTournament?.Mod} AutoCup {Id} | {StartDate.Value.PrettyShortDatePrint()}";
 
         public Task<LeaveUserResult> TryLeaveUser(ulong discordId, ulong steamId, TechnicalWinReason reason)
         {
@@ -189,7 +191,7 @@ namespace SSTournamentsBot.Api.Services
 
                 var mod = ((ModInfo.Mod)info.UsedMod).Item;
 
-                if (mod != Mod.Soulstorm)
+                if (mod != Mod)
                     return SubmitGameResult.DifferentMod;
 
                 var p1Info = info.Winners[0];

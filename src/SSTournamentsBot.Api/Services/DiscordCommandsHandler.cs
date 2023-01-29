@@ -130,8 +130,8 @@ namespace SSTournamentsBot.Api.Services
 
             await UpdateOrCreateCommandsForGuild(mainGuild);
 
-            foreach (var pair in _options.MainThreads)
-                await mainGuild.GetTextChannel(pair.Value).SendMessageAsync(Text.OfKey(nameof(S.Bot_Greetings)).Build(CultureInfo.GetCultureInfo(pair.Key)));
+            //foreach (var pair in _options.MainThreads)
+            //    await mainGuild.GetTextChannel(pair.Value).SendMessageAsync(Text.OfKey(nameof(S.Bot_Greetings)).Build(CultureInfo.GetCultureInfo(pair.Key)));
         }
 
         private async Task UpdateOrCreateCommandsForGuild(SocketGuild guild)

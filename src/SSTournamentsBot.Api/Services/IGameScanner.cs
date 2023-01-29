@@ -1,10 +1,8 @@
-﻿using static SSTournaments.Domain;
-
-namespace SSTournamentsBot.Api.Services
+﻿namespace SSTournamentsBot.Api.Services
 {
     public interface IGameScanner
     {
-        bool Active { get; set; }
-        GameType GameTypeFilter { get; set; }
+        void StartForContext(Context context);
+        void StopForContext(Context context);
     }
 }

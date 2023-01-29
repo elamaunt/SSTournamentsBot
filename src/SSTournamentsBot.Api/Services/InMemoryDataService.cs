@@ -7,6 +7,10 @@ namespace SSTournamentsBot.Api.Services
 {
     public class InMemoryDataService : IDataService
     {
+        readonly Dictionary<ulong, UserInActivityModel> _userInActivities = new Dictionary<ulong, UserInActivityModel>()
+        {
+        };
+
         readonly Dictionary<ulong, UserData> _users = new Dictionary<ulong, UserData>()
         {
             { 272710324484833281, new UserData() {
@@ -56,7 +60,7 @@ namespace SSTournamentsBot.Api.Services
             return new UserData[0];
         }
 
-        public UserData[] LoadLeaders()
+        public UserData[] LoadLeadersVanilla()
         {
             return _users
                 .Where(x => x.Value.Score != 0)
@@ -89,6 +93,36 @@ namespace SSTournamentsBot.Api.Services
         {
             _users[userData.DiscordId] = userData;
             return true;
+        }
+
+        public UserInActivityModel FindUserActivity(string contextName, ulong discordId, ulong steamId)
+        {
+            _userInActivities.TryGetValue(discordId, out var data);
+
+            data = data ?? new UserInActivityModel();
+
+            data.DiscordId = discordId;
+            data.SteamId = steamId;
+
+            _userInActivities[discordId] = data;
+
+            return data;
+        }
+
+        public bool UpdateUserInActivity(string contextName, UserInActivityModel data)
+        {
+            _userInActivities[data.DiscordId] = data;
+            return true;
+        }
+
+        public UserInActivityModel[] LoadLeaders(string contextName)
+        {
+            return _userInActivities
+                .Where(x => x.Value.Score != 0)
+                .OrderByDescending(x => x.Value.Score)
+                .Take(20)
+                .Select(x => x.Value)
+                .ToArray();
         }
     }
 }

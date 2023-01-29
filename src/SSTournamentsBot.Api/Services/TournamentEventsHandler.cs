@@ -282,8 +282,7 @@ namespace SSTournamentsBot.Api.Services
                     await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityStarted)).Format(context.TournamentApi.TournamentType, context.TournamentApi.Id), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions(context));
                     await context.BotApi.SendFile(context, await context.TournamentApi.RenderTournamentImage(), $"tournament_{context.TournamentApi.Id}.png", Text.OfKey(nameof(S.Events_Bracket)), GuildThread.EventsTape | GuildThread.TournamentChat);
                     _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.StageTimeoutMinutes));
-                    _scanner.GameTypeFilter = GameType.Type1v1;
-                    _scanner.Active = true;
+                    _scanner.StartForContext(context);
 
                     await PrintMatches(context);
 
@@ -391,7 +390,7 @@ namespace SSTournamentsBot.Api.Services
 
                 if (result.IsTheStageIsTerminal)
                 {
-                    _scanner.Active = false;
+                    _scanner.StopForContext(context);
 
                     await Log(context, "The stage is terminal");
 
@@ -414,7 +413,11 @@ namespace SSTournamentsBot.Api.Services
                     var date = context.TournamentApi.StartDate.Value;
                     await context.BotApi.SendFile(context, tournamentBundle.Image, $"tournament_{tournamentBundle.Tournament.Id}_completed.png", Text.OfKey(nameof(S.Events_FullBracket)), GuildThread.EventsTape | GuildThread.TournamentChat);
                     await UploadTournamentToHistory(context, tournamentBundle);
-                    await UpdateLeaderboardAndUploadChangesToHistory(context, tournamentBundle);
+
+                    if (context.Name == "Soulstorm")
+                        await UpdateLeaderboardAndUploadChangesToHistoryVanilla(context, tournamentBundle);
+                    else
+                        await UpdateLeaderboardAndUploadChangesToHistoryOtherMod(context, tournamentBundle);
 
                     await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityCompleted)).Format(tournamentHeader), GuildThread.EventsTape | GuildThread.TournamentChat);
                     await context.TournamentApi.DropTournament();
@@ -429,8 +432,7 @@ namespace SSTournamentsBot.Api.Services
                     await context.BotApi.SendFile(context, await context.TournamentApi.RenderTournamentImage(), $"tournament_{context.TournamentApi.Id}.png", Text.OfKey(nameof(S.Events_Bracket)), GuildThread.EventsTape | GuildThread.TournamentChat);
 
                     _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(contextName), TimeSpan.FromMinutes(_options.StageTimeoutMinutes));
-                    _scanner.GameTypeFilter = GameType.Type1v1;
-                    _scanner.Active = true;
+                    _scanner.StartForContext(context);
 
                     await PrintMatches(context, false);
 
@@ -491,7 +493,7 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
-        private async Task UpdateLeaderboardAndUploadChangesToHistory(Context context, TournamentBundle bundle)
+        private async Task UpdateLeaderboardAndUploadChangesToHistoryVanilla(Context context, TournamentBundle bundle)
         {
             await Log(context, "Updating leaderboards");
             var modifiedUsers = new Dictionary<ulong, (UserData Data, string Name, int AddedScore, int Penalties)>();
@@ -546,14 +548,14 @@ namespace SSTournamentsBot.Api.Services
                 modifiedUsers[tournamentWinner.SteamId] = (userInfo.Data, userInfo.Name, userInfo.AddedScore / 2 * 3, userInfo.Penalties);
             }
 
-            var (printedChanges, mentions) = PrintChangesAndUpdateUsersInDataService(context, modifiedUsers);
-            await ServiceHelpers.RefreshLeaders(context, _dataService);
+            var (printedChanges, mentions) = PrintChangesAndUpdateUsersInDataServiceVanilla(context, modifiedUsers);
+            await ServiceHelpers.RefreshLeadersVanilla(context, _dataService);
 
             if (printedChanges != null && mentions != null)
                 await context.BotApi.SendMessage(context, Text.OfValue(printedChanges), GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History, Mentions(context));
         }
 
-        private (string, ulong[]) PrintChangesAndUpdateUsersInDataService(Context context, Dictionary<ulong, (UserData Data, string Name, int AddedScore, int Penalties)> modifiedUsers)
+        private (string, ulong[]) PrintChangesAndUpdateUsersInDataServiceVanilla(Context context, Dictionary<ulong, (UserData Data, string Name, int AddedScore, int Penalties)> modifiedUsers)
         {
             if (modifiedUsers.Values.Count == 0)
                 return (null, null);
@@ -566,6 +568,104 @@ namespace SSTournamentsBot.Api.Services
 
                 if (!_dataService.UpdateUser(data))
                     Log(context, $"WARNING! Unable to update the users rating. User DiscordId = {data.DiscordId}. User Steamid = {data.SteamId}. Rating = {data.Score}. Penalties = {data.Penalties}");
+            }
+
+            var mentionsList = new List<ulong>();
+            var builder = new StringBuilder();
+
+            builder.AppendLine();
+            builder.AppendLine("--- __**Изменения в рейтинге**__ ---");
+
+            int i = 1;
+            foreach (var info in modifiedUsers.Values.OrderByDescending(x => x.AddedScore))
+            {
+                if (info.AddedScore != 0)
+                {
+                    mentionsList.Add(info.Data.DiscordId);
+                    builder.AppendLine($"{i++}. {info.AddedScore} | {info.Name}");
+                }
+            }
+
+            builder.AppendLine();
+
+            return (builder.ToString(), mentionsList.ToArray());
+        }
+
+        private async Task UpdateLeaderboardAndUploadChangesToHistoryOtherMod(Context context, TournamentBundle bundle)
+        {
+            await Log(context, "Updating leaderboards");
+            var modifiedUsers = new Dictionary<ulong, (UserInActivityModel Data, string Name, int AddedScore, int Penalties)>();
+
+            (UserInActivityModel Data, string Name, int AddedScore, int Penalties) userInfo;
+
+            for (int i = 0; i < bundle.PlayedMatches.Length; i++)
+            {
+                var match = bundle.PlayedMatches[i];
+
+                if (match.Result.IsWinner)
+                {
+                    var matchWinner = ((MatchResult.Winner)match.Result).Item1;
+
+                    if (matchWinner.IsBot)
+                        continue;
+
+                    if (!modifiedUsers.TryGetValue(matchWinner.SteamId, out userInfo))
+                    {
+                        var data = _dataService.FindUserActivity(context.Name, matchWinner.DiscordId, matchWinner.SteamId);
+                        userInfo = modifiedUsers[matchWinner.SteamId] = (data, matchWinner.Name, 0, data.Penalties);
+                    }
+
+                    var newAddedScore = userInfo.AddedScore == 0 ? 10 : userInfo.AddedScore * 2;
+                    modifiedUsers[matchWinner.SteamId] = (userInfo.Data, userInfo.Name, newAddedScore, Math.Max(0, userInfo.Penalties - 1));
+                    continue;
+                }
+
+                if (match.Result.IsTechnicalWinner)
+                {
+                    var matchWinner = ((MatchResult.TechnicalWinner)match.Result).Item1;
+                    var loser = match.Player1.Value.Item1.SteamId == matchWinner.SteamId ? match.Player2.Value.Item1 : match.Player1.Value.Item1;
+
+                    if (loser.IsBot)
+                        continue;
+
+                    if (!modifiedUsers.TryGetValue(loser.SteamId, out userInfo))
+                    {
+                        var data = _dataService.FindUserActivity(context.Name, loser.DiscordId, loser.SteamId);
+                        userInfo = modifiedUsers[loser.SteamId] = (data, loser.Name, 0, data.Penalties);
+                    }
+
+                    modifiedUsers[loser.SteamId] = (userInfo.Data, userInfo.Name, userInfo.AddedScore, Math.Max(0, userInfo.Penalties + 3));
+                    continue;
+                }
+            }
+
+            var tournamentWinner = bundle.Winner.ValueOrDefault();
+
+            if (tournamentWinner != null && modifiedUsers.TryGetValue(tournamentWinner.SteamId, out userInfo))
+            {
+                modifiedUsers[tournamentWinner.SteamId] = (userInfo.Data, userInfo.Name, userInfo.AddedScore / 2 * 3, userInfo.Penalties);
+            }
+
+            var (printedChanges, mentions) = PrintChangesAndUpdateUsersInDataServiceOtherMods(context, modifiedUsers);
+            await ServiceHelpers.RefreshLeadersOtherMods(context, _dataService);
+
+            if (printedChanges != null && mentions != null)
+                await context.BotApi.SendMessage(context, Text.OfValue(printedChanges), GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History, Mentions(context));
+        }
+
+        private (string, ulong[]) PrintChangesAndUpdateUsersInDataServiceOtherMods(Context context, Dictionary<ulong, (UserInActivityModel Data, string Name, int AddedScore, int Penalties)> modifiedUsers)
+        {
+            if (modifiedUsers.Values.Count == 0)
+                return (null, null);
+
+            foreach (var info in modifiedUsers.Values.OrderByDescending(x => x.AddedScore))
+            {
+                var data = info.Data;
+                data.Score = data.Score + info.AddedScore;
+                data.Penalties = info.Penalties;
+
+                if (!_dataService.UpdateUserInActivity(context.Name, data))
+                    Log(context, $"WARNING! Unable to update the users activity rating. User DiscordId = {data.DiscordId}. User Steamid = {data.SteamId}. Rating = {data.Score}. Penalties = {data.Penalties}");
             }
 
             var mentionsList = new List<ulong>();
@@ -617,7 +717,7 @@ namespace SSTournamentsBot.Api.Services
 
             _dataService.StoreTournamentAndIncrementTournamentId(data);
 
-            var tournamentHeader = $"{bundle.Tournament.Type} AutoCup {bundle.Tournament.Id} | {bundle.Tournament.StartDate.Value.PrettyShortDatePrint()}";
+            var tournamentHeader = $"{bundle.Tournament.Type} {bundle.Tournament.Mod} AutoCup {bundle.Tournament.Id} | {bundle.Tournament.StartDate.Value.PrettyShortDatePrint()}";
             await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_ArchiveHeader)).Format(tournamentHeader, bundle.Winner.Value.Name), GuildThread.History, AllPlayersMentions(context));
             await context.BotApi.SendFile(context, bundle.Image, $"tournament_{bundle.Tournament.Id}_completed.png", Text.OfKey(nameof(S.Events_Bracket)), GuildThread.History);
 
@@ -668,7 +768,7 @@ namespace SSTournamentsBot.Api.Services
 
         private Task Log(Context context, string message)
         {
-            _logger.LogInformation(message);
+            _logger.LogInformation(context.Name +": "+ message);
             return context.BotApi.Log(context, message);
         }
     }

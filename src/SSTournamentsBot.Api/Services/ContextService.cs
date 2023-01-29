@@ -2,9 +2,11 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static SSTournaments.Domain;
 using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.Services
@@ -31,7 +33,9 @@ namespace SSTournamentsBot.Api.Services
                 var name = pair.Key;
                 var opt = pair.Value;
 
-                var context = new Context(name, GetService<TournamentApi>(), GetService<ITournamentEventsHandler>(), GetService<IBotApi>(), opt);
+                var tournamentApi = GetService<TournamentApi>();
+                tournamentApi.Mod = ResolveMod(opt.Mod);
+                var context = new Context(name, tournamentApi, GetService<ITournamentEventsHandler>(), GetService<IBotApi>(), opt);
 
                 if (!_contexts.TryAdd(name, context))
                     throw new InvalidOperationException("Context must have an unique name");
@@ -54,6 +58,17 @@ namespace SSTournamentsBot.Api.Services
             return Task.CompletedTask;
         }
 
+        private Mod ResolveMod(string mod)
+        {
+            if (mod == "dxp2")
+                return Mod.Soulstorm;
+
+            if (mod == "tournamentpatch")
+                return Mod.TPMod;
+
+            throw new ArgumentException("Invalid mod for setup: "+ mod);
+        }
+
         public Context GetMainContext()
         {
             return _mainContext;
@@ -73,6 +88,8 @@ namespace SSTournamentsBot.Api.Services
         {
             return _contexts[name];
         }
+
+        public IEnumerable<Context> AllContexts => _contexts.Values;
 
         public Task StopAsync(CancellationToken cancellationToken)
         {

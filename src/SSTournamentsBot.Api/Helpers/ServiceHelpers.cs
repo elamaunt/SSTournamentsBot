@@ -73,21 +73,49 @@ namespace SSTournamentsBot.Api.Helpers
             timeline.AddPeriodicalEventOnSingleDayTime(Event.StartPreCheckingTimeVote, preCheckinVoteStartTime);
         }*/
 
-        public static async Task RefreshLeaders(Context context, IDataService dataService, bool notify = true)
+        public static async Task RefreshLeadersVanilla(Context context, IDataService dataService, bool notify = true)
         {
-            await PrintAndUpdateLeaders(context, notify, dataService.LoadLeaders());
+            await PrintAndUpdateLeadersVanilla(context, notify, dataService.LoadLeadersVanilla());
         }
-        public static async Task RefreshLeadersV2(Context context, IDataService dataService, bool notify = true)
+
+        public static async Task RefreshLeadersVanillaV2(Context context, IDataService dataService, bool notify = true)
         {
             var leaders = dataService.EnumerateAllUsers()
                 .Where(x => x.Score != 0)
                 .OrderByDescending(x => x.Score)
                 .ToArray();
 
-            await PrintAndUpdateLeaders(context, notify, leaders);
+            await PrintAndUpdateLeadersVanilla(context, notify, leaders);
         }
 
-        private static async Task PrintAndUpdateLeaders(Context context, bool notify, UserData[] leaders)
+        private static async Task PrintAndUpdateLeadersVanilla(Context context, bool notify, UserData[] leaders)
+        {
+            var text = new CompoundText();
+            text.AppendLine(Text.OfKey(nameof(S.Events_LeaderBoardHeader)));
+            text.AppendLine(Text.OfValue("\n"));
+
+            for (int i = 0; i < leaders.Length; i++)
+            {
+                var user = leaders[i];
+
+                text.AppendLine(Text.OfValue($"{i + 1}. {user.Score}   {await context.BotApi.GetUserName(context, user.DiscordId)}"));
+            }
+
+            text.AppendLine(Text.OfValue("\n"));
+
+            await context.BotApi.ModifyLastMessage(context, text, GuildThread.Leaderboard);
+
+            if (notify)
+                await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_LeaderboardHasBeenUpdated)), GuildThread.EventsTape | GuildThread.TournamentChat);
+        }
+
+        public static async Task RefreshLeadersOtherMods(Context context, IDataService dataService, bool notify = true)
+        {
+            await PrintAndUpdateLeadersOtherMods(context, notify, dataService.LoadLeaders(context.Name));
+        }
+
+
+        private static async Task PrintAndUpdateLeadersOtherMods(Context context, bool notify, UserInActivityModel[] leaders)
         {
             var text = new CompoundText();
             text.AppendLine(Text.OfKey(nameof(S.Events_LeaderBoardHeader)));

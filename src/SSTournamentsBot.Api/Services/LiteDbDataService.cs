@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static SSTournaments.Domain;
-using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.Services
 {
@@ -94,7 +93,7 @@ namespace SSTournamentsBot.Api.Services
               .ToArray();
         }
 
-        public UserData[] LoadLeaders()
+        public UserData[] LoadLeadersVanilla()
         {
             return _liteDb.GetCollection<UserData>().Query()
                 .Where(x => x.Score != 0)
@@ -179,6 +178,33 @@ namespace SSTournamentsBot.Api.Services
         public void IncrementTournamentId()
         {
             UpdateGlobals(x => x.CurrentTournamentId++);
+        }
+
+        public UserInActivityModel FindUserActivity(string contextName, ulong discordId, ulong steamId)
+        {
+            var col = _liteDb.GetCollection<UserInActivityModel>(contextName);
+
+            var userByDiscordId = col.FindOne(x => x.DiscordId == discordId) ?? new UserInActivityModel();
+
+            userByDiscordId.DiscordId = discordId;
+            userByDiscordId.SteamId = steamId;
+
+            return userByDiscordId;
+        }
+
+        public bool UpdateUserInActivity(string contextName, UserInActivityModel data)
+        {
+            var col = _liteDb.GetCollection<UserInActivityModel>(contextName);
+            return col.Upsert(data);
+        }
+
+        public UserInActivityModel[] LoadLeaders(string contextName)
+        {
+            return _liteDb.GetCollection<UserInActivityModel>(contextName).Query()
+                .Where(x => x.Score != 0)
+                .OrderByDescending(x => x.Score)
+                .Limit(20)
+                .ToArray();
         }
     }
 }

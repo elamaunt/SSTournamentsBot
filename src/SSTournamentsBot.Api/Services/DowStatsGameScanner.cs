@@ -22,14 +22,13 @@ namespace SSTournamentsBot.Api.Services
         private readonly IContextService _contextService;
         readonly HttpService _httpService;
         readonly IEventsTimeline _timeline;
-        readonly object _lock = new object();
         readonly ConcurrentDictionary<string, string> _submitedGames = new ConcurrentDictionary<string, string>();
 
-        volatile bool _active;
+        volatile int _listenersCount;
         DateTime _lastScan;
         Timer _rescanTimer;
 
-        public GameType GameTypeFilter { get; set; } = GameType.Type1v1;
+        readonly ConcurrentDictionary<string, Context> _listeningContexts = new ConcurrentDictionary<string, Context>();
 
         public DowStatsGameScanner(
             ILogger<DowStatsGameScanner> logger, 
@@ -45,22 +44,25 @@ namespace SSTournamentsBot.Api.Services
             _timeline = timeline;
         }
 
-        public bool Active
+
+        public void StartForContext(Context context)
         {
-            get => _active;
-            set
+            if (_listeningContexts.TryAdd(context.Name, context))
             {
-                lock (_lock)
+                if (Interlocked.Increment(ref _listenersCount) > 0)
                 {
-                    if (_active == value)
-                        return;
+                    StartScan();
+                }
+            }
+        }
 
-                    _active = value;
-
-                    if (value)
-                        StartScan();
-                    else
-                        StopScan();
+        public void StopForContext(Context context)
+        {
+            if (_listeningContexts.TryRemove(context.Name, out var value))
+            {
+                if (Interlocked.Decrement(ref _listenersCount) == 0)
+                {
+                    StopScan();
                 }
             }
         }
@@ -113,9 +115,6 @@ namespace SSTournamentsBot.Api.Services
 
                             var gameType = ResolveGameType(winners.Length, losers.Length);
 
-                            if (gameType != GameTypeFilter)
-                                continue;
-
                             var info = new FinishedGameInfo(
                                 winners,
                                 losers,
@@ -125,49 +124,61 @@ namespace SSTournamentsBot.Api.Services
                                 ResolveModInfo(game.modification),
                                 game.gameLink);
 
-                            var context = ResolveContext(info);
+                            var playersString = $"{game.modification} | {game.registerTime} | {string.Join(", ", winnersSelection.Select(x => x.name))} VS {string.Join(", ", losersSelection.Select(x => x.name))}";
 
-                            var playersString = $"{game.registerTime} | {string.Join(", ", winnersSelection.Select(x => x.name))} VS {string.Join(", ", losersSelection.Select(x => x.name))}";
-
-                            await Log(context, $"Trying to submit a game: {playersString}");
+                            await Log(mainContext, $"Trying to submit a game globally: {playersString}");
 
                             if (_submitedGames.TryAdd(playersString, playersString))
                             {
+                                foreach (var context in _contextService.AllContexts)
+                                {
+                                    await Log(context, $"Trying to submit a game to context: {playersString}");
 
-                                await context.TournamentApi.TrySubmitGame(info)
-                                    .ContinueWith(async submitTask =>
-                                    {
-                                        if (submitTask.IsFaulted)
+                                    var contectRef = context;
+
+                                    var handled = await contectRef.TournamentApi.TrySubmitGame(info)
+                                        .ContinueWith(async submitTask =>
                                         {
-                                            await Log(context, "Error on submitting the gameInfo. " + submitTask.Exception);
-                                            return;
-                                        }
-
-                                        if (submitTask.IsCompleted)
-                                        {
-                                            var result = submitTask.Result;
-                                            await Log(context, "Game submitted");
-
-                                            if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
+                                            if (submitTask.IsFaulted)
                                             {
-                                                await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Scanner_MatchAccepted)).Format(string.Join(", ", winnersSelection.Select(x => x.name)), string.Join(", ", losersSelection.Select(x => x.name)), game.gameLink), GuildThread.EventsTape | GuildThread.TournamentChat);
-                                                await Log(context, $"The game is counted");
+                                                await Log(contectRef, "Error on submitting the gameInfo. " + submitTask.Exception);
+                                                return true;
                                             }
-                                            else
+                                             
+                                            if (submitTask.IsCompleted)
                                             {
-                                                await Log(context, $"The game is not counted due to reason: {result}");
+                                                var result = submitTask.Result;
+                                                await Log(contectRef, "Game submitted");
+
+
+                                                if (result.IsCompleted || result.IsCompletedAndFinishedTheStage)
+                                                {
+                                                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Scanner_MatchAccepted)).Format(string.Join(", ", winnersSelection.Select(x => x.name)), string.Join(", ", losersSelection.Select(x => x.name)), game.gameLink), GuildThread.EventsTape | GuildThread.TournamentChat);
+                                                    await Log(contectRef, $"The game is counted");
+                                                }
+                                                else
+                                                {
+                                                    await Log(contectRef, $"The game is not counted due to reason: {result}");
+                                                }
+
+                                                if (result.IsCompletedAndFinishedTheStage)
+                                                {
+                                                    _timeline.AddOneTimeEventAfterTime(contectRef.Name, Event.NewCompleteStage(contectRef.Name), TimeSpan.FromSeconds(10));
+                                                }
+
+                                                return result.IsCompleted || result.IsCompletedAndFinishedTheStage;
                                             }
 
-                                            if (result.IsCompletedAndFinishedTheStage)
-                                            {
-                                                _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewCompleteStage(context.Name), TimeSpan.FromSeconds(10));
-                                            }
-                                        }
-                                    });
+                                            return false;
+                                        }).Unwrap();
+
+                                    if (handled)
+                                        break;
+                                }
                             }
                             else
                             {
-                                await Log(context, $"The game is already submitted:  {playersString}");
+                                await Log(mainContext, $"The game is already submitted: {playersString}");
                             }
                         }
                         catch (Exception ex)
@@ -176,11 +187,6 @@ namespace SSTournamentsBot.Api.Services
                         }
                     }
                 });
-        }
-
-        private Context ResolveContext(FinishedGameInfo info)
-        {
-            throw new NotImplementedException();
         }
 
         private RaceInfo ResolveRace(string race)

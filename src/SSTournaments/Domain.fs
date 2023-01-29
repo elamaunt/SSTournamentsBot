@@ -253,6 +253,8 @@ module Domain =
                 yield elements.[i * groupMaxSize.. (min (i * groupMaxSize) (elements.Length - 1))]
         |]
        
+    let SetMod tournament m = 
+        { tournament with Mod = m }
     let SetStartDate tournament = 
         { tournament with StartDate = Some (GetMoscowTime()) }
 
