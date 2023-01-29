@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Text;
@@ -11,7 +12,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     {
         public override string Name => "matches";
 
-        public override string Description => "Вывести список активных матчей";
+        public override string DescriptionKey=> nameof(S.Commands_Matches);
 
         readonly TournamentApi _tournamentApi;
         public MatchesSlashCommand(TournamentApi tournamentApi)

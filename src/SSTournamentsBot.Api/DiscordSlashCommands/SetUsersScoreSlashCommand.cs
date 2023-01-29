@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class SetUsersScoreSlashCommand : SlashCommandBase
     {
         public override string Name => "set-users-score";
-        public override string Description => "Поменять значение рейтинга у юзера в бд (для админов)";
+        public override string DescriptionKey=> nameof(S.Commands_SetUsersScore);
 
         readonly IDataService _dataService;
         public SetUsersScoreSlashCommand(IDataService dataService)

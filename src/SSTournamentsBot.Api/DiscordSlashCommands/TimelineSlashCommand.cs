@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.FSharp.Core;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Globalization;
@@ -20,7 +21,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Name => "timeline";
 
-        public override string Description => "Вывести раписание всех запланированных событий";
+        public override string DescriptionKey => nameof(S.Commands_Timeline);
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {

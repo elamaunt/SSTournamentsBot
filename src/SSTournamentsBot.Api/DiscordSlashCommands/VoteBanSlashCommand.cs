@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         readonly TournamentApi _api;
 
         public override string Name => "vote-ban";
-        public override string Description => "Начать голосование на бан пользователя";
+        public override string DescriptionKey=> nameof(S.Commands_VoteBan);
 
         public VoteBanSlashCommand(TournamentApi api)
         {

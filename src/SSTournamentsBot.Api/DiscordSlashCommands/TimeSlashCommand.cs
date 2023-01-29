@@ -22,7 +22,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Name => "time";
 
-        public override string Description => "Выводит текущее время и оставшееся время до следующего события";
+        public override string DescriptionKey=> nameof(S.Commands_Time);
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {

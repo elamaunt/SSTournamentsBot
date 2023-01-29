@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class RegisterUserSlashCommand : SlashCommandBase
     {
         public override string Name => "register-user";
-        public override string Description => "Добавить пользователя в бд (для админов)";
+        public override string DescriptionKey=> nameof(S.Commands_RegisterUser);
 
         readonly IDataService _dataService;
         public RegisterUserSlashCommand(IDataService dataService)

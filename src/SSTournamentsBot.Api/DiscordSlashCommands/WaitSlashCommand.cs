@@ -11,7 +11,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class WaitSlashCommand : SlashCommandBase
     {
         public override string Name => "wait";
-        public override string Description => "Получить/Убрать у себя роль 'Жду турниров'";
+        public override string DescriptionKey=> nameof(S.Commands_Wait);
 
         readonly IBotApi _botApi;
         public WaitSlashCommand(IBotApi botApi)

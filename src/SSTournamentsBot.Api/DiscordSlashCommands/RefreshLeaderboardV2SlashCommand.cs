@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using SSTournamentsBot.Api.Helpers;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class RefreshLeaderboardV2SlashCommand : SlashCommandBase
     {
         public override string Name => "refresh-leaderboard-v2";
-        public override string Description => "Обновить таблицу лидеров V2 (для админов)";
+        public override string DescriptionKey=> nameof(S.Commands_RefreshLeaderboard);
 
         readonly IBotApi _botApi;
         readonly IDataService _dataService;

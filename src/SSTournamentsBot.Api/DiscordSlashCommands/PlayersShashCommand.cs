@@ -10,7 +10,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class PlayersShashCommand : SlashCommandBase
     {
         public override string Name => "players";
-        public override string Description => "Вывести список зарегистрированных игроков";
+        public override string DescriptionKey=> nameof(S.Commands_Players);
 
         protected readonly TournamentApi _tournamentApi;
         public PlayersShashCommand(TournamentApi tournamentApi)

@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class DropTournamentSlashCommand : SlashCommandBase
     {
         public override string Name => "drop-tournament";
-        public override string Description => "Сбросить текущее состояние турнира (для админов)";
+        public override string DescriptionKey=> nameof(S.Commands_Drop);
 
         readonly TournamentApi _tournamentApi;
         readonly IEventsTimeline _timeline;

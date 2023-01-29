@@ -27,7 +27,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         }
 
         public override string Name => "call";
-        public override string Description => "Позвать оппонента на игру";
+        public override string DescriptionKey=> nameof(S.Commands_Call);
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {

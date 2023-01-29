@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Globalization;
@@ -13,7 +14,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class StartSlashCommand : SlashCommandBase
     {
         public override string Name => "start";
-        public override string Description => "Немедленно запускает турнир начиная с чекина";
+        public override string DescriptionKey=> nameof(S.Commands_Start);
 
         readonly TournamentEventsOptions _options;
         readonly TournamentApi _tournamentApi;

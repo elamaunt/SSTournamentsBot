@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.IO;
@@ -18,7 +19,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Name => "view";
 
-        public override string Description => "Выводит текущую сетку турнира (для тестов)";
+        public override string DescriptionKey=> nameof(S.Commands_View);
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {

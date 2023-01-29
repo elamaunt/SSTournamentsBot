@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class KickBotSlashCommand : SlashCommandBase
     {
         public override string Name => "kick-bot";
-        public override string Description => "Исключить бота из турнира (для тестов)";
+        public override string DescriptionKey=> nameof(S.Commands_KickBot);
 
         readonly TournamentApi _tournamentApi;
         public KickBotSlashCommand(TournamentApi tournamentApi)

@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Text;
@@ -10,7 +11,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class RatedUsersSlashCommand : SlashCommandBase
     {
         public override string Name => "rated-users";
-        public override string Description => "Вывести список пользователей с рейтингом (для админов)";
+        public override string DescriptionKey=> nameof(S.Commands_RatedUsers);
 
         readonly IBotApi _botApi;
         readonly IDataService _dataService;

@@ -133,7 +133,9 @@ namespace SSTournamentsBot.Api.Services
             var mainGuild = _client.GetGuild(_options.MainGuildId);
 
             await UpdateOrCreateCommandsForGuild(mainGuild);
-            await mainGuild.GetTextChannel(_options.MainThreads.Values.First()).SendMessageAsync(Text.OfKey(nameof(S.Bot_Greetings)).Format(_tournamentOptions.MinimumPlayersToStartCheckin).Build(CultureInfo.GetCultureInfo("ru")));
+
+            foreach (var pair in _options.MainThreads)
+                await mainGuild.GetTextChannel(pair.Value).SendMessageAsync(Text.OfKey(nameof(S.Bot_Greetings)).Build(CultureInfo.GetCultureInfo(pair.Key)));
         }
 
         private async Task UpdateOrCreateCommandsForGuild(SocketGuild guild)

@@ -13,7 +13,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class BanPlayerSlashCommand : SlashCommandBase
     {
         public override string Name => "ban-player";
-        public override string Description => "Исключить игрока из турнира";
+        public override string DescriptionKey=> nameof(S.Commands_BanPlayer);
 
         readonly IDataService _dataService;
         readonly IBotApi _botApi;

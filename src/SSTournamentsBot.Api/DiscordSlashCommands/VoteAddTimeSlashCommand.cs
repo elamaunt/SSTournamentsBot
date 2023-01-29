@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         readonly TournamentApi _api;
 
         public override string Name => "vote-addtime";
-        public override string Description => "Начать голосование";
+        public override string DescriptionKey=> nameof(S.Commands_VoteAddTime);
 
         public VoteAddTimeSlashCommand(TournamentApi api)
         {

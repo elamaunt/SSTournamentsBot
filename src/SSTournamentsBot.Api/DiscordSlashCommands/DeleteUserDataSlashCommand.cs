@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Name => "delete-user-data";
 
-        public override string Description => "Удаляет профиль пользователя (для админов)";
+        public override string DescriptionKey=> nameof(S.Commands_DeleteUser);
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {

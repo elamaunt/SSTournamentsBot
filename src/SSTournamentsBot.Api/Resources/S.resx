@@ -117,309 +117,444 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AcceptVote_Accepted" xml:space="preserve">
+    <value>{0} Your vote has been counted</value>
+  </data>
+  <data name="AcceptVote_AlreadyAccepted" xml:space="preserve">
+    <value>{0} You have already voted</value>
+  </data>
+  <data name="AcceptVote_Error" xml:space="preserve">
+    <value>{0} Error during request processing</value>
+  </data>
+  <data name="AcceptVote_ForcedByAdmin" xml:space="preserve">
+    <value>{0} concludes the vote with the administration's vote</value>
+  </data>
+  <data name="AcceptVote_NoPermission" xml:space="preserve">
+    <value>{0} You have no right to participate in this vote</value>
+  </data>
+  <data name="AcceptVote_NoVoting" xml:space="preserve">
+    <value>{0} Voting is not taking place now</value>
+  </data>
+  <data name="AcceptVote_VotingEnded" xml:space="preserve">
+    <value>{0} Voting has already ended</value>
+  </data>
   <data name="AddTime_NextEventDelayed" xml:space="preserve">
-    <value>&gt; Следующее событие '**{0}**' отложено на **{1}**</value>
+    <value>&gt; The next event '**{0}**' is postponed to **{1}**</value>
   </data>
   <data name="AddTime_NextEventSpeedUp" xml:space="preserve">
-    <value>&gt; Следующее событие '**{0}**' ускорено на -**{1}**</value>
+    <value>&gt; The next event '**{0}**' is accelerated by -**{1}**</value>
   </data>
   <data name="AddTime_NoEvents" xml:space="preserve">
-    <value>&gt; Сейчас нет запланированных событий.</value>
+    <value>&gt; There are no scheduled events right now.</value>
   </data>
   <data name="AddTime_NoMinutes" xml:space="preserve">
-    <value>&gt; Нет изменений во времени следующего события, так как указано 0 минут.</value>
+    <value>&gt; No change in the time of the next event because 0 minutes is specified.</value>
   </data>
   <data name="BanMaps_MapsUpdatedButForNextTournaments" xml:space="preserve">
-    <value>&gt; Ваш список банов успешно обновлен, но изменения будут учтены только на следующих турнирах.</value>
+    <value>&gt; Your ban list has been successfully updated, but the changes will only be taken into account in future tournaments.</value>
   </data>
   <data name="BanMaps_UpdatedSuccessfully" xml:space="preserve">
-    <value>&gt; Ваш список банов успешно обновлен.</value>
+    <value>&gt; Your ban list has been successfully updated.</value>
   </data>
   <data name="BanPlayer_Kicked" xml:space="preserve">
-    <value>{0} исключен из активности.</value>
+    <value>{0} is kicked from the activity.</value>
   </data>
   <data name="Bot_AccountRegisteredSuccessfully" xml:space="preserve">
-    <value>Привязка аккаунта завершена успешно. Добро пожаловать на участие в соревновательных активностях бота. Выполните команду __**/play повторно**__ на канале проведения интересующего события, чтобы зарегистрироваться.</value>
+    <value>Binding of the account is completed successfully. Welcome to participate in competitive bot activities. Execute the __**/play repeatedly**__ command on the channel of the event of interest to register.</value>
   </data>
   <data name="Bot_AccountRegisteredSuccessfullyHtml" xml:space="preserve">
-    <value>&lt;h1&gt;SS Tournaments Bot by elamaunt&lt;/h1&gt;&lt;br/&gt;&lt;p&gt;Привязка аккаунта завершена успешно. Добро пожаловать на участие в турнирах! Выполните команду play повторно на турнирном канале в Discord, чтобы зарегистрироваться.&lt;/p&gt;</value>
+    <value>&lt;h1&gt;SS Tournaments Bot by elamaunt&lt;/h1&gt;&lt;br/&gt;&lt;p&gt;Account linking completed successfully. Welcome to tournaments! Repeat the play command on the tournament channel in Discord to sign up.&lt;/p&gt;</value>
   </data>
   <data name="Bot_AreAlreadyLeftTheEvent" xml:space="preserve">
-    <value>&gt; Вы уже покинули данную активность.</value>
+    <value>&gt; You have already left this activity.</value>
   </data>
   <data name="Bot_AreNotregisteredInEvent" xml:space="preserve">
-    <value>&gt; Вы не были зарегистрированы.</value>
+    <value>&gt; You were not registered.</value>
   </data>
   <data name="Bot_CommandNotImplemented" xml:space="preserve">
-    <value>Данная команда еще не реализована.</value>
+    <value>This command has not yet been implemented.</value>
   </data>
   <data name="Bot_DataBaseUpdateError" xml:space="preserve">
-    <value>&gt; Не удалось обновить данные в базе.</value>
+    <value>&gt; Failed to update the data in the database.</value>
   </data>
   <data name="Bot_Greetings" xml:space="preserve">
-    <value>Привет, друзья! 
-**SS Tournaments Bot** к вашим услугам и готов устраивать для Вас ивенты.
-Для регистрации на них используйте **/slash** команды.
-Удачной игры!**</value>
+    <value>Hello friends! 
+**SS Tournaments Bot** is at your service and ready to hold events for you.
+Use **/slash** commands to register for them.
+Have fun playing!</value>
   </data>
   <data name="Bot_ImposibleToUpdateDataBase" xml:space="preserve">
-    <value>&gt; Не удалось обновить данные в базе.</value>
+    <value>&gt; Failed to update the data in the database.</value>
   </data>
   <data name="Bot_NoActiveTournament" xml:space="preserve">
-    <value>&gt; Нет активности.</value>
+    <value>&gt; No activity.</value>
   </data>
   <data name="Bot_NoEvents" xml:space="preserve">
-    <value>Сейчас нет запланированных событий.</value>
+    <value>There are no scheduled events right now.</value>
   </data>
   <data name="Bot_NoUserInDataBase" xml:space="preserve">
-    <value>&gt; Такого пользователя не существует.</value>
+    <value>&gt; Such a user does not exist.</value>
   </data>
   <data name="Bot_SteamIdAlreadyUsedHtml" xml:space="preserve">
-    <value>Такой SteamId уже зарегистрирован на другого пользователя.</value>
+    <value>Such a SteamId is already registered to another user.</value>
   </data>
   <data name="Bot_SteamIdNotFoundHtml" xml:space="preserve">
-    <value>&lt;p&gt;Не удалось загрузить информацию о вашем пользователе, либо SteamId не был обнаружен.&lt;/p&gt;</value>
+    <value>&lt;p&gt;Your user information could not be loaded, or the SteamId was not detected.&lt;/p&gt;</value>
   </data>
   <data name="Bot_TournamentInProgress" xml:space="preserve">
-    <value>&gt;&gt;&gt; В данный момент активность уже идет.</value>
+    <value>&gt;&gt;&gt; At this point, activity is already underway.</value>
   </data>
   <data name="Bot_TournamentNotStartedYet" xml:space="preserve">
-    <value>&gt;&gt;&gt; Активность еще не началась</value>
+    <value>&gt;&gt;&gt; Activity has not yet begun.</value>
   </data>
   <data name="Bot_UnknownCommand" xml:space="preserve">
-    <value>Неизвестная команда '{0}'.</value>
+    <value>Unknown command '{0}'.</value>
   </data>
   <data name="Bot_YouAreNotRegistered" xml:space="preserve">
-    <value>&gt; Вы не зарегистрированы в системе.</value>
+    <value>&gt; You are not registered in the system.</value>
   </data>
   <data name="Call_CalledSuccessfully" xml:space="preserve">
-    <value>&gt; Твой оппонент под ником **{opponent.Name}** вызван через личные сообщения.</value>
+    <value>&gt; Your opponent with the nickname **{0}** is summoned via private messages.</value>
   </data>
   <data name="Call_DirectMessageText" xml:space="preserve">
-    <value>&gt; Игрок под ником {0} призывает тебя начать матч. Пожалуйста, свяжись с ним в чат канале активности.</value>
+    <value>&gt; A player with the nickname {0} calls you to start a match. Please contact him in the chat activity channel.</value>
   </data>
   <data name="Call_Error" xml:space="preserve">
-    <value>&gt; Возникла ошибка при вызове игрока</value>
+    <value>&gt; An error occurred when calling a player</value>
   </data>
   <data name="Call_ImposibleToComply" xml:space="preserve">
-    <value>&gt;&gt;&gt; Твой оппонент под ником **{0}** не может быть вызван. Возможно, он покинул сервер.\nЕму будет присуждено техническое поражение.</value>
+    <value>&gt;&gt;&gt; Your opponent with the nickname **{0}** cannot be called. He may have left the server. \n&gt;&gt;&gt; He will be given a technical defeat.</value>
   </data>
   <data name="Call_NoOpponent" xml:space="preserve">
-    <value>&gt; В данный момент ваш оппонент еще не определен.</value>
+    <value>&gt; At this point your opponent has not yet been identified.</value>
   </data>
   <data name="Call_UserKickedFromTournament" xml:space="preserve">
-    <value>&gt; {0} исключен из турнира, так как недоступен.</value>
+    <value>&gt; {0} is excluded from the tournament because it is unavailable.</value>
   </data>
   <data name="Call_YouHaveNotActiveMatches" xml:space="preserve">
-    <value>&gt; У вас нет активных матчей в данный момент.</value>
+    <value>&gt; You have no active matches at the moment.</value>
   </data>
   <data name="CheckIn_CheckInedSuccessfully" xml:space="preserve">
-    <value>&gt; Вы успешно подтведили свое участие!</value>
+    <value>&gt; You have successfully confirmed your participation!</value>
   </data>
   <data name="CheckIn_Error" xml:space="preserve">
-    <value>&gt; Произошла ошибка</value>
+    <value>&gt; There was an error</value>
   </data>
   <data name="CheckIn_NotActiveNow" xml:space="preserve">
-    <value>&gt; В данный момент чекин не проводится.</value>
+    <value>&gt; There is no checkin at this time.</value>
   </data>
   <data name="CheckIn_YouAreAlreadyCheckined" xml:space="preserve">
-    <value>&gt; Вы уже подтведили свое участие.</value>
+    <value>&gt; You have already confirmed your participation.</value>
   </data>
   <data name="CheckIn_YouAreNotRegisteredInTheSystem" xml:space="preserve">
-    <value>&gt; Вы не зарегистрированы в системе. Используйте команду */play*.</value>
+    <value>&gt; You are not logged in. Use the */play* command.</value>
   </data>
   <data name="CheckIn_YouAreNotRegisteredInTournament" xml:space="preserve">
-    <value>&gt; Вы не регистрировались на текущую активность.</value>
+    <value>&gt; You did not register for the current activity.</value>
+  </data>
+  <data name="Commands_AddBots" xml:space="preserve">
+    <value>Throw bots in the tournament (for tests)</value>
+  </data>
+  <data name="Commands_AddTime" xml:space="preserve">
+    <value>Delays or speeds up the next event (for admins)</value>
+  </data>
+  <data name="Commands_BanMaps" xml:space="preserve">
+    <value>Permanently ban maps in your matches</value>
+  </data>
+  <data name="Commands_BanPlayer" xml:space="preserve">
+    <value>Ban player</value>
+  </data>
+  <data name="Commands_Call" xml:space="preserve">
+    <value>Call your opponent to the game</value>
+  </data>
+  <data name="Commands_Checkin" xml:space="preserve">
+    <value>Confirm your participation</value>
+  </data>
+  <data name="Commands_CheckInBots" xml:space="preserve">
+    <value>Checkin all bots from the tournament (for tests)</value>
+  </data>
+  <data name="Commands_DeleteUser" xml:space="preserve">
+    <value>Deletes user profile (for admins)</value>
+  </data>
+  <data name="Commands_Drop" xml:space="preserve">
+    <value>Reset the current state of the tournament (for admins)</value>
+  </data>
+  <data name="Commands_ForceBotMatches" xml:space="preserve">
+    <value>Ends active matches with bots by losing one of the bots (for tests)</value>
+  </data>
+  <data name="Commands_ForceEvent" xml:space="preserve">
+    <value>Forces the following event (for admins)</value>
+  </data>
+  <data name="Commands_Info" xml:space="preserve">
+    <value>Get current information about the next event</value>
+  </data>
+  <data name="Commands_KickBot" xml:space="preserve">
+    <value>Exclude bot from the tournament (for tests)</value>
+  </data>
+  <data name="Commands_KickBots" xml:space="preserve">
+    <value>Exclude all bots from the tournament (for tests)</value>
+  </data>
+  <data name="Commands_KickPlayer" xml:space="preserve">
+    <value>Exclude a player from the tournament</value>
+  </data>
+  <data name="Commands_Leave" xml:space="preserve">
+    <value>Leave the activity or exclude yourself from registration</value>
+  </data>
+  <data name="Commands_Matches" xml:space="preserve">
+    <value>Output the list of active matches</value>
+  </data>
+  <data name="Commands_MyId" xml:space="preserve">
+    <value>Outputs your discord user id</value>
+  </data>
+  <data name="Commands_Play" xml:space="preserve">
+    <value>Register for an activity or change your race</value>
+  </data>
+  <data name="Commands_Players" xml:space="preserve">
+    <value>Display a list of registered players</value>
+  </data>
+  <data name="Commands_RatedUsers" xml:space="preserve">
+    <value>Display a list of users with a rating (for admins)</value>
+  </data>
+  <data name="Commands_RebuildCommands" xml:space="preserve">
+    <value>Rebuilds all bot commands (for admins)</value>
+  </data>
+  <data name="Commands_RefreshLeaderboard" xml:space="preserve">
+    <value>Update the leaderboard (for admins)</value>
+  </data>
+  <data name="Commands_RegisterUser" xml:space="preserve">
+    <value>Add a user to the database (for admins)</value>
+  </data>
+  <data name="Commands_SetUsersScore" xml:space="preserve">
+    <value>Change the rating value of the user in the database (for admins)</value>
+  </data>
+  <data name="Commands_Start" xml:space="preserve">
+    <value>Immediately starts the tournament starting with the checkin</value>
+  </data>
+  <data name="Commands_Status" xml:space="preserve">
+    <value>Find out your status in this activity</value>
+  </data>
+  <data name="Commands_SubmitGame" xml:space="preserve">
+    <value>Count the game (for tests)</value>
+  </data>
+  <data name="Commands_Time" xml:space="preserve">
+    <value>Displays the current time and the remaining time to the next event</value>
+  </data>
+  <data name="Commands_Timeline" xml:space="preserve">
+    <value>Output the schedule of all scheduled events</value>
+  </data>
+  <data name="Commands_User" xml:space="preserve">
+    <value>Output user information from the database (for admins)</value>
+  </data>
+  <data name="Commands_Users" xml:space="preserve">
+    <value>Display a list of users in the database (for admins)</value>
+  </data>
+  <data name="Commands_View" xml:space="preserve">
+    <value>Outputs the current tournament grid (for tests)</value>
+  </data>
+  <data name="Commands_Vote" xml:space="preserve">
+    <value>Start voting</value>
+  </data>
+  <data name="Commands_VoteAddTime" xml:space="preserve">
+    <value>Start voting to add time</value>
+  </data>
+  <data name="Commands_VoteBan" xml:space="preserve">
+    <value>Start voting to ban a user</value>
+  </data>
+  <data name="Commands_VoteKick" xml:space="preserve">
+    <value>Begin voting to exclude a user from the tournament</value>
+  </data>
+  <data name="Commands_Wait" xml:space="preserve">
+    <value>Get/Remove 'Waiting for Tournaments' role</value>
   </data>
   <data name="Events_ActivityCheckinStarted" xml:space="preserve">
-    <value>Внимание! Началась стадия чекина *{0} AutoCup {1}*.\nВсем участникам нужно выполнить команду __**/checkin**__ на канале активности для подтверждения своего участия.\nДлительность чек-ина {2} минут.\nРегистрация открыта до окончания чекина, при этом новым участникам вызов команды */checkin* не требуется, достаточно команды */play*</value>
+    <value>Attention! {0} AutoCup {1} Checkin phase has begun.\nAll participants must run the __**/checkin**__ command on the activity channel to confirm their participation.\nThe checkout is open until the end of the checkout, but new participants do not need to call the */checkin** command, the */play* command is enough.</value>
   </data>
   <data name="Events_ActivityCompleted" xml:space="preserve">
-    <value>__**{0} успешно завершен**__\n==================================================================================================\n</value>
+    <value>__**{0} successfully completed**__\n=========================================================</value>
   </data>
   <data name="Events_ActivityNotCounted" xml:space="preserve">
-    <value>Определился победитель, но турнир не будет засчитан, так как он полностью состоит из технических поражений. Должна быть сыграна хотя бы одна игра.</value>
+    <value>A winner is determined, but the tournament will not be counted, as it consists entirely of technical defeats. At least one game must be played.</value>
   </data>
   <data name="Events_ActivityStarted" xml:space="preserve">
-    <value>Начинается активность *{0} AutoCup {1}*!</value>
+    <value>The AutoCup activity *{0} AutoCup {1}* begins!</value>
   </data>
   <data name="Events_ArchiveHeader" xml:space="preserve">
-    <value>__**{0}**__ благополучно завершен!\nПоздравляем с победой игрока под ником __**{1}**__. Всем остальным желаем удачи на следующих турнирах!</value>
+    <value>_**{0}**__ is safely finished!\nCongratulations to the player named __**{1}**__. We wish the rest of you good luck in the next events!</value>
   </data>
   <data name="Events_Bracket" xml:space="preserve">
-    <value>Сетка:</value>
+    <value>Grid:</value>
   </data>
   <data name="Events_CurrentStageMatches" xml:space="preserve">
-    <value>&gt;&gt;&gt; **Матчи, которые должны быть сыграны в текущей стадии турнира:**</value>
+    <value>&gt;&gt;&gt; **Matches to be played in the current stage of the event:**</value>
   </data>
   <data name="Events_FastVotingForUncompletedMatch" xml:space="preserve">
-    <value>&gt;&gt;&gt; Быстрое голосование по незавершенному матчу. Кому присудить техническое поражение?</value>
+    <value>&gt;&gt;&gt; Quick vote on an incomplete match. Who should be awarded a technical defeat?</value>
   </data>
   <data name="Events_FinishedWithNoResults" xml:space="preserve">
-    <value>__**{0} завершен без учета результатов**__\n==================================================================================================\n</value>
+    <value>__**{0} completed without results**__\n==================================================================================================\n</value>
   </data>
   <data name="Events_FirstStageStarted" xml:space="preserve">
-    <value>Первая стадия турнира началась. Пошел отсчет времени __**{TimeSpan.FromMinutes(_options.StageTimeoutMinutes).PrettyPrint()}**__ до конца стадии.</value>
+    <value>The first stage of the event has begun. There is a __**{0}** countdown to the end of the stage.</value>
   </data>
   <data name="Events_FullBracket" xml:space="preserve">
-    <value>Полная сетка:</value>
+    <value>Full grid:</value>
   </data>
   <data name="Events_Hosts" xml:space="preserve">
-    <value>---\nИгру хостят вот эти ребята:</value>
+    <value>---\n Hosts:</value>
   </data>
   <data name="Events_LeaderboardHasBeenUpdated" xml:space="preserve">
-    <value>Таблица лидеров была обновлена.</value>
+    <value>The leaderboard has been updated.</value>
   </data>
   <data name="Events_LeaderBoardHeader" xml:space="preserve">
-    <value>--- __**Таблица лидеров**__ ---</value>
+    <value>--- __**Leaderboard**__ ---</value>
   </data>
   <data name="Events_NextEvent" xml:space="preserve">
-    <value>Московское время {0}\nСледующее событие '**{1}**' наступит через **{2}**.</value>
+    <value>Moscow time {0}\nThe next event '**{1}**' will occur in **{2}**.</value>
   </data>
   <data name="Events_NoTournamentsToday" xml:space="preserve">
-    <value>Без турниров сегодня :)</value>
+    <value>No events today :)</value>
   </data>
   <data name="Events_PlayedMatches" xml:space="preserve">
-    <value>&gt;&gt;&gt; Сыгранные матчи:</value>
+    <value>&gt;&gt;&gt; Played Matches:</value>
   </data>
   <data name="Events_Relaxing" xml:space="preserve">
-    <value>---\nНа скамейке отдыхающих на этот раз:</value>
+    <value>---\nOn the resting bench this time:</value>
   </data>
   <data name="Events_RulesRemind" xml:space="preserve">
-    <value>**Не забывайте использовать DowStats и прикрепленный Steam аккаунт, иначе матч не будет засчитан!**</value>
+    <value>**Don't forget to use DowStats and an attached Steam account, otherwise the match won't count!**</value>
   </data>
   <data name="Events_SingleMatchNotFinished" xml:space="preserve">
-    <value>&gt; Единственный матч в этой стадии еще не доигран. Завершение стадии отложено на __**5 минут.**__</value>
+    <value>&gt; The only match in this stage has not yet been completed. The completion of this stage has been postponed for __**5 minutes.**__</value>
   </data>
   <data name="Events_StageCompleted" xml:space="preserve">
-    <value>Стадия была успешно завершена! Следующая стадия начнется после {0}-минутного перерыва.</value>
+    <value>The stage has been successfully completed! The next stage will begin after a {0} minute break.</value>
   </data>
   <data name="Events_StageCompletionDelayed" xml:space="preserve">
-    <value>&gt; Половина или более матчей еще не доиграны. Завершение стадии отложено на __**5 минут**__.</value>
+    <value>&gt; Half or more matches are still to be played. The completion of the stage has been postponed for __**5 minutes**__.</value>
   </data>
   <data name="Events_StageTimeInfo" xml:space="preserve">
-    <value>Новая стадия началась. Пошел отсчет времени __**{0}**__ до конца стадии.</value>
+    <value>A new stage has begun. There is a __**{0}**__ countdown to the end of the stage.</value>
   </data>
   <data name="Events_TechLoseToPlayer" xml:space="preserve">
-    <value>&gt; Присуждено техническое поражение игроку под ником **{0}**.</value>
+    <value>&gt; A technical defeat was awarded to the player with the nickname **{0}**.</value>
   </data>
   <data name="Events_TournamentCancelledNoPlayers" xml:space="preserve">
-    <value>Турнир отменен, так как участников недостаточно. Список зарегистрированных был обнулен.\nСледующий турнир начнется, когда снова зарегистрируются {0} участника.</value>
+    <value>Event has been cancelled, because there are not enough participants. Next event will start when {0} participants are registered again.</value>
   </data>
   <data name="Events_UnableToStartNoPlayers" xml:space="preserve">
-    <value>В данный момент активность невозможно начать, так как участников недостаточно.\nМинимальное количество участников 4.\nСписок зарегистрированных был обнулен.</value>
+    <value>At the moment, the activity cannot be started because there are not enough participants.\nMinimum number of participants is 4.\nThe list of registered participants has been reset.</value>
   </data>
   <data name="Events_VotingCancelledCauseMatchFinished" xml:space="preserve">
-    <value>&gt; Результат голосования не принят, так как матч был завершен.</value>
+    <value>&gt; The voting result is not accepted because the match has been completed.</value>
   </data>
   <data name="Events_VotingHasBeenEnded" xml:space="preserve">
-    <value>&gt; Голосование завершено.</value>
+    <value>&gt; Voting is complete.</value>
   </data>
   <data name="Events_VotingResultNotDefined" xml:space="preserve">
-    <value>&gt;&gt;&gt; Результат голосования не принят, так как голоса разделились поровну, либо никто не проголосовал.\nНо решение все равно нужно принять, поэтому техническое поражение выдается игроку на усмотрение бота.</value>
+    <value>&gt;&gt;&gt; Voting result is not accepted, because the votes are divided equally, or no one voted.\nBut still need to make a decision, so the technical defeat is given to the player at the discretion of the bot.</value>
   </data>
   <data name="Events_WeGotWinner" xml:space="preserve">
-    <value>Определился победитель турнира!</value>
+    <value>A winner has been determined!</value>
   </data>
   <data name="Event_NextStageStarted" xml:space="preserve">
-    <value>&gt;&gt;&gt; Начинается следующая стадия! Генерация сетки..</value>
+    <value>&gt;&gt;&gt; The next stage begins! Grid Generation...</value>
   </data>
   <data name="ForceEvent_Done" xml:space="preserve">
-    <value>&gt; Следующее событие было форсировано.</value>
+    <value>&gt; The following event was forced.</value>
   </data>
   <data name="ForceEvent_NoEvents" xml:space="preserve">
-    <value>&gt; Сейчас нет запланированных событий.</value>
+    <value>&gt; There are no scheduled events right now.</value>
   </data>
   <data name="Info_NobodyRegisteredMessage" xml:space="preserve">
-    <value>Пока никто не зарегистрировался, но, возможно, вы будете первым :)</value>
+    <value>No one has registered yet, but you might be the first :)</value>
   </data>
   <data name="Info_RegisteredPlayers" xml:space="preserve">
-    <value>Зарегистрировано участников: {0}</value>
+    <value>Registered participants: {0}</value>
   </data>
   <data name="Info_TournamentType" xml:space="preserve">
-    <value>Тип турнира: {0}</value>
+    <value>Tournament type: {0}</value>
   </data>
   <data name="KickPlayer_AlreadyBanned" xml:space="preserve">
-    <value>&gt; Игрок уже был забанен.</value>
+    <value>&gt; The player has already been banned.</value>
   </data>
   <data name="KickPlayer_AlreadyKickedByAdmin" xml:space="preserve">
-    <value>&gt; Игрок уже был исключен из активности администрацией.</value>
+    <value>&gt; The player has already been excluded from the activity by the administration.</value>
   </data>
   <data name="KickPlayer_AlreadyLeftTheTournament" xml:space="preserve">
-    <value>&gt; Игрок уже покинул эту активность.</value>
+    <value>&gt; The player has already left this activity.</value>
   </data>
   <data name="KickPlayer_ImposibleToKickNotRegisteredPlayer" xml:space="preserve">
-    <value>&gt; Нельзя исключить игрока из активност, в которой он не зарегистрирован.</value>
+    <value>&gt; You cannot exclude a player from an activity in which he is not registered.</value>
   </data>
   <data name="KickPlayer_ImposibleToLeaveWhenAlreadyLeftByVoting" xml:space="preserve">
-    <value>&gt; Вы не можете покинуть активность, так как вы уже покинули ее путем голосования.</value>
+    <value>&gt; You cannot leave the activity because you have already left it by voting.</value>
   </data>
   <data name="KickPlayer_NotSucceded" xml:space="preserve">
-    <value>&gt; Не удалось исключить игрока из активности.</value>
+    <value>&gt; Failed to exclude a player from activity.</value>
   </data>
   <data name="KickPlayer_NoUser" xml:space="preserve">
-    <value>&gt; Пользователь не зарегистрирован в системе.</value>
+    <value>&gt; The user is not registered in the system.</value>
   </data>
   <data name="KickPlayer_PlayerLeftTournament" xml:space="preserve">
-    <value>&gt; Игрок **{0}** покинул активность.</value>
+    <value>&gt; Player **{0}** has left the activity.</value>
   </data>
   <data name="Leave_ImposibleToLeaveCauseBanned" xml:space="preserve">
-    <value>&gt; Вы не можете покинуть активность, так как вы были забанены.</value>
+    <value>&gt; You cannot leave the activity because you have been banned.</value>
   </data>
   <data name="Leave_ImposibleToLeaveCauseKickedByAdmin" xml:space="preserve">
-    <value>&gt; Вы не можете покинуть турнир, так как вы были исключены из него администрацией.</value>
+    <value>&gt; You cannot leave the tournament because you have been excluded from it by the administration.</value>
   </data>
   <data name="Leave_Successfull" xml:space="preserve">
-    <value>&gt; Вы покинули текущую активность.</value>
+    <value>&gt; You have left the current activity.</value>
   </data>
   <data name="Leave_YouAreAlreadyKickedByVoting" xml:space="preserve">
-    <value>&gt; Вы не можете покинуть активность, так как вы уже покинули ее путем голосования.</value>
+    <value>&gt; You cannot leave the activity because you have already left it by voting.</value>
   </data>
   <data name="Players_NobodyRegistered" xml:space="preserve">
-    <value>В данный момент никто не зарегистрирован на активность.</value>
+    <value>No one is currently registered for the activity.</value>
   </data>
   <data name="Play_ActivityStarted" xml:space="preserve">
-    <value>&gt; Активность уже началась, изменения в данный момент невозможны.</value>
+    <value>&gt; Activity has already begun, changes are not possible at this time.</value>
   </data>
   <data name="Play_AlreadyRegistered" xml:space="preserve">
-    <value>&gt;&gt;&gt; Вы уже зарегистрированы на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}</value>
+    <value>&gt;&gt;&gt; You are already registered for the activity.\nAccount on DowStats: {0} \nChosen race: {1}</value>
   </data>
   <data name="Play_AlreadyRegisteredButNoChanges" xml:space="preserve">
-    <value>&gt;&gt;&gt; Вы уже зарегистрированы на активность, но смена расы на данный момент невозможна.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}</value>
+    <value>&gt;&gt;&gt; You are already registered for the activity, but race change is not possible at this time.\nAccount on DowStats: {0} \nChosen race: {1}</value>
   </data>
   <data name="Play_Imposible" xml:space="preserve">
-    <value>&gt; Не удалось выполнить регистрацию.</value>
+    <value>&gt; Registration failed.</value>
   </data>
   <data name="Play_InstructionsMessage" xml:space="preserve">
-    <value>Для участия в активностях бота нужно подтвердить связь своей учетной записи со Steam. 
-Для этого нужно сперва добавить учетную запись стим в интеграции в настройках профиля вашего Discord аккаунта. 
-Сделать интеграцию видимой публично и затем перейти по ссылке ниже для подтверждения. Регистрироваться на активности могут только Steam аккаунты, имеющие не менее 300 сыгранных игр всего в сервисе DowStats.</value>
+    <value>To participate in bot activities, you need to confirm the connection of your account with Steam. 
+To do this, first add your Steam account to the integration in your Discord account profile settings. 
+Make the integration publicly visible and then click the link below to confirm it. Only Steam accounts with at least 300 games played in total in the DowStats service can register for the activity.</value>
   </data>
   <data name="Play_NotEnoughGames" xml:space="preserve">
-    <value>"&gt;&gt;&gt; Недостаточно игр на аккаунте Steam.\nРегистрироваться на турнирах могут только Steam аккаунты, имеющие не менее **300 сыгранных игр** всего в сервисе DowStats.\nВозвращайтесь, когда наиграете больше игр :)</value>
+    <value>&gt;&gt;&gt; Not enough games on your Steam account.\nOnly Steam accounts with at least **300 games played** total in the DowStats service can register for tournaments.\nReturn back when you have played more games :)</value>
   </data>
   <data name="Play_RegisterIntroMessage" xml:space="preserve">
-    <value>&gt;&gt;&gt; Для регистрации в системе необходимо присоединить Steam аккаунт к вашему профилю. Инструкция отправлена в личные сообщения.</value>
+    <value>&gt;&gt;&gt; To register in the system, you need to attach your Steam account to your profile. Instructions are sent in personal messages.</value>
   </data>
   <data name="Play_Successfull" xml:space="preserve">
-    <value>&gt;&gt;&gt; Вы были успешно зарегистрированы на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}</value>
+    <value>&gt;&gt;&gt; You were successfully logged into the activity.\nAccount on DowStats: {0} \nSelected race: {1}</value>
   </data>
   <data name="Play_SuccessfullAndChekined" xml:space="preserve">
-    <value>&gt;&gt;&gt; Вы были успешно зарегистрированы и зачекинены на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}</value>
+    <value>&gt;&gt;&gt; You have been successfully registered and checked in for activity.\nAccount on DowStats: {0} \nSelected race: {1}</value>
   </data>
   <data name="Scanner_MatchAccepted" xml:space="preserve">
-    <value>&gt; Засчитана победа **{0}** в матче против **{1}**.\nСсылка на игру: {2}</value>
+    <value>&gt; A victory was counted for **{0}** in the match against **{1}**.\nGame link: {2}</value>
   </data>
   <data name="Time_NextEvent" xml:space="preserve">
-    <value>Следующее событие '**{0}**' наступит через **{1}**.</value>
+    <value>The next event '**{0}**' will occur in **{1}**.</value>
   </data>
   <data name="Time_Time" xml:space="preserve">
-    <value>&gt;&gt;&gt; Ваше время **&lt;t:{0}:t&gt;**\nМосковское время **{1}**</value>
+    <value>&gt;&gt;&gt; Your time **&lt;t:{0}:t&gt;**\n Moscow time **{1}**</value>
   </data>
   <data name="Wait_Disabled" xml:space="preserve">
-    <value>&gt; Активности вас не побеспокоят</value>
+    <value>&gt; Activity won't bother you</value>
   </data>
   <data name="Wait_Enabled" xml:space="preserve">
-    <value>&gt; Вы будете получать уведомления о начинающихся активностях</value>
+    <value>&gt; You will be notified when an activity begins</value>
   </data>
 </root>

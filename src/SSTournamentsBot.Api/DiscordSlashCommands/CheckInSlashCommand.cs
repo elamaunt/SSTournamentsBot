@@ -9,7 +9,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class CheckInSlashCommand : SlashCommandBase
     {
         public override string Name => "checkin";
-        public override string Description => "Подтвердить свое участие";
+        public override string DescriptionKey=> nameof(S.Commands_Checkin);
         
         readonly IDataService _dataService;
         readonly IEventsTimeline _timeLine;

@@ -16,7 +16,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class PlaySlashCommand : SlashCommandBase
     {
         public override string Name => "play";
-        public override string Description => "Зарегистрироваться на следующий турнир или сменить расу";
+        public override string DescriptionKey=> nameof(S.Commands_Play);
 
         readonly IDataService _dataService;
         readonly IStatsApi _statsApi;

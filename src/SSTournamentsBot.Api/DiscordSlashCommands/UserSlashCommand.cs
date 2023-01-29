@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class UserSlashCommand : SlashCommandBase
     {
         public override string Name => "user";
-        public override string Description => "Вывести информацию о пользователе из бд (для админов)";
+        public override string DescriptionKey=> nameof(S.Commands_User);
 
         readonly IDataService _dataService;
         public UserSlashCommand(IDataService dataService)

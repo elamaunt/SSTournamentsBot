@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Remove="Resources\S.resx" />
     <EmbeddedResource Remove="S.resx" />
   </ItemGroup>
 
@@ -24,6 +25,9 @@
     <AdditionalFiles Include="Resources\S.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>S.Designer.cs</LastGenOutput>
+    </AdditionalFiles>
+    <AdditionalFiles Include="Resources\S.ru.resx">
+      <Generator></Generator>
     </AdditionalFiles>
   </ItemGroup>
 

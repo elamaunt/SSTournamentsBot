@@ -23,7 +23,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         }
 
         public override string Name => "leave";
-        public override string Description => "Покинуть турнир или исключить себя из регистрации";
+        public override string DescriptionKey => nameof(S.Commands_Leave);
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {

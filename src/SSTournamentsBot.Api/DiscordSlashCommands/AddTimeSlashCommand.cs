@@ -21,7 +21,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Name => "add-time";
 
-        public override string Description => "Откладывает или ускоряет следующее событие (для админов)";
+        public override string DescriptionKey=> nameof(S.Commands_AddTime);
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {

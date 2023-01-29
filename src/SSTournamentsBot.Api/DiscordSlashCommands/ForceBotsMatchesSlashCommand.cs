@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Globalization;
@@ -13,7 +14,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         readonly TournamentApi _api;
 
         public override string Name => "force-bots-matches";
-        public override string Description => "Завершает активные матчи с ботами проигрышем одного из ботов (для тестов)";
+        public override string DescriptionKey=> nameof(S.Commands_ForceBotMatches);
 
         public ForceBotsMatchesSlashCommand(TournamentApi api)
         {

@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using SSTournamentsBot.Api.DataDomain;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Globalization;
@@ -14,7 +15,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class AddBotsSlashCommand : SlashCommandBase
     {
         public override string Name => "add-bots";
-        public override string Description => "Закинуть ботов в турнир (для тестов)";
+        public override string DescriptionKey => nameof(S.Commands_AddBots);
         
         protected readonly TournamentApi _tournamentApi;
         private volatile int _botsCounter;

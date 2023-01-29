@@ -61,7 +61,70 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Следующее событие &apos;**{0}**&apos; отложено на **{1}**.
+        ///   Ищет локализованную строку, похожую на {0} Your vote has been counted.
+        /// </summary>
+        public static string AcceptVote_Accepted {
+            get {
+                return ResourceManager.GetString("AcceptVote_Accepted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на {0} You have already voted.
+        /// </summary>
+        public static string AcceptVote_AlreadyAccepted {
+            get {
+                return ResourceManager.GetString("AcceptVote_AlreadyAccepted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на {0} Error during request processing.
+        /// </summary>
+        public static string AcceptVote_Error {
+            get {
+                return ResourceManager.GetString("AcceptVote_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на {0} concludes the vote with the administration&apos;s vote.
+        /// </summary>
+        public static string AcceptVote_ForcedByAdmin {
+            get {
+                return ResourceManager.GetString("AcceptVote_ForcedByAdmin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на {0} You have no right to participate in this vote.
+        /// </summary>
+        public static string AcceptVote_NoPermission {
+            get {
+                return ResourceManager.GetString("AcceptVote_NoPermission", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на {0} Voting is not taking place now.
+        /// </summary>
+        public static string AcceptVote_NoVoting {
+            get {
+                return ResourceManager.GetString("AcceptVote_NoVoting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на {0} Voting has already ended.
+        /// </summary>
+        public static string AcceptVote_VotingEnded {
+            get {
+                return ResourceManager.GetString("AcceptVote_VotingEnded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; The next event &apos;**{0}**&apos; is postponed to **{1}**.
         /// </summary>
         public static string AddTime_NextEventDelayed {
             get {
@@ -70,7 +133,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Следующее событие &apos;**{0}**&apos; ускорено на -**{1}**.
+        ///   Ищет локализованную строку, похожую на &gt; The next event &apos;**{0}**&apos; is accelerated by -**{1}**.
         /// </summary>
         public static string AddTime_NextEventSpeedUp {
             get {
@@ -79,7 +142,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Сейчас нет запланированных событий..
+        ///   Ищет локализованную строку, похожую на &gt; There are no scheduled events right now..
         /// </summary>
         public static string AddTime_NoEvents {
             get {
@@ -88,7 +151,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Нет изменений во времени следующего события, так как указано 0 минут..
+        ///   Ищет локализованную строку, похожую на &gt; No change in the time of the next event because 0 minutes is specified..
         /// </summary>
         public static string AddTime_NoMinutes {
             get {
@@ -97,7 +160,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Ваш список банов успешно обновлен, но изменения будут учтены только на следующих турнирах..
+        ///   Ищет локализованную строку, похожую на &gt; Your ban list has been successfully updated, but the changes will only be taken into account in future tournaments..
         /// </summary>
         public static string BanMaps_MapsUpdatedButForNextTournaments {
             get {
@@ -106,7 +169,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Ваш список банов успешно обновлен..
+        ///   Ищет локализованную строку, похожую на &gt; Your ban list has been successfully updated..
         /// </summary>
         public static string BanMaps_UpdatedSuccessfully {
             get {
@@ -115,7 +178,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на {0} исключен из активности..
+        ///   Ищет локализованную строку, похожую на {0} is kicked from the activity..
         /// </summary>
         public static string BanPlayer_Kicked {
             get {
@@ -124,7 +187,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Привязка аккаунта завершена успешно. Добро пожаловать на участие в соревновательных активностях бота. Выполните команду __**/play повторно**__ на канале проведения интересующего события, чтобы зарегистрироваться..
+        ///   Ищет локализованную строку, похожую на Binding of the account is completed successfully. Welcome to participate in competitive bot activities. Execute the __**/play repeatedly**__ command on the channel of the event of interest to register..
         /// </summary>
         public static string Bot_AccountRegisteredSuccessfully {
             get {
@@ -133,7 +196,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &lt;h1&gt;SS Tournaments Bot by elamaunt&lt;/h1&gt;&lt;br/&gt;&lt;p&gt;Привязка аккаунта завершена успешно. Добро пожаловать на участие в турнирах! Выполните команду play повторно на турнирном канале в Discord, чтобы зарегистрироваться.&lt;/p&gt;.
+        ///   Ищет локализованную строку, похожую на &lt;h1&gt;SS Tournaments Bot by elamaunt&lt;/h1&gt;&lt;br/&gt;&lt;p&gt;Account linking completed successfully. Welcome to tournaments! Repeat the play command on the tournament channel in Discord to sign up.&lt;/p&gt;.
         /// </summary>
         public static string Bot_AccountRegisteredSuccessfullyHtml {
             get {
@@ -142,7 +205,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы уже покинули данную активность..
+        ///   Ищет локализованную строку, похожую на &gt; You have already left this activity..
         /// </summary>
         public static string Bot_AreAlreadyLeftTheEvent {
             get {
@@ -151,7 +214,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы не были зарегистрированы..
+        ///   Ищет локализованную строку, похожую на &gt; You were not registered..
         /// </summary>
         public static string Bot_AreNotregisteredInEvent {
             get {
@@ -160,7 +223,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Данная команда еще не реализована..
+        ///   Ищет локализованную строку, похожую на This command has not yet been implemented..
         /// </summary>
         public static string Bot_CommandNotImplemented {
             get {
@@ -169,7 +232,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Не удалось обновить данные в базе..
+        ///   Ищет локализованную строку, похожую на &gt; Failed to update the data in the database..
         /// </summary>
         public static string Bot_DataBaseUpdateError {
             get {
@@ -178,10 +241,10 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Привет, друзья! 
-        ///**SS Tournaments Bot** к вашим услугам и готов устраивать для Вас ивенты.
-        ///Для регистрации на них используйте **/slash** команды.
-        ///Удачной игры!**.
+        ///   Ищет локализованную строку, похожую на Hello friends! 
+        ///**SS Tournaments Bot** is at your service and ready to hold events for you.
+        ///Use **/slash** commands to register for them.
+        ///Have fun playing!.
         /// </summary>
         public static string Bot_Greetings {
             get {
@@ -190,7 +253,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Не удалось обновить данные в базе..
+        ///   Ищет локализованную строку, похожую на &gt; Failed to update the data in the database..
         /// </summary>
         public static string Bot_ImposibleToUpdateDataBase {
             get {
@@ -199,7 +262,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Нет активности..
+        ///   Ищет локализованную строку, похожую на &gt; No activity..
         /// </summary>
         public static string Bot_NoActiveTournament {
             get {
@@ -208,7 +271,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Сейчас нет запланированных событий..
+        ///   Ищет локализованную строку, похожую на There are no scheduled events right now..
         /// </summary>
         public static string Bot_NoEvents {
             get {
@@ -217,7 +280,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Такого пользователя не существует..
+        ///   Ищет локализованную строку, похожую на &gt; Such a user does not exist..
         /// </summary>
         public static string Bot_NoUserInDataBase {
             get {
@@ -226,7 +289,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Такой SteamId уже зарегистрирован на другого пользователя..
+        ///   Ищет локализованную строку, похожую на Such a SteamId is already registered to another user..
         /// </summary>
         public static string Bot_SteamIdAlreadyUsedHtml {
             get {
@@ -235,7 +298,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &lt;p&gt;Не удалось загрузить информацию о вашем пользователе, либо SteamId не был обнаружен.&lt;/p&gt;.
+        ///   Ищет локализованную строку, похожую на &lt;p&gt;Your user information could not be loaded, or the SteamId was not detected.&lt;/p&gt;.
         /// </summary>
         public static string Bot_SteamIdNotFoundHtml {
             get {
@@ -244,7 +307,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; В данный момент активность уже идет..
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; At this point, activity is already underway..
         /// </summary>
         public static string Bot_TournamentInProgress {
             get {
@@ -253,7 +316,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Активность еще не началась.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Activity has not yet begun..
         /// </summary>
         public static string Bot_TournamentNotStartedYet {
             get {
@@ -262,7 +325,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Неизвестная команда &apos;{0}&apos;..
+        ///   Ищет локализованную строку, похожую на Unknown command &apos;{0}&apos;..
         /// </summary>
         public static string Bot_UnknownCommand {
             get {
@@ -271,7 +334,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы не зарегистрированы в системе..
+        ///   Ищет локализованную строку, похожую на &gt; You are not registered in the system..
         /// </summary>
         public static string Bot_YouAreNotRegistered {
             get {
@@ -280,7 +343,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Твой оппонент под ником **{opponent.Name}** вызван через личные сообщения..
+        ///   Ищет локализованную строку, похожую на &gt; Your opponent with the nickname **{0}** is summoned via private messages..
         /// </summary>
         public static string Call_CalledSuccessfully {
             get {
@@ -289,7 +352,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Игрок под ником {0} призывает тебя начать матч. Пожалуйста, свяжись с ним в чат канале активности..
+        ///   Ищет локализованную строку, похожую на &gt; A player with the nickname {0} calls you to start a match. Please contact him in the chat activity channel..
         /// </summary>
         public static string Call_DirectMessageText {
             get {
@@ -298,7 +361,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Возникла ошибка при вызове игрока.
+        ///   Ищет локализованную строку, похожую на &gt; An error occurred when calling a player.
         /// </summary>
         public static string Call_Error {
             get {
@@ -307,7 +370,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Твой оппонент под ником **{0}** не может быть вызван. Возможно, он покинул сервер.\nЕму будет присуждено техническое поражение..
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Your opponent with the nickname **{0}** cannot be called. He may have left the server. \n&gt;&gt;&gt; He will be given a technical defeat..
         /// </summary>
         public static string Call_ImposibleToComply {
             get {
@@ -316,7 +379,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; В данный момент ваш оппонент еще не определен..
+        ///   Ищет локализованную строку, похожую на &gt; At this point your opponent has not yet been identified..
         /// </summary>
         public static string Call_NoOpponent {
             get {
@@ -325,7 +388,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; {0} исключен из турнира, так как недоступен..
+        ///   Ищет локализованную строку, похожую на &gt; {0} is excluded from the tournament because it is unavailable..
         /// </summary>
         public static string Call_UserKickedFromTournament {
             get {
@@ -334,7 +397,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; У вас нет активных матчей в данный момент..
+        ///   Ищет локализованную строку, похожую на &gt; You have no active matches at the moment..
         /// </summary>
         public static string Call_YouHaveNotActiveMatches {
             get {
@@ -343,7 +406,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы успешно подтведили свое участие!.
+        ///   Ищет локализованную строку, похожую на &gt; You have successfully confirmed your participation!.
         /// </summary>
         public static string CheckIn_CheckInedSuccessfully {
             get {
@@ -352,7 +415,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Произошла ошибка.
+        ///   Ищет локализованную строку, похожую на &gt; There was an error.
         /// </summary>
         public static string CheckIn_Error {
             get {
@@ -361,7 +424,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; В данный момент чекин не проводится..
+        ///   Ищет локализованную строку, похожую на &gt; There is no checkin at this time..
         /// </summary>
         public static string CheckIn_NotActiveNow {
             get {
@@ -370,7 +433,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы уже подтведили свое участие..
+        ///   Ищет локализованную строку, похожую на &gt; You have already confirmed your participation..
         /// </summary>
         public static string CheckIn_YouAreAlreadyCheckined {
             get {
@@ -379,7 +442,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы не зарегистрированы в системе. Используйте команду */play*..
+        ///   Ищет локализованную строку, похожую на &gt; You are not logged in. Use the */play* command..
         /// </summary>
         public static string CheckIn_YouAreNotRegisteredInTheSystem {
             get {
@@ -388,7 +451,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы не регистрировались на текущую активность..
+        ///   Ищет локализованную строку, похожую на &gt; You did not register for the current activity..
         /// </summary>
         public static string CheckIn_YouAreNotRegisteredInTournament {
             get {
@@ -397,7 +460,349 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Начинается следующая стадия! Генерация сетки...
+        ///   Ищет локализованную строку, похожую на Throw bots in the tournament (for tests).
+        /// </summary>
+        public static string Commands_AddBots {
+            get {
+                return ResourceManager.GetString("Commands_AddBots", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Delays or speeds up the next event (for admins).
+        /// </summary>
+        public static string Commands_AddTime {
+            get {
+                return ResourceManager.GetString("Commands_AddTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Permanently ban maps in your matches.
+        /// </summary>
+        public static string Commands_BanMaps {
+            get {
+                return ResourceManager.GetString("Commands_BanMaps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ban player.
+        /// </summary>
+        public static string Commands_BanPlayer {
+            get {
+                return ResourceManager.GetString("Commands_BanPlayer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Call your opponent to the game.
+        /// </summary>
+        public static string Commands_Call {
+            get {
+                return ResourceManager.GetString("Commands_Call", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Confirm your participation.
+        /// </summary>
+        public static string Commands_Checkin {
+            get {
+                return ResourceManager.GetString("Commands_Checkin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Checkin all bots from the tournament (for tests).
+        /// </summary>
+        public static string Commands_CheckInBots {
+            get {
+                return ResourceManager.GetString("Commands_CheckInBots", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Deletes user profile (for admins).
+        /// </summary>
+        public static string Commands_DeleteUser {
+            get {
+                return ResourceManager.GetString("Commands_DeleteUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Reset the current state of the tournament (for admins).
+        /// </summary>
+        public static string Commands_Drop {
+            get {
+                return ResourceManager.GetString("Commands_Drop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ends active matches with bots by losing one of the bots (for tests).
+        /// </summary>
+        public static string Commands_ForceBotMatches {
+            get {
+                return ResourceManager.GetString("Commands_ForceBotMatches", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Forces the following event (for admins).
+        /// </summary>
+        public static string Commands_ForceEvent {
+            get {
+                return ResourceManager.GetString("Commands_ForceEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Get current information about the next event.
+        /// </summary>
+        public static string Commands_Info {
+            get {
+                return ResourceManager.GetString("Commands_Info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Exclude bot from the tournament (for tests).
+        /// </summary>
+        public static string Commands_KickBot {
+            get {
+                return ResourceManager.GetString("Commands_KickBot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Exclude all bots from the tournament (for tests).
+        /// </summary>
+        public static string Commands_KickBots {
+            get {
+                return ResourceManager.GetString("Commands_KickBots", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Exclude a player from the tournament.
+        /// </summary>
+        public static string Commands_KickPlayer {
+            get {
+                return ResourceManager.GetString("Commands_KickPlayer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Leave the activity or exclude yourself from registration.
+        /// </summary>
+        public static string Commands_Leave {
+            get {
+                return ResourceManager.GetString("Commands_Leave", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Output the list of active matches.
+        /// </summary>
+        public static string Commands_Matches {
+            get {
+                return ResourceManager.GetString("Commands_Matches", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Outputs your discord user id.
+        /// </summary>
+        public static string Commands_MyId {
+            get {
+                return ResourceManager.GetString("Commands_MyId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Register for an activity or change your race.
+        /// </summary>
+        public static string Commands_Play {
+            get {
+                return ResourceManager.GetString("Commands_Play", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Display a list of registered players.
+        /// </summary>
+        public static string Commands_Players {
+            get {
+                return ResourceManager.GetString("Commands_Players", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Display a list of users with a rating (for admins).
+        /// </summary>
+        public static string Commands_RatedUsers {
+            get {
+                return ResourceManager.GetString("Commands_RatedUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Rebuilds all bot commands (for admins).
+        /// </summary>
+        public static string Commands_RebuildCommands {
+            get {
+                return ResourceManager.GetString("Commands_RebuildCommands", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Update the leaderboard (for admins).
+        /// </summary>
+        public static string Commands_RefreshLeaderboard {
+            get {
+                return ResourceManager.GetString("Commands_RefreshLeaderboard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Add a user to the database (for admins).
+        /// </summary>
+        public static string Commands_RegisterUser {
+            get {
+                return ResourceManager.GetString("Commands_RegisterUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Change the rating value of the user in the database (for admins).
+        /// </summary>
+        public static string Commands_SetUsersScore {
+            get {
+                return ResourceManager.GetString("Commands_SetUsersScore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Immediately starts the tournament starting with the checkin.
+        /// </summary>
+        public static string Commands_Start {
+            get {
+                return ResourceManager.GetString("Commands_Start", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Find out your status in this activity.
+        /// </summary>
+        public static string Commands_Status {
+            get {
+                return ResourceManager.GetString("Commands_Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Count the game (for tests).
+        /// </summary>
+        public static string Commands_SubmitGame {
+            get {
+                return ResourceManager.GetString("Commands_SubmitGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Displays the current time and the remaining time to the next event.
+        /// </summary>
+        public static string Commands_Time {
+            get {
+                return ResourceManager.GetString("Commands_Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Output the schedule of all scheduled events.
+        /// </summary>
+        public static string Commands_Timeline {
+            get {
+                return ResourceManager.GetString("Commands_Timeline", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Output user information from the database (for admins).
+        /// </summary>
+        public static string Commands_User {
+            get {
+                return ResourceManager.GetString("Commands_User", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Display a list of users in the database (for admins).
+        /// </summary>
+        public static string Commands_Users {
+            get {
+                return ResourceManager.GetString("Commands_Users", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Outputs the current tournament grid (for tests).
+        /// </summary>
+        public static string Commands_View {
+            get {
+                return ResourceManager.GetString("Commands_View", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Start voting.
+        /// </summary>
+        public static string Commands_Vote {
+            get {
+                return ResourceManager.GetString("Commands_Vote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Start voting to add time.
+        /// </summary>
+        public static string Commands_VoteAddTime {
+            get {
+                return ResourceManager.GetString("Commands_VoteAddTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Start voting to ban a user.
+        /// </summary>
+        public static string Commands_VoteBan {
+            get {
+                return ResourceManager.GetString("Commands_VoteBan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Begin voting to exclude a user from the tournament.
+        /// </summary>
+        public static string Commands_VoteKick {
+            get {
+                return ResourceManager.GetString("Commands_VoteKick", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Get/Remove &apos;Waiting for Tournaments&apos; role.
+        /// </summary>
+        public static string Commands_Wait {
+            get {
+                return ResourceManager.GetString("Commands_Wait", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; The next stage begins! Grid Generation....
         /// </summary>
         public static string Event_NextStageStarted {
             get {
@@ -406,7 +811,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Внимание! Началась стадия чекина *{0} AutoCup {1}*.\nВсем участникам нужно выполнить команду __**/checkin**__ на канале активности для подтверждения своего участия.\nДлительность чек-ина {2} минут.\nРегистрация открыта до окончания чекина, при этом новым участникам вызов команды */checkin* не требуется, достаточно команды */play*.
+        ///   Ищет локализованную строку, похожую на Attention! {0} AutoCup {1} Checkin phase has begun.\nAll participants must run the __**/checkin**__ command on the activity channel to confirm their participation.\nThe checkout is open until the end of the checkout, but new participants do not need to call the */checkin** command, the */play* command is enough..
         /// </summary>
         public static string Events_ActivityCheckinStarted {
             get {
@@ -415,7 +820,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на __**{0} успешно завершен**__\n==================================================================================================\n.
+        ///   Ищет локализованную строку, похожую на __**{0} successfully completed**__\n=========================================================.
         /// </summary>
         public static string Events_ActivityCompleted {
             get {
@@ -424,7 +829,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Определился победитель, но турнир не будет засчитан, так как он полностью состоит из технических поражений. Должна быть сыграна хотя бы одна игра..
+        ///   Ищет локализованную строку, похожую на A winner is determined, but the tournament will not be counted, as it consists entirely of technical defeats. At least one game must be played..
         /// </summary>
         public static string Events_ActivityNotCounted {
             get {
@@ -433,7 +838,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Начинается активность *{0} AutoCup {1}*!.
+        ///   Ищет локализованную строку, похожую на The AutoCup activity *{0} AutoCup {1}* begins!.
         /// </summary>
         public static string Events_ActivityStarted {
             get {
@@ -442,7 +847,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на __**{0}**__ благополучно завершен!\nПоздравляем с победой игрока под ником __**{1}**__. Всем остальным желаем удачи на следующих турнирах!.
+        ///   Ищет локализованную строку, похожую на _**{0}**__ is safely finished!\nCongratulations to the player named __**{1}**__. We wish the rest of you good luck in the next events!.
         /// </summary>
         public static string Events_ArchiveHeader {
             get {
@@ -451,7 +856,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Сетка:.
+        ///   Ищет локализованную строку, похожую на Grid:.
         /// </summary>
         public static string Events_Bracket {
             get {
@@ -460,7 +865,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; **Матчи, которые должны быть сыграны в текущей стадии турнира:**.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; **Matches to be played in the current stage of the event:**.
         /// </summary>
         public static string Events_CurrentStageMatches {
             get {
@@ -469,7 +874,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Быстрое голосование по незавершенному матчу. Кому присудить техническое поражение?.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Quick vote on an incomplete match. Who should be awarded a technical defeat?.
         /// </summary>
         public static string Events_FastVotingForUncompletedMatch {
             get {
@@ -478,7 +883,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на __**{0} завершен без учета результатов**__\n==================================================================================================\n.
+        ///   Ищет локализованную строку, похожую на __**{0} completed without results**__\n==================================================================================================\n.
         /// </summary>
         public static string Events_FinishedWithNoResults {
             get {
@@ -487,7 +892,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Первая стадия турнира началась. Пошел отсчет времени __**{TimeSpan.FromMinutes(_options.StageTimeoutMinutes).PrettyPrint()}**__ до конца стадии..
+        ///   Ищет локализованную строку, похожую на The first stage of the event has begun. There is a __**{0}** countdown to the end of the stage..
         /// </summary>
         public static string Events_FirstStageStarted {
             get {
@@ -496,7 +901,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Полная сетка:.
+        ///   Ищет локализованную строку, похожую на Full grid:.
         /// </summary>
         public static string Events_FullBracket {
             get {
@@ -505,7 +910,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на ---\nИгру хостят вот эти ребята:.
+        ///   Ищет локализованную строку, похожую на ---\n Hosts:.
         /// </summary>
         public static string Events_Hosts {
             get {
@@ -514,7 +919,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Таблица лидеров была обновлена..
+        ///   Ищет локализованную строку, похожую на The leaderboard has been updated..
         /// </summary>
         public static string Events_LeaderboardHasBeenUpdated {
             get {
@@ -523,7 +928,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на --- __**Таблица лидеров**__ ---.
+        ///   Ищет локализованную строку, похожую на --- __**Leaderboard**__ ---.
         /// </summary>
         public static string Events_LeaderBoardHeader {
             get {
@@ -532,7 +937,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Московское время {0}\nСледующее событие &apos;**{1}**&apos; наступит через **{2}**..
+        ///   Ищет локализованную строку, похожую на Moscow time {0}\nThe next event &apos;**{1}**&apos; will occur in **{2}**..
         /// </summary>
         public static string Events_NextEvent {
             get {
@@ -541,7 +946,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Без турниров сегодня :).
+        ///   Ищет локализованную строку, похожую на No events today :).
         /// </summary>
         public static string Events_NoTournamentsToday {
             get {
@@ -550,7 +955,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Сыгранные матчи:.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Played Matches:.
         /// </summary>
         public static string Events_PlayedMatches {
             get {
@@ -559,7 +964,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на ---\nНа скамейке отдыхающих на этот раз:.
+        ///   Ищет локализованную строку, похожую на ---\nOn the resting bench this time:.
         /// </summary>
         public static string Events_Relaxing {
             get {
@@ -568,7 +973,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на **Не забывайте использовать DowStats и прикрепленный Steam аккаунт, иначе матч не будет засчитан!**.
+        ///   Ищет локализованную строку, похожую на **Don&apos;t forget to use DowStats and an attached Steam account, otherwise the match won&apos;t count!**.
         /// </summary>
         public static string Events_RulesRemind {
             get {
@@ -577,7 +982,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Единственный матч в этой стадии еще не доигран. Завершение стадии отложено на __**5 минут.**__.
+        ///   Ищет локализованную строку, похожую на &gt; The only match in this stage has not yet been completed. The completion of this stage has been postponed for __**5 minutes.**__.
         /// </summary>
         public static string Events_SingleMatchNotFinished {
             get {
@@ -586,7 +991,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Стадия была успешно завершена! Следующая стадия начнется после {0}-минутного перерыва..
+        ///   Ищет локализованную строку, похожую на The stage has been successfully completed! The next stage will begin after a {0} minute break..
         /// </summary>
         public static string Events_StageCompleted {
             get {
@@ -595,7 +1000,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Половина или более матчей еще не доиграны. Завершение стадии отложено на __**5 минут**__..
+        ///   Ищет локализованную строку, похожую на &gt; Half or more matches are still to be played. The completion of the stage has been postponed for __**5 minutes**__..
         /// </summary>
         public static string Events_StageCompletionDelayed {
             get {
@@ -604,7 +1009,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Новая стадия началась. Пошел отсчет времени __**{0}**__ до конца стадии..
+        ///   Ищет локализованную строку, похожую на A new stage has begun. There is a __**{0}**__ countdown to the end of the stage..
         /// </summary>
         public static string Events_StageTimeInfo {
             get {
@@ -613,7 +1018,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Присуждено техническое поражение игроку под ником **{0}**..
+        ///   Ищет локализованную строку, похожую на &gt; A technical defeat was awarded to the player with the nickname **{0}**..
         /// </summary>
         public static string Events_TechLoseToPlayer {
             get {
@@ -622,7 +1027,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Турнир отменен, так как участников недостаточно. Список зарегистрированных был обнулен.\nСледующий турнир начнется, когда снова зарегистрируются {0} участника..
+        ///   Ищет локализованную строку, похожую на Event has been cancelled, because there are not enough participants. Next event will start when {0} participants are registered again..
         /// </summary>
         public static string Events_TournamentCancelledNoPlayers {
             get {
@@ -631,7 +1036,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на В данный момент активность невозможно начать, так как участников недостаточно.\nМинимальное количество участников 4.\nСписок зарегистрированных был обнулен..
+        ///   Ищет локализованную строку, похожую на At the moment, the activity cannot be started because there are not enough participants.\nMinimum number of participants is 4.\nThe list of registered participants has been reset..
         /// </summary>
         public static string Events_UnableToStartNoPlayers {
             get {
@@ -640,7 +1045,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Результат голосования не принят, так как матч был завершен..
+        ///   Ищет локализованную строку, похожую на &gt; The voting result is not accepted because the match has been completed..
         /// </summary>
         public static string Events_VotingCancelledCauseMatchFinished {
             get {
@@ -649,7 +1054,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Голосование завершено..
+        ///   Ищет локализованную строку, похожую на &gt; Voting is complete..
         /// </summary>
         public static string Events_VotingHasBeenEnded {
             get {
@@ -658,7 +1063,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Результат голосования не принят, так как голоса разделились поровну, либо никто не проголосовал.\nНо решение все равно нужно принять, поэтому техническое поражение выдается игроку на усмотрение бота..
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Voting result is not accepted, because the votes are divided equally, or no one voted.\nBut still need to make a decision, so the technical defeat is given to the player at the discretion of the bot..
         /// </summary>
         public static string Events_VotingResultNotDefined {
             get {
@@ -667,7 +1072,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Определился победитель турнира!.
+        ///   Ищет локализованную строку, похожую на A winner has been determined!.
         /// </summary>
         public static string Events_WeGotWinner {
             get {
@@ -676,7 +1081,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Следующее событие было форсировано..
+        ///   Ищет локализованную строку, похожую на &gt; The following event was forced..
         /// </summary>
         public static string ForceEvent_Done {
             get {
@@ -685,7 +1090,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Сейчас нет запланированных событий..
+        ///   Ищет локализованную строку, похожую на &gt; There are no scheduled events right now..
         /// </summary>
         public static string ForceEvent_NoEvents {
             get {
@@ -694,7 +1099,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Пока никто не зарегистрировался, но, возможно, вы будете первым :).
+        ///   Ищет локализованную строку, похожую на No one has registered yet, but you might be the first :).
         /// </summary>
         public static string Info_NobodyRegisteredMessage {
             get {
@@ -703,7 +1108,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Зарегистрировано участников: {0}.
+        ///   Ищет локализованную строку, похожую на Registered participants: {0}.
         /// </summary>
         public static string Info_RegisteredPlayers {
             get {
@@ -712,7 +1117,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Тип турнира: {0}.
+        ///   Ищет локализованную строку, похожую на Tournament type: {0}.
         /// </summary>
         public static string Info_TournamentType {
             get {
@@ -721,7 +1126,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Игрок уже был забанен..
+        ///   Ищет локализованную строку, похожую на &gt; The player has already been banned..
         /// </summary>
         public static string KickPlayer_AlreadyBanned {
             get {
@@ -730,7 +1135,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Игрок уже был исключен из активности администрацией..
+        ///   Ищет локализованную строку, похожую на &gt; The player has already been excluded from the activity by the administration..
         /// </summary>
         public static string KickPlayer_AlreadyKickedByAdmin {
             get {
@@ -739,7 +1144,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Игрок уже покинул эту активность..
+        ///   Ищет локализованную строку, похожую на &gt; The player has already left this activity..
         /// </summary>
         public static string KickPlayer_AlreadyLeftTheTournament {
             get {
@@ -748,7 +1153,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Нельзя исключить игрока из активност, в которой он не зарегистрирован..
+        ///   Ищет локализованную строку, похожую на &gt; You cannot exclude a player from an activity in which he is not registered..
         /// </summary>
         public static string KickPlayer_ImposibleToKickNotRegisteredPlayer {
             get {
@@ -757,7 +1162,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы не можете покинуть активность, так как вы уже покинули ее путем голосования..
+        ///   Ищет локализованную строку, похожую на &gt; You cannot leave the activity because you have already left it by voting..
         /// </summary>
         public static string KickPlayer_ImposibleToLeaveWhenAlreadyLeftByVoting {
             get {
@@ -766,7 +1171,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Не удалось исключить игрока из активности..
+        ///   Ищет локализованную строку, похожую на &gt; Failed to exclude a player from activity..
         /// </summary>
         public static string KickPlayer_NotSucceded {
             get {
@@ -775,7 +1180,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Пользователь не зарегистрирован в системе..
+        ///   Ищет локализованную строку, похожую на &gt; The user is not registered in the system..
         /// </summary>
         public static string KickPlayer_NoUser {
             get {
@@ -784,7 +1189,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Игрок **{0}** покинул активность..
+        ///   Ищет локализованную строку, похожую на &gt; Player **{0}** has left the activity..
         /// </summary>
         public static string KickPlayer_PlayerLeftTournament {
             get {
@@ -793,7 +1198,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы не можете покинуть активность, так как вы были забанены..
+        ///   Ищет локализованную строку, похожую на &gt; You cannot leave the activity because you have been banned..
         /// </summary>
         public static string Leave_ImposibleToLeaveCauseBanned {
             get {
@@ -802,7 +1207,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы не можете покинуть турнир, так как вы были исключены из него администрацией..
+        ///   Ищет локализованную строку, похожую на &gt; You cannot leave the tournament because you have been excluded from it by the administration..
         /// </summary>
         public static string Leave_ImposibleToLeaveCauseKickedByAdmin {
             get {
@@ -811,7 +1216,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы покинули текущую активность..
+        ///   Ищет локализованную строку, похожую на &gt; You have left the current activity..
         /// </summary>
         public static string Leave_Successfull {
             get {
@@ -820,7 +1225,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы не можете покинуть активность, так как вы уже покинули ее путем голосования..
+        ///   Ищет локализованную строку, похожую на &gt; You cannot leave the activity because you have already left it by voting..
         /// </summary>
         public static string Leave_YouAreAlreadyKickedByVoting {
             get {
@@ -829,7 +1234,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Активность уже началась, изменения в данный момент невозможны..
+        ///   Ищет локализованную строку, похожую на &gt; Activity has already begun, changes are not possible at this time..
         /// </summary>
         public static string Play_ActivityStarted {
             get {
@@ -838,7 +1243,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Вы уже зарегистрированы на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You are already registered for the activity.\nAccount on DowStats: {0} \nChosen race: {1}.
         /// </summary>
         public static string Play_AlreadyRegistered {
             get {
@@ -847,7 +1252,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Вы уже зарегистрированы на активность, но смена расы на данный момент невозможна.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You are already registered for the activity, but race change is not possible at this time.\nAccount on DowStats: {0} \nChosen race: {1}.
         /// </summary>
         public static string Play_AlreadyRegisteredButNoChanges {
             get {
@@ -856,7 +1261,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Не удалось выполнить регистрацию..
+        ///   Ищет локализованную строку, похожую на &gt; Registration failed..
         /// </summary>
         public static string Play_Imposible {
             get {
@@ -865,9 +1270,9 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Для участия в активностях бота нужно подтвердить связь своей учетной записи со Steam. 
-        ///Для этого нужно сперва добавить учетную запись стим в интеграции в настройках профиля вашего Discord аккаунта. 
-        ///Сделать интеграцию видимой публично и затем перейти по ссылке ниже для подтверждения. Регистрироваться на активности могут только Steam аккаунты, имеющие не менее 300 сыгранных игр всего в сервисе DowStats..
+        ///   Ищет локализованную строку, похожую на To participate in bot activities, you need to confirm the connection of your account with Steam. 
+        ///To do this, first add your Steam account to the integration in your Discord account profile settings. 
+        ///Make the integration publicly visible and then click the link below to confirm it. Only Steam accounts with at least 300 games played in total in the DowStats service can register for the activity..
         /// </summary>
         public static string Play_InstructionsMessage {
             get {
@@ -876,7 +1281,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &quot;&gt;&gt;&gt; Недостаточно игр на аккаунте Steam.\nРегистрироваться на турнирах могут только Steam аккаунты, имеющие не менее **300 сыгранных игр** всего в сервисе DowStats.\nВозвращайтесь, когда наиграете больше игр :).
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Not enough games on your Steam account.\nOnly Steam accounts with at least **300 games played** total in the DowStats service can register for tournaments.\nReturn back when you have played more games :).
         /// </summary>
         public static string Play_NotEnoughGames {
             get {
@@ -885,7 +1290,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Для регистрации в системе необходимо присоединить Steam аккаунт к вашему профилю. Инструкция отправлена в личные сообщения..
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; To register in the system, you need to attach your Steam account to your profile. Instructions are sent in personal messages..
         /// </summary>
         public static string Play_RegisterIntroMessage {
             get {
@@ -894,7 +1299,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Вы были успешно зарегистрированы на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You were successfully logged into the activity.\nAccount on DowStats: {0} \nSelected race: {1}.
         /// </summary>
         public static string Play_Successfull {
             get {
@@ -903,7 +1308,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Вы были успешно зарегистрированы и зачекинены на активность.\nАккаунт на DowStats: {0} \nВыбранная раса: {1}.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You have been successfully registered and checked in for activity.\nAccount on DowStats: {0} \nSelected race: {1}.
         /// </summary>
         public static string Play_SuccessfullAndChekined {
             get {
@@ -912,7 +1317,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на В данный момент никто не зарегистрирован на активность..
+        ///   Ищет локализованную строку, похожую на No one is currently registered for the activity..
         /// </summary>
         public static string Players_NobodyRegistered {
             get {
@@ -921,7 +1326,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Засчитана победа **{0}** в матче против **{1}**.\nСсылка на игру: {2}.
+        ///   Ищет локализованную строку, похожую на &gt; A victory was counted for **{0}** in the match against **{1}**.\nGame link: {2}.
         /// </summary>
         public static string Scanner_MatchAccepted {
             get {
@@ -930,7 +1335,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Следующее событие &apos;**{0}**&apos; наступит через **{1}**..
+        ///   Ищет локализованную строку, похожую на The next event &apos;**{0}**&apos; will occur in **{1}**..
         /// </summary>
         public static string Time_NextEvent {
             get {
@@ -939,7 +1344,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Ваше время **&lt;t:{0}:t&gt;**\nМосковское время **{1}**.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Your time **&lt;t:{0}:t&gt;**\n Moscow time **{1}**.
         /// </summary>
         public static string Time_Time {
             get {
@@ -948,7 +1353,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Активности вас не побеспокоят.
+        ///   Ищет локализованную строку, похожую на &gt; Activity won&apos;t bother you.
         /// </summary>
         public static string Wait_Disabled {
             get {
@@ -957,7 +1362,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; Вы будете получать уведомления о начинающихся активностях.
+        ///   Ищет локализованную строку, похожую на &gt; You will be notified when an activity begins.
         /// </summary>
         public static string Wait_Enabled {
             get {

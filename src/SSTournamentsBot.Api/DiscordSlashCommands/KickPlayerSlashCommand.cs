@@ -13,7 +13,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class KickPlayerSlashCommand : SlashCommandBase
     {
         public override string Name => "kick-player";
-        public override string Description => "Исключить игрока из турнира";
+        public override string DescriptionKey=> nameof(S.Commands_KickPlayer);
 
         readonly IDataService _dataService;
         readonly ITournamentEventsHandler _eventsHandler;

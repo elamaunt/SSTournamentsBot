@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System;
 using System.Globalization;
@@ -13,7 +14,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class SubmitGameSlashCommand : SlashCommandBase
     {
         public override string Name => "submit-game";
-        public override string Description => "Засчитать игру (для тестов)";
+        public override string DescriptionKey=> nameof(S.Commands_SubmitGame);
 
         readonly TournamentApi _tournamentApi;
         readonly IEventsTimeline _timeline;

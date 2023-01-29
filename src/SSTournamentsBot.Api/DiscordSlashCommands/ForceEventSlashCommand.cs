@@ -21,7 +21,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override string Name => "force-event";
 
-        public override string Description => "Форсирует следующее событие (для админов)";
+        public override string DescriptionKey=> nameof(S.Commands_ForceEvent);
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {

@@ -12,7 +12,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class BanMapsSlashCommand : SlashCommandBase
     {
         public override string Name => "ban-maps";
-        public override string Description => "Перманентно забанить карты в своих матчах";
+        public override string DescriptionKey=> nameof(S.Commands_BanMaps);
 
         readonly IDataService _dataService;
         readonly TournamentApi _tournamentApi;

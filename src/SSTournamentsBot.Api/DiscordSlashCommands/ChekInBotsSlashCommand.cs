@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
     public class ChekInBotsSlashCommand : SlashCommandBase
     {
         public override string Name => "checkin-bots";
-        public override string Description => "Зачекинить всех ботов из турнира (для тестов)";
+        public override string DescriptionKey=> nameof(S.Commands_CheckInBots);
 
         readonly TournamentApi _tournamentApi;
         public ChekInBotsSlashCommand(TournamentApi tournamentApi)
