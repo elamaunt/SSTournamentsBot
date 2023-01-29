@@ -36,7 +36,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             else
                 infoBuilder.AppendLine(OfKey(nameof(S.Info_RegisteredPlayers)).Format(players.Length));
 
-            await arg.RespondAsync(infoBuilder.ToString());
+            await arg.RespondAsync(infoBuilder.Build(culture));
         }
     }
 }

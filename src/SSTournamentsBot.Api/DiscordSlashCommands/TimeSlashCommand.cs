@@ -43,7 +43,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 text.AppendLine(OfKey(S.Bot_NoEvents));
             }
 
-            await arg.RespondAsync(text.Build());
+            await arg.RespondAsync(text.Build(culture));
         }
     }
 }
