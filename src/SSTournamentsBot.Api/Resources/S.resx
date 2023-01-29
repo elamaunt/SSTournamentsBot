@@ -223,7 +223,8 @@ Have fun playing!</value>
     <value>&gt; An error occurred when calling a player</value>
   </data>
   <data name="Call_ImposibleToComply" xml:space="preserve">
-    <value>&gt;&gt;&gt; Your opponent with the nickname **{0}** cannot be called. He may have left the server. \n&gt;&gt;&gt; He will be given a technical defeat.</value>
+    <value>&gt;&gt;&gt; Your opponent with the nickname **{0}** cannot be called. He may have left the server. 
+&gt;&gt;&gt; He will be given a technical defeat.</value>
   </data>
   <data name="Call_NoOpponent" xml:space="preserve">
     <value>&gt; At this point your opponent has not yet been identified.</value>
@@ -367,10 +368,13 @@ Have fun playing!</value>
     <value>Get/Remove 'Waiting for Tournaments' role</value>
   </data>
   <data name="Events_ActivityCheckinStarted" xml:space="preserve">
-    <value>Attention! {0} AutoCup {1} Checkin phase has begun.\nAll participants must run the __**/checkin**__ command on the activity channel to confirm their participation.\nThe checkout is open until the end of the checkout, but new participants do not need to call the */checkin** command, the */play* command is enough.</value>
+    <value>Attention! {0} AutoCup {1} Checkin phase has begun.
+All participants must run the __**/checkin**__ command on the activity channel to confirm their participation.
+The checkout is open until the end of the checkout, but new participants do not need to call the */checkin** command, the */play* command is enough.</value>
   </data>
   <data name="Events_ActivityCompleted" xml:space="preserve">
-    <value>__**{0} successfully completed**__\n=========================================================</value>
+    <value>__**{0} successfully completed**__
+=========================================================</value>
   </data>
   <data name="Events_ActivityNotCounted" xml:space="preserve">
     <value>A winner is determined, but the tournament will not be counted, as it consists entirely of technical defeats. At least one game must be played.</value>
@@ -379,7 +383,8 @@ Have fun playing!</value>
     <value>The activity *{0} AutoCup {1}* begins!</value>
   </data>
   <data name="Events_ArchiveHeader" xml:space="preserve">
-    <value>_**{0}**__ is safely finished!\nCongratulations to the player named __**{1}**__. We wish the rest of you good luck in the next events!</value>
+    <value>_**{0}**__ is safely finished!
+Congratulations to the player named __**{1}**__. We wish the rest of you good luck in the next events!</value>
   </data>
   <data name="Events_Bracket" xml:space="preserve">
     <value>Grid:</value>
@@ -391,7 +396,9 @@ Have fun playing!</value>
     <value>&gt;&gt;&gt; Quick vote on an incomplete match. Who should be awarded a technical defeat?</value>
   </data>
   <data name="Events_FinishedWithNoResults" xml:space="preserve">
-    <value>__**{0} completed without results**__\n==================================================================================================\n</value>
+    <value>__**{0} completed without results**__
+==================================================================================================
+</value>
   </data>
   <data name="Events_FirstStageStarted" xml:space="preserve">
     <value>The first stage of the event has begun. There is a __**{0}** countdown to the end of the stage.</value>
@@ -400,7 +407,8 @@ Have fun playing!</value>
     <value>Full grid:</value>
   </data>
   <data name="Events_Hosts" xml:space="preserve">
-    <value>---\n Hosts:</value>
+    <value>---
+Hosts:</value>
   </data>
   <data name="Events_LeaderboardHasBeenUpdated" xml:space="preserve">
     <value>The leaderboard has been updated.</value>
@@ -409,7 +417,8 @@ Have fun playing!</value>
     <value>--- __**Leaderboard**__ ---</value>
   </data>
   <data name="Events_NextEvent" xml:space="preserve">
-    <value>Moscow time {0}\nThe next event '**{1}**' will occur in **{2}**.</value>
+    <value>Moscow time {0}
+The next event '**{1}**' will occur in **{2}**.</value>
   </data>
   <data name="Events_NoTournamentsToday" xml:space="preserve">
     <value>No events today :)</value>
@@ -418,7 +427,8 @@ Have fun playing!</value>
     <value>&gt;&gt;&gt; Played Matches:</value>
   </data>
   <data name="Events_Relaxing" xml:space="preserve">
-    <value>---\nOn the resting bench this time:</value>
+    <value>---
+On the resting bench this time:</value>
   </data>
   <data name="Events_RulesRemind" xml:space="preserve">
     <value>**Don't forget to use DowStats and an attached Steam account, otherwise the match won't count!**</value>
@@ -442,7 +452,9 @@ Have fun playing!</value>
     <value>Event has been cancelled, because there are not enough participants. Next event will start when {0} participants are registered again.</value>
   </data>
   <data name="Events_UnableToStartNoPlayers" xml:space="preserve">
-    <value>At the moment, the activity cannot be started because there are not enough participants.\nMinimum number of participants is 4.\nThe list of registered participants has been reset.</value>
+    <value>At the moment, the activity cannot be started because there are not enough participants.
+Minimum number of participants is 4.
+The list of registered participants has been reset.</value>
   </data>
   <data name="Events_VotingCancelledCauseMatchFinished" xml:space="preserve">
     <value>&gt; The voting result is not accepted because the match has been completed.</value>
@@ -451,7 +463,8 @@ Have fun playing!</value>
     <value>&gt; Voting is complete.</value>
   </data>
   <data name="Events_VotingResultNotDefined" xml:space="preserve">
-    <value>&gt;&gt;&gt; Voting result is not accepted, because the votes are divided equally, or no one voted.\nBut still need to make a decision, so the technical defeat is given to the player at the discretion of the bot.</value>
+    <value>&gt;&gt;&gt; Voting result is not accepted, because the votes are divided equally, or no one voted.
+But still need to make a decision, so the technical defeat is given to the player at the discretion of the bot.</value>
   </data>
   <data name="Events_WeGotWinner" xml:space="preserve">
     <value>A winner has been determined!</value>
@@ -517,10 +530,14 @@ Have fun playing!</value>
     <value>&gt; Activity has already begun, changes are not possible at this time.</value>
   </data>
   <data name="Play_AlreadyRegistered" xml:space="preserve">
-    <value>&gt;&gt;&gt; You are already registered for the activity.\nAccount on DowStats: {0} \nChosen race: {1}</value>
+    <value>&gt;&gt;&gt; You are already registered for the activity.
+Account on DowStats: {0} 
+Selected race: {1}</value>
   </data>
   <data name="Play_AlreadyRegisteredButNoChanges" xml:space="preserve">
-    <value>&gt;&gt;&gt; You are already registered for the activity, but race change is not possible at this time.\nAccount on DowStats: {0} \nChosen race: {1}</value>
+    <value>&gt;&gt;&gt; You are already registered for the activity, but race change is not possible at this time.
+Account on DowStats: {0} 
+Selected race: {1}</value>
   </data>
   <data name="Play_Imposible" xml:space="preserve">
     <value>&gt; Registration failed.</value>
@@ -531,25 +548,33 @@ To do this, first add your Steam account to the integration in your Discord acco
 Make the integration publicly visible and then click the link below to confirm it. Only Steam accounts with at least 300 games played in total in the DowStats service can register for the activity.</value>
   </data>
   <data name="Play_NotEnoughGames" xml:space="preserve">
-    <value>&gt;&gt;&gt; Not enough games on your Steam account.\nOnly Steam accounts with at least **300 games played** total in the DowStats service can register for tournaments.\nReturn back when you have played more games :)</value>
+    <value>&gt;&gt;&gt; Not enough games on your Steam account.
+Only Steam accounts with at least **300 games played** total in the DowStats service can register for tournaments.
+Return back when you have played more games :)</value>
   </data>
   <data name="Play_RegisterIntroMessage" xml:space="preserve">
     <value>&gt;&gt;&gt; To register in the system, you need to attach your Steam account to your profile. Instructions are sent in personal messages.</value>
   </data>
   <data name="Play_Successfull" xml:space="preserve">
-    <value>&gt;&gt;&gt; You were successfully logged into the activity.\nAccount on DowStats: {0} \nSelected race: {1}</value>
+    <value>&gt;&gt;&gt; You were successfully logged into the activity.
+Account on DowStats: {0} 
+Selected race: {1}</value>
   </data>
   <data name="Play_SuccessfullAndChekined" xml:space="preserve">
-    <value>&gt;&gt;&gt; You have been successfully registered and checked in for activity.\nAccount on DowStats: {0} \nSelected race: {1}</value>
+    <value>&gt;&gt;&gt; You have been successfully registered and checked in for activity.
+Account on DowStats: {0} 
+Selected race: {1}</value>
   </data>
   <data name="Scanner_MatchAccepted" xml:space="preserve">
-    <value>&gt; A victory was counted for **{0}** in the match against **{1}**.\nGame link: {2}</value>
+    <value>&gt; A victory was counted for **{0}** in the match against **{1}**.
+Game link: {2}</value>
   </data>
   <data name="Time_NextEvent" xml:space="preserve">
     <value>The next event '**{0}**' will occur in **{1}**.</value>
   </data>
   <data name="Time_Time" xml:space="preserve">
-    <value>&gt;&gt;&gt; Your time **&lt;t:{0}:t&gt;**\n Moscow time **{1}**</value>
+    <value>&gt;&gt;&gt; Your time **&lt;t:{0}:t&gt;**
+Moscow time **{1}**</value>
   </data>
   <data name="Wait_Disabled" xml:space="preserve">
     <value>&gt; Activity won't bother you</value>

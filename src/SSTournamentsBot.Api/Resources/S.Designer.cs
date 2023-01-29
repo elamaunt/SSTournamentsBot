@@ -370,7 +370,8 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Your opponent with the nickname **{0}** cannot be called. He may have left the server. \n&gt;&gt;&gt; He will be given a technical defeat..
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Your opponent with the nickname **{0}** cannot be called. He may have left the server. 
+        ///&gt;&gt;&gt; He will be given a technical defeat..
         /// </summary>
         public static string Call_ImposibleToComply {
             get {
@@ -811,7 +812,9 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Attention! {0} AutoCup {1} Checkin phase has begun.\nAll participants must run the __**/checkin**__ command on the activity channel to confirm their participation.\nThe checkout is open until the end of the checkout, but new participants do not need to call the */checkin** command, the */play* command is enough..
+        ///   Ищет локализованную строку, похожую на Attention! {0} AutoCup {1} Checkin phase has begun.
+        ///All participants must run the __**/checkin**__ command on the activity channel to confirm their participation.
+        ///The checkout is open until the end of the checkout, but new participants do not need to call the */checkin** command, the */play* command is enough..
         /// </summary>
         public static string Events_ActivityCheckinStarted {
             get {
@@ -820,7 +823,8 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на __**{0} successfully completed**__\n=========================================================.
+        ///   Ищет локализованную строку, похожую на __**{0} successfully completed**__
+        ///=========================================================.
         /// </summary>
         public static string Events_ActivityCompleted {
             get {
@@ -847,7 +851,8 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на _**{0}**__ is safely finished!\nCongratulations to the player named __**{1}**__. We wish the rest of you good luck in the next events!.
+        ///   Ищет локализованную строку, похожую на _**{0}**__ is safely finished!
+        ///Congratulations to the player named __**{1}**__. We wish the rest of you good luck in the next events!.
         /// </summary>
         public static string Events_ArchiveHeader {
             get {
@@ -883,7 +888,9 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на __**{0} completed without results**__\n==================================================================================================\n.
+        ///   Ищет локализованную строку, похожую на __**{0} completed without results**__
+        ///==================================================================================================
+        ///.
         /// </summary>
         public static string Events_FinishedWithNoResults {
             get {
@@ -910,7 +917,8 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на ---\n Hosts:.
+        ///   Ищет локализованную строку, похожую на ---
+        ///Hosts:.
         /// </summary>
         public static string Events_Hosts {
             get {
@@ -937,7 +945,8 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Moscow time {0}\nThe next event &apos;**{1}**&apos; will occur in **{2}**..
+        ///   Ищет локализованную строку, похожую на Moscow time {0}
+        ///The next event &apos;**{1}**&apos; will occur in **{2}**..
         /// </summary>
         public static string Events_NextEvent {
             get {
@@ -964,7 +973,8 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на ---\nOn the resting bench this time:.
+        ///   Ищет локализованную строку, похожую на ---
+        ///On the resting bench this time:.
         /// </summary>
         public static string Events_Relaxing {
             get {
@@ -1036,7 +1046,9 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на At the moment, the activity cannot be started because there are not enough participants.\nMinimum number of participants is 4.\nThe list of registered participants has been reset..
+        ///   Ищет локализованную строку, похожую на At the moment, the activity cannot be started because there are not enough participants.
+        ///Minimum number of participants is 4.
+        ///The list of registered participants has been reset..
         /// </summary>
         public static string Events_UnableToStartNoPlayers {
             get {
@@ -1063,7 +1075,8 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Voting result is not accepted, because the votes are divided equally, or no one voted.\nBut still need to make a decision, so the technical defeat is given to the player at the discretion of the bot..
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Voting result is not accepted, because the votes are divided equally, or no one voted.
+        ///But still need to make a decision, so the technical defeat is given to the player at the discretion of the bot..
         /// </summary>
         public static string Events_VotingResultNotDefined {
             get {
@@ -1243,7 +1256,9 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You are already registered for the activity.\nAccount on DowStats: {0} \nChosen race: {1}.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You are already registered for the activity.
+        ///Account on DowStats: {0} 
+        ///Selected race: {1}.
         /// </summary>
         public static string Play_AlreadyRegistered {
             get {
@@ -1252,7 +1267,9 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You are already registered for the activity, but race change is not possible at this time.\nAccount on DowStats: {0} \nChosen race: {1}.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You are already registered for the activity, but race change is not possible at this time.
+        ///Account on DowStats: {0} 
+        ///Selected race: {1}.
         /// </summary>
         public static string Play_AlreadyRegisteredButNoChanges {
             get {
@@ -1281,7 +1298,9 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Not enough games on your Steam account.\nOnly Steam accounts with at least **300 games played** total in the DowStats service can register for tournaments.\nReturn back when you have played more games :).
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Not enough games on your Steam account.
+        ///Only Steam accounts with at least **300 games played** total in the DowStats service can register for tournaments.
+        ///Return back when you have played more games :).
         /// </summary>
         public static string Play_NotEnoughGames {
             get {
@@ -1299,7 +1318,9 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You were successfully logged into the activity.\nAccount on DowStats: {0} \nSelected race: {1}.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You were successfully logged into the activity.
+        ///Account on DowStats: {0} 
+        ///Selected race: {1}.
         /// </summary>
         public static string Play_Successfull {
             get {
@@ -1308,7 +1329,9 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You have been successfully registered and checked in for activity.\nAccount on DowStats: {0} \nSelected race: {1}.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; You have been successfully registered and checked in for activity.
+        ///Account on DowStats: {0} 
+        ///Selected race: {1}.
         /// </summary>
         public static string Play_SuccessfullAndChekined {
             get {
@@ -1326,7 +1349,8 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; A victory was counted for **{0}** in the match against **{1}**.\nGame link: {2}.
+        ///   Ищет локализованную строку, похожую на &gt; A victory was counted for **{0}** in the match against **{1}**.
+        ///Game link: {2}.
         /// </summary>
         public static string Scanner_MatchAccepted {
             get {
@@ -1344,7 +1368,8 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Your time **&lt;t:{0}:t&gt;**\n Moscow time **{1}**.
+        ///   Ищет локализованную строку, похожую на &gt;&gt;&gt; Your time **&lt;t:{0}:t&gt;**
+        ///Moscow time **{1}**.
         /// </summary>
         public static string Time_Time {
             get {
