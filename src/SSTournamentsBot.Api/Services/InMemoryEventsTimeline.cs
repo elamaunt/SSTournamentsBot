@@ -81,8 +81,11 @@ namespace SSTournamentsBot.Api.Services
             for (int i = 0; i < _events.Length; i++)
             {
                 var info = _events[i];
-                
-                if (info.Event == ev.Event && GetEventsDate(info) == ev.StartDate)
+
+                if (info == null)
+                    continue;
+
+                if (info.ContextName == ev.ContextName && info.Event == ev.Event && GetEventsDate(info) == ev.StartDate)
                     Interlocked.Exchange(ref _events[i], null);
             }
         }

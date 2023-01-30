@@ -320,7 +320,7 @@ namespace SSTournamentsBot.Api.Services
                     {
                         await channels[k].ModifyMessageAsync(messageEntry.Id, x =>
                         {
-                            x.Content = message.Build();
+                            x.Content = message.Build(CultureInfo.GetCultureInfo("en"));
                         });
                     }
                     else

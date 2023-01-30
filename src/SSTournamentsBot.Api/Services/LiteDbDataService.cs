@@ -184,10 +184,15 @@ namespace SSTournamentsBot.Api.Services
         {
             var col = _liteDb.GetCollection<UserInActivityModel>(contextName);
 
-            var userByDiscordId = col.FindOne(x => x.DiscordId == discordId) ?? new UserInActivityModel();
+            var userByDiscordId = col.FindOne(x => x.DiscordId == discordId);
 
-            userByDiscordId.DiscordId = discordId;
-            userByDiscordId.SteamId = steamId;
+            if (userByDiscordId == null || userByDiscordId.SteamId == 0)
+            {
+                userByDiscordId = new UserInActivityModel();
+                userByDiscordId.DiscordId = discordId;
+                userByDiscordId.SteamId = steamId;
+                col.Upsert(userByDiscordId);
+            }
 
             return userByDiscordId;
         }

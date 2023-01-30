@@ -973,6 +973,15 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на --- __**Rating changes**__ ---.
+        /// </summary>
+        public static string Events_RatingChanged {
+            get {
+                return ResourceManager.GetString("Events_RatingChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на ---
         ///On the resting bench this time:.
         /// </summary>

@@ -50,7 +50,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             Task Responce(string message) => arg.ModifyOriginalResponseAsync(x => x.Content = message);
 
-            if (!userData.StatsVerified)
+            /*if (!userData.StatsVerified)
             {
                 var stats = await _statsApi.LoadPlayerStats(userData.SteamId);
 
@@ -66,7 +66,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     await Responce(OfKey(nameof(S.Bot_ImposibleToUpdateDataBase)).Build(culture));
                     return;
                 }
-            }
+            }*/
 
             var race = RaceOrRandom.RandomEveryMatch;
             var raceOption = arg.Data.Options.FirstOrDefault(x => x.Name == "race");

@@ -552,10 +552,10 @@ namespace SSTournamentsBot.Api.Services
             await ServiceHelpers.RefreshLeadersVanilla(context, _dataService);
 
             if (printedChanges != null && mentions != null)
-                await context.BotApi.SendMessage(context, Text.OfValue(printedChanges), GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History, Mentions(context));
+                await context.BotApi.SendMessage(context, printedChanges, GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History, Mentions(context));
         }
 
-        private (string, ulong[]) PrintChangesAndUpdateUsersInDataServiceVanilla(Context context, Dictionary<ulong, (UserData Data, string Name, int AddedScore, int Penalties)> modifiedUsers)
+        private (IText, ulong[]) PrintChangesAndUpdateUsersInDataServiceVanilla(Context context, Dictionary<ulong, (UserData Data, string Name, int AddedScore, int Penalties)> modifiedUsers)
         {
             if (modifiedUsers.Values.Count == 0)
                 return (null, null);
@@ -571,10 +571,10 @@ namespace SSTournamentsBot.Api.Services
             }
 
             var mentionsList = new List<ulong>();
-            var builder = new StringBuilder();
+            var builder = new CompoundText();
 
-            builder.AppendLine();
-            builder.AppendLine("--- __**Изменения в рейтинге**__ ---");
+            builder.AppendLine(Text.OfValue("\n"));
+            builder.AppendLine(Text.OfKey(nameof(S.Events_RatingChanged)));
 
             int i = 1;
             foreach (var info in modifiedUsers.Values.OrderByDescending(x => x.AddedScore))
@@ -582,13 +582,13 @@ namespace SSTournamentsBot.Api.Services
                 if (info.AddedScore != 0)
                 {
                     mentionsList.Add(info.Data.DiscordId);
-                    builder.AppendLine($"{i++}. {info.AddedScore} | {info.Name}");
+                    builder.AppendLine(Text.OfValue($"{i++}. {info.AddedScore} | {info.Name}"));
                 }
             }
 
-            builder.AppendLine();
+            builder.AppendLine(Text.OfValue("\n"));
 
-            return (builder.ToString(), mentionsList.ToArray());
+            return (builder, mentionsList.ToArray());
         }
 
         private async Task UpdateLeaderboardAndUploadChangesToHistoryOtherMod(Context context, TournamentBundle bundle)
@@ -650,10 +650,10 @@ namespace SSTournamentsBot.Api.Services
             await ServiceHelpers.RefreshLeadersOtherMods(context, _dataService);
 
             if (printedChanges != null && mentions != null)
-                await context.BotApi.SendMessage(context, Text.OfValue(printedChanges), GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History, Mentions(context));
+                await context.BotApi.SendMessage(context, printedChanges, GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History, Mentions(context));
         }
 
-        private (string, ulong[]) PrintChangesAndUpdateUsersInDataServiceOtherMods(Context context, Dictionary<ulong, (UserInActivityModel Data, string Name, int AddedScore, int Penalties)> modifiedUsers)
+        private (IText, ulong[]) PrintChangesAndUpdateUsersInDataServiceOtherMods(Context context, Dictionary<ulong, (UserInActivityModel Data, string Name, int AddedScore, int Penalties)> modifiedUsers)
         {
             if (modifiedUsers.Values.Count == 0)
                 return (null, null);
@@ -669,10 +669,10 @@ namespace SSTournamentsBot.Api.Services
             }
 
             var mentionsList = new List<ulong>();
-            var builder = new StringBuilder();
+            var builder = new CompoundText();
 
-            builder.AppendLine();
-            builder.AppendLine("--- __**Изменения в рейтинге**__ ---");
+            builder.AppendLine(Text.OfValue("\n"));
+            builder.AppendLine(Text.OfKey(nameof(S.Events_RatingChanged)));
 
             int i = 1;
             foreach (var info in modifiedUsers.Values.OrderByDescending(x => x.AddedScore))
@@ -680,13 +680,13 @@ namespace SSTournamentsBot.Api.Services
                 if (info.AddedScore != 0)
                 {
                     mentionsList.Add(info.Data.DiscordId);
-                    builder.AppendLine($"{i++}. {info.AddedScore} | {info.Name}");
+                    builder.AppendLine(Text.OfValue($"{i++}. {info.AddedScore} | {info.Name}"));
                 }
             }
 
-            builder.AppendLine();
+            builder.AppendLine(Text.OfValue("\n"));
 
-            return (builder.ToString(), mentionsList.ToArray());
+            return (builder, mentionsList.ToArray());
         }
 
         private async Task UploadTournamentToHistory(Context context, TournamentBundle bundle)

@@ -27,9 +27,9 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 enabled = await context.BotApi.ToggleWaitingRole(context, arg.User.Id, null);
 
             if (enabled)
-                await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(S.Wait_Enabled).Build(culture));
+                await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(nameof(S.Wait_Enabled)).Build(culture));
             else
-                await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(S.Wait_Disabled).Build(culture));
+                await arg.ModifyOriginalResponseAsync(x => x.Content = OfKey(nameof(S.Wait_Disabled)).Build(culture));
         }
 
         protected override void Configure(SlashCommandBuilder builder)

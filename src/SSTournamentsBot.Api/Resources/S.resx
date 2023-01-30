@@ -426,6 +426,9 @@ The next event '**{1}**' will occur in **{2}**.</value>
   <data name="Events_PlayedMatches" xml:space="preserve">
     <value>&gt;&gt;&gt; Played Matches:</value>
   </data>
+  <data name="Events_RatingChanged" xml:space="preserve">
+    <value>--- __**Rating changes**__ ---</value>
+  </data>
   <data name="Events_Relaxing" xml:space="preserve">
     <value>---
 On the resting bench this time:</value>

@@ -428,6 +428,9 @@
   <data name="Events_PlayedMatches" xml:space="preserve">
     <value>&gt;&gt;&gt; Сыгранные матчи:</value>
   </data>
+  <data name="Events_RatingChanged" xml:space="preserve">
+    <value>--- __**Изменения в рейтинге**__ ---</value>
+  </data>
   <data name="Events_Relaxing" xml:space="preserve">
     <value>---
 На скамейке отдыхающих на этот раз:</value>
