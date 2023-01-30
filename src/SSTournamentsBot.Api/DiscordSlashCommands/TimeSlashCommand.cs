@@ -31,16 +31,16 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             var text = new CompoundText();
 
-            text.AppendLine(OfKey(S.Time_Time).Format(GetUnixTimeStamp(), GetMoscowTime().PrettyShortTimePrint()));
+            text.AppendLine(OfKey(nameof(S.Time_Time)).Format(GetUnixTimeStamp(), GetMoscowTime().PrettyShortTimePrint()));
 
             if (nextEvent != null)
             {
                 var e = nextEvent;
-                text.AppendLine(OfKey(S.Time_NextEvent).Format(e.Event.PrettyPrint(isRussian), GetTimeBeforeEvent(e).PrettyPrint(isRussian)));
+                text.AppendLine(OfKey(nameof(S.Time_NextEvent)).Format(e.Event.PrettyPrint(isRussian), GetTimeBeforeEvent(e).PrettyPrint(isRussian)));
             }
             else
             {
-                text.AppendLine(OfKey(S.Bot_NoEvents));
+                text.AppendLine(OfKey(nameof(S.Bot_NoEvents)));
             }
 
             await arg.RespondAsync(text.Build(culture));

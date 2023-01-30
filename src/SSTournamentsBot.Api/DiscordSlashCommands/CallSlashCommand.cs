@@ -35,7 +35,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
                 if (match == null)
                 {
-                    await arg.RespondAsync(OfKey(S.Call_YouHaveNotActiveMatches).Build(culture));
+                    await arg.RespondAsync(OfKey(nameof(S.Call_YouHaveNotActiveMatches)).Build(culture));
                     return;
                 }
 
@@ -60,12 +60,12 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                         if ((await context.TournamentApi.TryLeaveUser(opponentData.DiscordId, opponentData.SteamId, TechnicalWinReason.OpponentsKicked)).IsDone)
                         {
                             var mention = await context.BotApi.GetMention(context, opponent.DiscordId);
-                            await context.BotApi.SendMessage(context, OfKey(S.Call_UserKickedFromTournament).Format(mention), GuildThread.EventsTape | GuildThread.TournamentChat);
+                            await context.BotApi.SendMessage(context, OfKey(nameof(S.Call_UserKickedFromTournament)).Format(mention), GuildThread.EventsTape | GuildThread.TournamentChat);
                         }
                         return;
                     }
 
-                    await arg.RespondAsync(OfKey(S.Call_CalledSuccessfully).Format(opponent.Name).Build(culture));
+                    await arg.RespondAsync(OfKey(nameof(S.Call_CalledSuccessfully)).Format(opponent.Name).Build(culture));
                 }
 
                 if (FSharpOption<Tuple<Player, Race>>.get_IsSome(match.Player1) && match.Player1.Value.Item1.DiscordId != user.Id)
