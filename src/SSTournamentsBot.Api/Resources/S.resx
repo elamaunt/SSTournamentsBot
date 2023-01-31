@@ -370,7 +370,7 @@ Have fun playing!</value>
   <data name="Events_ActivityCheckinStarted" xml:space="preserve">
     <value>Attention! {0} AutoCup {1} Checkin phase has begun.
 All participants must run the __**/checkin**__ command on the activity channel to confirm their participation.
-The checkout is open until the end of the checkout, but new participants do not need to call the */checkin** command, the */play* command is enough.</value>
+The checkout is open until the end of the checkout, but new participants do not need to call the */checkin* command, the */play* command is enough.</value>
   </data>
   <data name="Events_ActivityCompleted" xml:space="preserve">
     <value>__**{0} successfully completed**__
@@ -383,7 +383,7 @@ The checkout is open until the end of the checkout, but new participants do not 
     <value>The activity *{0} AutoCup {1}* begins!</value>
   </data>
   <data name="Events_ArchiveHeader" xml:space="preserve">
-    <value>_**{0}**__ is safely finished!
+    <value>__**{0}**__ is safely finished!
 Congratulations to the player named __**{1}**__. We wish the rest of you good luck in the next events!</value>
   </data>
   <data name="Events_Bracket" xml:space="preserve">
@@ -401,7 +401,7 @@ Congratulations to the player named __**{1}**__. We wish the rest of you good lu
 </value>
   </data>
   <data name="Events_FirstStageStarted" xml:space="preserve">
-    <value>The first stage of the event has begun. There is a __**{0}** countdown to the end of the stage.</value>
+    <value>The first stage of the event has begun. There is a __**{0}**__ countdown to the end of the stage.</value>
   </data>
   <data name="Events_FullBracket" xml:space="preserve">
     <value>Full grid:</value>
@@ -437,7 +437,7 @@ On the resting bench this time:</value>
     <value>**Don't forget to use DowStats and an attached Steam account, otherwise the match won't count!**</value>
   </data>
   <data name="Events_SingleMatchNotFinished" xml:space="preserve">
-    <value>&gt; The only match in this stage has not yet been completed. The completion of this stage has been postponed for __**5 minutes.**__</value>
+    <value>&gt; The only match in this stage has not yet been completed. The completion of this stage has been postponed for __**5 minutes**__.</value>
   </data>
   <data name="Events_StageCompleted" xml:space="preserve">
     <value>The stage has been successfully completed! The next stage will begin after a {0} minute break.</value>
@@ -585,4 +585,8 @@ Moscow time **{1}**</value>
   <data name="Wait_Enabled" xml:space="preserve">
     <value>&gt; You will be notified when an activity begins</value>
   </data>
+  <data name="Commands_DeleteContextData" xml:space="preserve">
+    <value>Delete all data in context's collection (for admin)</value>
+  </data>
+  
 </root>

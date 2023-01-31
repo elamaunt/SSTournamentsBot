@@ -321,5 +321,35 @@ namespace SSTournamentsBot.Api.Tests
             timeline.RemoveAllEvents(contextName);
             await SwitchEvent(next, handler);
         }
+
+        [TestMethod]
+        public void InMemoryEventsTimelineTest()
+        {
+            var timeline = new InMemoryEventsTimeline();
+
+            var ev = Event.NewCompleteStage("test");
+            timeline.AddOneTimeEventAfterTime("test", ev, TimeSpan.FromMinutes(25));
+            timeline.AddOneTimeEventAfterTime("test2", ev, TimeSpan.FromMinutes(30));
+            timeline.AddOneTimeEventAfterTime("test2", ev, TimeSpan.FromMinutes(10));
+
+            var next = timeline.GetNextEventInfoForContext("test");
+
+            Assert.IsNotNull(next);
+            Assert.IsTrue((next.StartDate - GetMoscowTime()).TotalMinutes > 24);
+
+            timeline.AddTimeToNextEventWithType("test", ev, TimeSpan.FromMinutes(25));
+
+            next = timeline.GetNextEventInfoForContext("test");
+
+            Assert.IsNotNull(next);
+            Assert.IsTrue((next.StartDate - GetMoscowTime()).TotalMinutes > 49);
+
+            Assert.IsNotNull(timeline.GetNextEventInfoForContext("test2"));
+
+            timeline.RemoveAllEventsWithType("test2", Event.NewCompleteStage("test2"));
+
+            Assert.IsNull(timeline.GetNextEventInfoForContext("test2"));
+            Assert.IsNotNull(timeline.GetNextEventInfoForContext("test"));
+        }
     }
 }

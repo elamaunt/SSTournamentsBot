@@ -85,7 +85,7 @@ namespace SSTournamentsBot.Api.Services
                 if (info == null)
                     continue;
 
-                if (info.ContextName == ev.ContextName && info.Event == ev.Event && GetEventsDate(info) == ev.StartDate)
+                if (info.ContextName == ev.ContextName && info.Event.Tag == ev.Event.Tag && GetEventsDate(info) == ev.StartDate)
                     Interlocked.Exchange(ref _events[i], null);
             }
         }
@@ -215,8 +215,8 @@ namespace SSTournamentsBot.Api.Services
             for (int i = 0; i < _events.Length; i++)
             {
                 var info = _events[i];
-
-                if (info?.Event == ev && info?.ContextName == contextName)
+                
+                if (info?.Event.Tag == ev.Tag && info?.ContextName == contextName)
                     Interlocked.CompareExchange(ref _events[i], null, info);
             }
         }
@@ -227,7 +227,7 @@ namespace SSTournamentsBot.Api.Services
             {
                 var info = _events[i];
 
-                if (info?.Event == ev && info?.ContextName == contextName)
+                if (info?.Event.Tag == ev.Tag && info?.ContextName == contextName)
                 {
                     info.TimeExtension += time;
                     break;
@@ -241,7 +241,7 @@ namespace SSTournamentsBot.Api.Services
             {
                 var info = _events[i];
 
-                if (info?.Event == ev && info?.ContextName == contextName)
+                if (info?.Event.Tag == ev.Tag && info?.ContextName == contextName)
                 {
                     var date = GetEventsDate(info);
 

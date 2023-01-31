@@ -22,7 +22,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
-            await ServiceHelpers.RefreshLeadersVanilla(context, _dataService, false);
+            if (context.Name == "Soulstorm")
+                await ServiceHelpers.RefreshLeadersVanilla(context, _dataService, false);
+            else
+                await ServiceHelpers.RefreshLeadersOtherMods(context, _dataService, false);
             await arg.RespondAsync("Таблица лидеров обновлена.");
         }
 

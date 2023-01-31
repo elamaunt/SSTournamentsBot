@@ -61,6 +61,7 @@ namespace SSTournamentsBot.Api.Services
             );
 
             mapper.Entity<UserData>().Id(x => x.DiscordId, false);
+            mapper.Entity<UserInActivityModel>().Id(x => x.DiscordId, false);
         }
 
         public void AddPenalty(ulong discordId, int penalty)
@@ -210,6 +211,11 @@ namespace SSTournamentsBot.Api.Services
                 .OrderByDescending(x => x.Score)
                 .Limit(20)
                 .ToArray();
+        }
+
+        public void DeleteAllUserInActivity(string contextName)
+        {
+            _liteDb.GetCollection<UserInActivityModel>(contextName).DeleteAll();
         }
     }
 }

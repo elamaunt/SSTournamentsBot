@@ -53,7 +53,7 @@ namespace SSTournamentsBot.Api.Services
                 new TimelineSlashCommand(timeline),
                 new TimeSlashCommand(timeline),
                 new ViewSlashCommand(),
-                //new StartSlashCommand(timeline, tournamentOptions),
+                new StartSlashCommand(timeline, tournamentOptions),
                 new DeleteUserDataSlashCommand(dataService),
                 new AddTimeSlashCommand(timeline),
                 new KickBotSlashCommand(),
@@ -74,7 +74,8 @@ namespace SSTournamentsBot.Api.Services
                // new VoteAddTimeSlashCommand(api),
                // new VoteBanSlashCommand(api),
                // new VoteKickSlashCommand(api),
-                new MatchesSlashCommand()
+                new MatchesSlashCommand(),
+                new DeleteContextDataSlashCommand(dataService)
             }.ToDictionary(x => x.Name);
         }
 

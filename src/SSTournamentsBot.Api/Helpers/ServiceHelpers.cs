@@ -92,7 +92,7 @@ namespace SSTournamentsBot.Api.Helpers
         {
             var text = new CompoundText();
             text.AppendLine(Text.OfKey(nameof(S.Events_LeaderBoardHeader)));
-            text.AppendLine(Text.OfValue("\n"));
+            text.AppendLine(Text.OfValue(""));
 
             for (int i = 0; i < leaders.Length; i++)
             {
@@ -101,7 +101,7 @@ namespace SSTournamentsBot.Api.Helpers
                 text.AppendLine(Text.OfValue($"{i + 1}. {user.Score}   {await context.BotApi.GetUserName(context, user.DiscordId)}"));
             }
 
-            text.AppendLine(Text.OfValue("\n"));
+            text.AppendLine(Text.OfValue(""));
 
             await context.BotApi.ModifyLastMessage(context, text, GuildThread.Leaderboard);
 
@@ -119,7 +119,7 @@ namespace SSTournamentsBot.Api.Helpers
         {
             var text = new CompoundText();
             text.AppendLine(Text.OfKey(nameof(S.Events_LeaderBoardHeader)));
-            text.AppendLine(Text.OfValue("\n"));
+            text.AppendLine(Text.OfValue(""));
 
             for (int i = 0; i < leaders.Length; i++)
             {
@@ -128,7 +128,7 @@ namespace SSTournamentsBot.Api.Helpers
                 text.AppendLine(Text.OfValue($"{i + 1}. {user.Score}   {await context.BotApi.GetUserName(context, user.DiscordId)}"));
             }
 
-            text.AppendLine(Text.OfValue("\n"));
+            text.AppendLine(Text.OfValue(""));
 
             await context.BotApi.ModifyLastMessage(context, text, GuildThread.Leaderboard);
 

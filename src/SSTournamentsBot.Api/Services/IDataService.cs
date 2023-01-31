@@ -18,6 +18,7 @@ namespace SSTournamentsBot.Api.Services
         void IncrementTournamentId();
 
         UserInActivityModel FindUserActivity(string contextName, ulong discordId, ulong steamId);
+        void DeleteAllUserInActivity(string name);
         bool UpdateUserInActivity(string contextName, UserInActivityModel data);
         UserInActivityModel[] LoadLeaders(string contextName);
     }

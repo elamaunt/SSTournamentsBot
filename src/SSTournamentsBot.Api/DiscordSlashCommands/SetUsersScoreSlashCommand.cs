@@ -34,11 +34,23 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
             var scoreOption = arg.Data.Options.First(x => x.Name == "score");
 
-            userData.Score = (int)(long)scoreOption.Value;
-            if (_dataService.UpdateUser(userData))
-                await arg.RespondAsync($"Данные обновлены. Текущий рейтинг: {userData.Score}");
+            if (context.Name == "Soulstorm")
+            {
+                userData.Score = (int)(long)scoreOption.Value;
+                if (_dataService.UpdateUser(userData))
+                    await arg.RespondAsync($"Данные обновлены. Текущий рейтинг: {userData.Score}");
+                else
+                    await arg.RespondAsync($"Не удалось обновить рейтинг пользователя.");
+            }
             else
-                await arg.RespondAsync($"Не удалось обновить рейтинг пользователя.");
+            {
+                var userActivity = _dataService.FindUserActivity(context.Name, userData.DiscordId, userData.SteamId);
+                userActivity.Score = (int)(long)scoreOption.Value;
+                if (_dataService.UpdateUserInActivity(context.Name, userActivity))
+                    await arg.RespondAsync($"Данные обновлены. Текущий рейтинг: {userActivity.Score}");
+                else
+                    await arg.RespondAsync($"Не удалось обновить рейтинг пользователя.");
+            }
         }
 
         protected override void Configure(SlashCommandBuilder builder)

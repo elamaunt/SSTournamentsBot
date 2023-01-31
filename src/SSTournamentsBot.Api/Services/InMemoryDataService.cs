@@ -124,5 +124,10 @@ namespace SSTournamentsBot.Api.Services
                 .Select(x => x.Value)
                 .ToArray();
         }
+
+        public void DeleteAllUserInActivity(string contextName)
+        {
+
+        }
     }
 }

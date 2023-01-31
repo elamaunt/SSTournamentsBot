@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
+using SSTournamentsBot.Api.Domain;
 using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System;
@@ -19,7 +20,6 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         readonly TournamentEventsOptions _options;
         readonly IEventsTimeline _timeline;
 
-
         public StartSlashCommand(IEventsTimeline timeline, IOptions<TournamentEventsOptions> options)
         {
             _timeline = timeline;
@@ -28,7 +28,8 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
 
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
-            //ulong[] Mentions() => context.TournamentApi.RegisteredPlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
+            ulong[] AllPlayersMentions() => context.TournamentApi.RegisteredPlayers.Where(x => !x.IsBot).Select(x => x.DiscordId).ToArray();
+
             var result = await context.TournamentApi.TryStartTheCheckIn();
 
             if (result.IsDone)
@@ -36,9 +37,10 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                 _timeline.RemoveAllEventsWithType(context.Name, Event.NewStartCheckIn(context.Name));
                 _timeline.RemoveAllEventsWithType(context.Name, Event.NewStartCurrentTournament(context.Name));
 
-               // await context.BotApi.SendMessage(context, $"Внимание! Началась стадия чекина на турнир.\nВсем участникам нужно выполнить команду __**/checkin**__ на турнирном канале для подтверждения своего участия.\nДлительность чек-ина {_options.CheckInTimeoutMinutes} минут.\nРегистрация новых участников позволяется и не требует чекина.", GuildThread.EventsTape | GuildThread.TournamentChat, Mentions());
+                await context.BotApi.MentionWaitingRole(context, GuildThread.EventsTape | GuildThread.TournamentChat);
+                await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_ActivityCheckinStarted)).Format(context.TournamentApi.TournamentType, context.TournamentApi.Id, _options.CheckInTimeoutMinutes), GuildThread.EventsTape | GuildThread.TournamentChat, AllPlayersMentions());
 
-                _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewStartCurrentTournament(context.Name), TimeSpan.FromMinutes(15));
+                _timeline.AddOneTimeEventAfterTime(context.Name, Event.NewStartCurrentTournament(context.Name), TimeSpan.FromMinutes(_options.CheckInTimeoutMinutes));
 
                 await arg.RespondAsync("Турнир успешно запущен.");
                 return;

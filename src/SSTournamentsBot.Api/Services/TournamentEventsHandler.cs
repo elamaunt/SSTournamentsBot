@@ -314,10 +314,10 @@ namespace SSTournamentsBot.Api.Services
             var text = new CompoundText();
             var matches = context.TournamentApi.ActiveMatches;
 
-            var newLine = Text.OfValue("\n");
+            var empty = Text.OfValue("");
 
             text.AppendLine(Text.OfKey(nameof(S.Events_CurrentStageMatches)));
-            text.AppendLine(newLine);
+            text.AppendLine(empty);
 
             for (int i = 0; i < matches.Length; i++)
             {
@@ -331,13 +331,13 @@ namespace SSTournamentsBot.Api.Services
 
                 text.AppendLine(Text.OfValue($"{m.Id + 1}. {p1Mention} {p2Mention} | {m.Map}"));
                 text.AppendLine(Text.OfValue($"**{p1.Item1.Name}** ({p1.Item2})  VS  **{p2.Item1.Name}** ({p2.Item2})"));
-                text.AppendLine(newLine);
+                text.AppendLine(empty);
             }
 
             if (remindRules)
             {
                 text.AppendLine(Text.OfKey(nameof(S.Events_RulesRemind)));
-                text.AppendLine(newLine);
+                text.AppendLine(empty);
             }
 
             await context.BotApi.SendMessage(context, text, GuildThread.EventsTape | GuildThread.TournamentChat);
@@ -552,7 +552,7 @@ namespace SSTournamentsBot.Api.Services
             await ServiceHelpers.RefreshLeadersVanilla(context, _dataService);
 
             if (printedChanges != null && mentions != null)
-                await context.BotApi.SendMessage(context, printedChanges, GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History, Mentions(context));
+                await context.BotApi.SendMessage(context, printedChanges, GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History);
         }
 
         private (IText, ulong[]) PrintChangesAndUpdateUsersInDataServiceVanilla(Context context, Dictionary<ulong, (UserData Data, string Name, int AddedScore, int Penalties)> modifiedUsers)
@@ -573,7 +573,7 @@ namespace SSTournamentsBot.Api.Services
             var mentionsList = new List<ulong>();
             var builder = new CompoundText();
 
-            builder.AppendLine(Text.OfValue("\n"));
+            builder.AppendLine(Text.OfValue(""));
             builder.AppendLine(Text.OfKey(nameof(S.Events_RatingChanged)));
 
             int i = 1;
@@ -586,7 +586,7 @@ namespace SSTournamentsBot.Api.Services
                 }
             }
 
-            builder.AppendLine(Text.OfValue("\n"));
+            builder.AppendLine(Text.OfValue(""));
 
             return (builder, mentionsList.ToArray());
         }
@@ -650,7 +650,7 @@ namespace SSTournamentsBot.Api.Services
             await ServiceHelpers.RefreshLeadersOtherMods(context, _dataService);
 
             if (printedChanges != null && mentions != null)
-                await context.BotApi.SendMessage(context, printedChanges, GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History, Mentions(context));
+                await context.BotApi.SendMessage(context, printedChanges, GuildThread.EventsTape | GuildThread.TournamentChat | GuildThread.History);
         }
 
         private (IText, ulong[]) PrintChangesAndUpdateUsersInDataServiceOtherMods(Context context, Dictionary<ulong, (UserInActivityModel Data, string Name, int AddedScore, int Penalties)> modifiedUsers)
@@ -671,7 +671,7 @@ namespace SSTournamentsBot.Api.Services
             var mentionsList = new List<ulong>();
             var builder = new CompoundText();
 
-            builder.AppendLine(Text.OfValue("\n"));
+            builder.AppendLine(Text.OfValue(""));
             builder.AppendLine(Text.OfKey(nameof(S.Events_RatingChanged)));
 
             int i = 1;
@@ -684,7 +684,7 @@ namespace SSTournamentsBot.Api.Services
                 }
             }
 
-            builder.AppendLine(Text.OfValue("\n"));
+            builder.AppendLine(Text.OfValue(""));
 
             return (builder, mentionsList.ToArray());
         }
@@ -722,9 +722,9 @@ namespace SSTournamentsBot.Api.Services
             await context.BotApi.SendFile(context, bundle.Image, $"tournament_{bundle.Tournament.Id}_completed.png", Text.OfKey(nameof(S.Events_Bracket)), GuildThread.History);
 
             var text = new CompoundText();
-            var newLine = Text.OfValue("\n");
+            var empty = Text.OfValue("");
             text.AppendLine(Text.OfKey(nameof(S.Events_PlayedMatches)));
-            text.AppendLine(newLine);
+            text.AppendLine(empty);
 
             int k = 0;
             for (int i = 0; i < bundle.PlayedMatches.Length; i++)
@@ -738,12 +738,12 @@ namespace SSTournamentsBot.Api.Services
                     for (int j = 0; j < match.Replays.Length; j++)
                         text.AppendLine(Text.OfValue($"{match.Replays[j].Url}"));
 
-                    text.AppendLine(newLine);
+                    text.AppendLine(empty);
                     k++;
                 }
             }
 
-            text.AppendLine(newLine);
+            text.AppendLine(empty);
             await context.BotApi.SendMessage(context, text, GuildThread.History);
         }
 

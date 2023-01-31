@@ -524,6 +524,15 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Delete all data in context&apos;s collection (for admin).
+        /// </summary>
+        public static string Commands_DeleteContextData {
+            get {
+                return ResourceManager.GetString("Commands_DeleteContextData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Deletes user profile (for admins).
         /// </summary>
         public static string Commands_DeleteUser {
@@ -814,7 +823,7 @@ namespace SSTournamentsBot.Api.Resources {
         /// <summary>
         ///   Ищет локализованную строку, похожую на Attention! {0} AutoCup {1} Checkin phase has begun.
         ///All participants must run the __**/checkin**__ command on the activity channel to confirm their participation.
-        ///The checkout is open until the end of the checkout, but new participants do not need to call the */checkin** command, the */play* command is enough..
+        ///The checkout is open until the end of the checkout, but new participants do not need to call the */checkin* command, the */play* command is enough..
         /// </summary>
         public static string Events_ActivityCheckinStarted {
             get {
@@ -851,7 +860,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на _**{0}**__ is safely finished!
+        ///   Ищет локализованную строку, похожую на __**{0}**__ is safely finished!
         ///Congratulations to the player named __**{1}**__. We wish the rest of you good luck in the next events!.
         /// </summary>
         public static string Events_ArchiveHeader {
@@ -899,7 +908,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на The first stage of the event has begun. There is a __**{0}** countdown to the end of the stage..
+        ///   Ищет локализованную строку, похожую на The first stage of the event has begun. There is a __**{0}**__ countdown to the end of the stage..
         /// </summary>
         public static string Events_FirstStageStarted {
             get {
@@ -1001,7 +1010,7 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &gt; The only match in this stage has not yet been completed. The completion of this stage has been postponed for __**5 minutes.**__.
+        ///   Ищет локализованную строку, похожую на &gt; The only match in this stage has not yet been completed. The completion of this stage has been postponed for __**5 minutes**__..
         /// </summary>
         public static string Events_SingleMatchNotFinished {
             get {
