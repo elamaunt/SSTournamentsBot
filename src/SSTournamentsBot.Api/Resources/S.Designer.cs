@@ -982,6 +982,15 @@ namespace SSTournamentsBot.Api.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на &gt; Player **{0}** has been removed from the registration due to offline status..
+        /// </summary>
+        public static string Events_PlayerOffline {
+            get {
+                return ResourceManager.GetString("Events_PlayerOffline", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на --- __**Rating changes**__ ---.
         /// </summary>
         public static string Events_RatingChanged {

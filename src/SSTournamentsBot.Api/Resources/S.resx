@@ -588,5 +588,7 @@ Moscow time **{1}**</value>
   <data name="Commands_DeleteContextData" xml:space="preserve">
     <value>Delete all data in context's collection (for admin)</value>
   </data>
-  
+  <data name="Events_PlayerOffline" xml:space="preserve">
+    <value>&gt; Player **{0}** has been removed from the registration due to offline status.</value>
+  </data>
 </root>

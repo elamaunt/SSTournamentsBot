@@ -17,5 +17,6 @@ namespace SSTournamentsBot.Api.Services
         Task<bool> ToggleWaitingRole(Context context, ulong id, bool? toValue);
         Task<string> GetMentionForWaitingRole(Context context);
         Task MentionWaitingRole(Context context, GuildThread thread);
+        Task<bool> IsUserOnline(ulong id);
     }
 }

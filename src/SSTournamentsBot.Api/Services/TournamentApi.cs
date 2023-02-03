@@ -25,6 +25,7 @@ namespace SSTournamentsBot.Api.Services
         private Match[] _currentStageMatches;
         private HashSet<ulong> _checkInedUsers;
         private Dictionary<ulong, TechnicalWinReason> _excludedUsers;
+        private Dictionary<ulong, DateTime> _playerRegistrationTime;
         private Stage _initialStage;
 
         readonly IDataService _dataService;
@@ -55,6 +56,7 @@ namespace SSTournamentsBot.Api.Services
 
                     _currentTournament = CreateTournament(Mod, SeasonId, TournamentId);
                     _excludedUsers = new Dictionary<ulong, TechnicalWinReason>();
+                    _playerRegistrationTime = new Dictionary<ulong, DateTime>();
                     _checkInedUsers = new HashSet<ulong>();
                     _initialStage = null;
                     _playedMatches = new Match[0];
@@ -68,6 +70,7 @@ namespace SSTournamentsBot.Api.Services
 
                 var player = new Player(name, userData.SteamId, userData.DiscordId, userData.Race, isBot, userData.Map1v1Bans, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
                 _currentTournament = RegisterPlayerInTournament(_currentTournament, player);
+                _playerRegistrationTime.Remove(userData.DiscordId);
 
                 if (_isCheckInStage)
                 {
@@ -143,6 +146,7 @@ namespace SSTournamentsBot.Api.Services
                 }
                 else
                 {
+                    _playerRegistrationTime.Remove(discordId);
                     _currentTournament = RemovePlayerFromTournament(_currentTournament, steamId);
                 }
 
@@ -251,6 +255,14 @@ namespace SSTournamentsBot.Api.Services
                 }
 
                 return SubmitGameResult.Completed;
+            });
+        }
+
+        public Task<DateTime> GetPlayerRegisterTime(ulong discordId)
+        {
+            return _queue.Async(() =>
+            {
+                return _playerRegistrationTime.GetValueOrDefault(discordId, GetMoscowTime());
             });
         }
 

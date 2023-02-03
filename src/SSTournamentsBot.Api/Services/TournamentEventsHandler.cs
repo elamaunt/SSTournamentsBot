@@ -210,6 +210,29 @@ namespace SSTournamentsBot.Api.Services
             {
                 await Log(context, "An attempt to start checkin stage..");
 
+                var players = context.TournamentApi.RegisteredPlayers;
+                var currentTime = GetMoscowTime();
+
+                for (int i = 0; i < players.Length; i++)
+                {
+                    var player = players[i];
+
+                    var date = await context.TournamentApi.GetPlayerRegisterTime(player.DiscordId);
+
+                    if ((currentTime - date).TotalHours > 1.0)
+                    {
+                        if (!(await context.BotApi.IsUserOnline(player.DiscordId)))
+                        {
+                            var leaveResult = await context.TournamentApi.TryLeaveUser(player.DiscordId, player.SteamId, TechnicalWinReason.OpponentsLeft);
+
+                            if (leaveResult.IsDone)
+                            {
+                                await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_PlayerOffline)).Format(player.Name), GuildThread.TournamentChat);
+                            }
+                        }
+                    }
+                }
+
                 var result = await context.TournamentApi.TryStartTheCheckIn();
 
                 if (result.IsNoTournament)
@@ -228,8 +251,8 @@ namespace SSTournamentsBot.Api.Services
                 if (result.IsNotEnoughPlayers)
                 {
                     await Log(context, "Not enough players.");
-                    await context.TournamentApi.DropTournament();
-                    await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_TournamentCancelledNoPlayers)).Format(_options.MinimumPlayersToStartCheckin), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions(context));
+                    //await context.TournamentApi.DropTournament();
+                    //await context.BotApi.SendMessage(context, Text.OfKey(nameof(S.Events_TournamentCancelledNoPlayers)).Format(_options.MinimumPlayersToStartCheckin), GuildThread.EventsTape | GuildThread.TournamentChat, Mentions(context));
                     return;
                 }
 

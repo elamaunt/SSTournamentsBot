@@ -588,4 +588,8 @@
   <data name="Wait_Enabled" xml:space="preserve">
     <value>&gt; Вы будете получать уведомления о начинающихся активностях</value>
   </data>
+  <data name="Events_PlayerOffline" xml:space="preserve">
+    <value>&gt; Игрок **{0}** был снят с регистрации по причине оффлайн-статуса.</value>
+  </data>
+  
 </root>

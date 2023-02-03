@@ -27,6 +27,11 @@ namespace SSTournamentsBot.Api.Tests.Virtuals
             return Task.FromResult("Bot" + id);
         }
 
+        public Task<bool> IsUserOnline(ulong id)
+        {
+            return Task.FromResult(true);
+        }
+
         public Task Mention(Context context, SecondaryDomain.GuildThread thread, params ulong[] mentions)
         {
             Messages.Add(new VirtualMessage(thread, mentions));

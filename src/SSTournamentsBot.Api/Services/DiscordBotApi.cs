@@ -331,6 +331,12 @@ namespace SSTournamentsBot.Api.Services
             }
         }
 
+        public async Task<bool> IsUserOnline(ulong id)
+        {
+            var status = (await _client.GetUserAsync(id)).Status;
+            return status == UserStatus.Online || status == UserStatus.AFK || status == UserStatus.DoNotDisturb || status == UserStatus.Idle;
+        }
+
         public async Task<string> GetUserName(Context context, ulong id)
         {
             return (await _client.GetUserAsync(id)).Username;

@@ -117,7 +117,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                         if (context.TournamentApi.RegisteredPlayers.Length >= _options.MinimumPlayersToStartCheckin)
                         {
                             _timeLine.RemoveAllEventsWithType(context.Name, Event.NewStartCheckIn(context.Name));
-                            _timeLine.AddOneTimeEventAfterTime(context.Name, Event.NewStartCheckIn(context.Name), TimeSpan.FromSeconds(10));
+                            _timeLine.AddOneTimeEventAfterTime(context.Name, Event.NewStartCheckIn(context.Name), TimeSpan.FromSeconds(15));
                         }
                     }
                     else
