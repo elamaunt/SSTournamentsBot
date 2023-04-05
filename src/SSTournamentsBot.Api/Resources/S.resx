@@ -368,9 +368,8 @@ Have fun playing!</value>
     <value>Get/Remove 'Waiting for Tournaments' role</value>
   </data>
   <data name="Events_ActivityCheckinStarted" xml:space="preserve">
-    <value>Attention! {0} AutoCup {1} Checkin phase has begun.
-All participants must run the __**/checkin**__ command on the activity channel to confirm their participation.
-The checkout is open until the end of the checkout, but new participants do not need to call the */checkin* command, the */play* command is enough.</value>
+    <value>Attention! The pre-tournament stage of the *{0} AutoCup {1}* has begun.
+The tournament will begin in {2} minutes.</value>
   </data>
   <data name="Events_ActivityCompleted" xml:space="preserve">
     <value>__**{0} successfully completed**__
@@ -456,7 +455,7 @@ On the resting bench this time:</value>
   </data>
   <data name="Events_UnableToStartNoPlayers" xml:space="preserve">
     <value>At the moment, the activity cannot be started because there are not enough participants.
-Minimum number of participants is 4.
+Minimum number of participants is 2.
 The list of registered participants has been reset.</value>
   </data>
   <data name="Events_VotingCancelledCauseMatchFinished" xml:space="preserve">

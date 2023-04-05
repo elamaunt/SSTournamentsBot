@@ -8,14 +8,14 @@ module Domain =
         | OnlyWinners
         | WinnersAndLosers
 
+    [<Struct>]
     type TournamentType = 
         | Regular
 
     type SetupType = 
-        | Solo1v1
-        | Team2v2
-        | Team3v3
-        | Team4v4
+        | Tournament1v1bo1
+        | Auto1v1bo1
+        | Auto2v2bo1
 
     type Race = 
         | SpaceMarines

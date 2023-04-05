@@ -13,7 +13,7 @@ using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
-    public class PlaySlashCommand : SlashCommandBase
+    public class AutoPlaySlashCommand : SlashCommandBase
     {
         public override string Name => "play";
         public override string DescriptionKey=> nameof(S.Commands_Play);
@@ -21,15 +21,16 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
         readonly IDataService _dataService;
         readonly IStatsApi _statsApi;
         readonly IEventsTimeline _timeLine;
-        readonly TournamentEventsOptions _options;
+        readonly AutoEventsOptions _options;
 
-        public PlaySlashCommand(IDataService dataService, IStatsApi statsApi,IEventsTimeline timeline, IOptions<TournamentEventsOptions> options)
+        public AutoPlaySlashCommand(IDataService dataService, IStatsApi statsApi, IEventsTimeline timeline, IOptions<AutoEventsOptions> options)
         {
             _dataService = dataService;
             _statsApi = statsApi;
             _timeLine = timeline;
             _options = options.Value;
         }
+
         public override async Task Handle(Context context, SocketSlashCommand arg, CultureInfo culture)
         {
             var user = arg.User;
@@ -113,12 +114,6 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
                     if (result == Domain.TournamentRegistrationResult.Registered)
                     {
                         await Responce(OfKey(nameof(S.Play_Successfull)).Format(userData.SteamId.BuildStatsUrl(), userData.Race).Build(culture));
-
-                        if (context.TournamentApi.RegisteredPlayers.Length >= _options.MinimumPlayersToStartCheckin)
-                        {
-                            _timeLine.RemoveAllEventsWithType(context.Name, Event.NewStartCheckIn(context.Name));
-                            _timeLine.AddOneTimeEventAfterTime(context.Name, Event.NewStartCheckIn(context.Name), TimeSpan.FromSeconds(15));
-                        }
                     }
                     else
                     {

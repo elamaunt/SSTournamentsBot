@@ -15,14 +15,14 @@ namespace SSTournamentsBot.Api.Services
     public class SetupOptions
     {
         public string Mod { get; set; }
-        public string Type { get; set; }
+        public SetupType Type { get; set; }
         public Dictionary<string, string> Maps { get; set; }
         public Dictionary<string, ChannelScope> Channels { get; set; }
     }
 
     public class ChannelScope
     {
-        public ulong TournamentThreadId { get; set; }
+        public ulong MainThreadId { get; set; }
         public ulong EventsThreadId { get; set; }
         public ulong HistoryThreadId { get; set; }
         public ulong LeaderboardThreadId { get; set; }

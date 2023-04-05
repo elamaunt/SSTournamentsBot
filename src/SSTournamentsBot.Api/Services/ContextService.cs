@@ -53,7 +53,7 @@ namespace SSTournamentsBot.Api.Services
                     var name = pair.Key;
                     var opt = pair.Value;
 
-                    var tournamentApi = GetService<TournamentApi>();
+                    var tournamentApi = GetService<Tournament1v1Api>();
                     tournamentApi.Mod = ResolveMod(opt.Mod);
                     var context = new Context(name, tournamentApi, GetService<ITournamentEventsHandler>(), GetService<IBotApi>(), opt);
 
@@ -70,7 +70,7 @@ namespace SSTournamentsBot.Api.Services
                         _contextsByChannels.TryAdd(scope.LeaderboardThreadId, (locale, context));
                         _contextsByChannels.TryAdd(scope.LoggingThreadId, (locale, context));
                         _contextsByChannels.TryAdd(scope.VotingsTapeThreadId, (locale, context));
-                        _contextsByChannels.TryAdd(scope.TournamentThreadId, (locale, context));
+                        _contextsByChannels.TryAdd(scope.MainThreadId, (locale, context));
                     }
                 }
 

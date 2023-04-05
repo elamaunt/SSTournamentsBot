@@ -368,10 +368,8 @@
     <value>Получить/Убрать у себя роль 'Жду турниров'</value>
   </data>
   <data name="Events_ActivityCheckinStarted" xml:space="preserve">
-    <value>Внимание! Началась стадия чекина *{0} AutoCup {1}*.
-Всем участникам нужно выполнить команду __**/checkin**__ на канале активности для подтверждения своего участия.
-Длительность чек-ина {2} минут.
-Регистрация открыта до окончания чекина, при этом новым участникам вызов команды */checkin* не требуется, достаточно команды */play*</value>
+    <value>Внимание! Началась предтурнирная стадия *{0} AutoCup {1}*.
+Турнир начнется через {2} минут.</value>
   </data>
   <data name="Events_ActivityCompleted" xml:space="preserve">
     <value>__**{0} успешно завершен**__
@@ -459,7 +457,7 @@
   </data>
   <data name="Events_UnableToStartNoPlayers" xml:space="preserve">
     <value>В данный момент активность невозможно начать, так как участников недостаточно.
-Минимальное количество участников 4.
+Минимальное количество участников 2.
 Список зарегистрированных был обнулен.</value>
   </data>
   <data name="Events_VotingCancelledCauseMatchFinished" xml:space="preserve">
@@ -591,5 +589,4 @@
   <data name="Events_PlayerOffline" xml:space="preserve">
     <value>&gt; Игрок **{0}** был снят с регистрации по причине оффлайн-статуса.</value>
   </data>
-  
 </root>

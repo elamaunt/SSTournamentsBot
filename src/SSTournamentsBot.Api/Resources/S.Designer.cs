@@ -1074,7 +1074,7 @@ namespace SSTournamentsBot.Api.Resources {
         
         /// <summary>
         ///   Ищет локализованную строку, похожую на At the moment, the activity cannot be started because there are not enough participants.
-        ///Minimum number of participants is 4.
+        ///Minimum number of participants is 2.
         ///The list of registered participants has been reset..
         /// </summary>
         public static string Events_UnableToStartNoPlayers {

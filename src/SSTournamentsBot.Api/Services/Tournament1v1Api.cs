@@ -11,7 +11,7 @@ using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.Services
 {
-    public class TournamentApi
+    public class Tournament1v1Api
     {
         private Tournament _currentTournament;
         private VotingProgress _votingProgress;
@@ -35,19 +35,19 @@ namespace SSTournamentsBot.Api.Services
 
         public Mod Mod { get; set; } = Mod.Soulstorm;
 
-        public TournamentApi(IDrawingService renderingService, IDataService dataService)
+        public Tournament1v1Api(IDrawingService renderingService, IDataService dataService)
         {
             _renderingService = renderingService;
             _dataService = dataService;
         }
 
-        public Task<RegistrationResult> TryRegisterUser(UserData userData, string name, bool isBot = false)
+        public Task<TournamentRegistrationResult> TryRegisterUser(UserData userData, string name, bool isBot = false)
         {
             return _queue.Async(() =>
             {
                 if (_isStarted)
                 {
-                    return RegistrationResult.TournamentAlreadyStarted;
+                    return TournamentRegistrationResult.TournamentAlreadyStarted;
                 }
 
                 if (_currentTournament == null)
@@ -66,19 +66,19 @@ namespace SSTournamentsBot.Api.Services
                 }
 
                 if (IsPlayerRegisteredInTournament(_currentTournament, userData.SteamId, userData.DiscordId))
-                    return RegistrationResult.AlreadyRegistered;
+                    return TournamentRegistrationResult.AlreadyRegistered;
 
                 var player = new Player(name, userData.SteamId, userData.DiscordId, userData.Race, isBot, userData.Map1v1Bans, _currentTournament.Seed ^ userData.DiscordId.GetHashCode());
                 _currentTournament = RegisterPlayerInTournament(_currentTournament, player);
                 _playerRegistrationTime.Remove(userData.DiscordId);
 
-                if (_isCheckInStage)
-                {
+                //if (_isCheckInStage)
+                //{
                     _checkInedUsers.Add(player.SteamId);
-                    return RegistrationResult.RegisteredAndCheckIned;
-                }
+                    return TournamentRegistrationResult.RegisteredAndCheckIned;
+                //}
 
-                return RegistrationResult.Registered;
+                //return TournamentRegistrationResult.Registered;
             });
         }
 

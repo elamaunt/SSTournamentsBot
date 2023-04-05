@@ -4,18 +4,17 @@ using SSTournamentsBot.Api.Resources;
 using SSTournamentsBot.Api.Services;
 using System.Globalization;
 using System.Threading.Tasks;
-using static SSTournaments.SecondaryDomain;
 
 namespace SSTournamentsBot.Api.DiscordSlashCommands
 {
-    public class DropTournamentSlashCommand : SlashCommandBase
+    public class DropActivitySlashCommand : SlashCommandBase
     {
-        public override string Name => "drop-tournament";
+        public override string Name => "drop-activity";
         public override string DescriptionKey=> nameof(S.Commands_Drop);
 
         readonly IEventsTimeline _timeline;
 
-        public DropTournamentSlashCommand(IEventsTimeline timeline)
+        public DropActivitySlashCommand(IEventsTimeline timeline)
         {
             _timeline = timeline;
         }

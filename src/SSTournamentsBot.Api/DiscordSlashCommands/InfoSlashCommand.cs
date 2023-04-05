@@ -27,7 +27,7 @@ namespace SSTournamentsBot.Api.DiscordSlashCommands
             }
 
             infoBuilder.AppendLine(Text.OfValue("Mod: " + context.Name));
-            infoBuilder.AppendLine(OfKey(nameof(S.Info_TournamentType)).Format(context.TournamentApi.TournamentType?.ToString() ?? "Неопределен"));
+            infoBuilder.AppendLine(OfKey(nameof(S.Info_TournamentType)).Format(context.TournamentApi.TournamentType.ToString()));
 
             var players = context.TournamentApi.RegisteredPlayers;
 

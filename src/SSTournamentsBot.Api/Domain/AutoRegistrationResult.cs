@@ -1,10 +1,9 @@
 ﻿namespace SSTournamentsBot.Api.Domain
 {
-    public enum RegistrationResult
+    public enum AutoRegistrationResult
     {
         Registered,
-        RegisteredAndCheckIned,
         AlreadyRegistered,
-        TournamentAlreadyStarted
+        AlreadyHaveMatch
     }
 }

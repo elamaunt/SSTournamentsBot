@@ -276,11 +276,11 @@ namespace SSTournamentsBot.Api.Services
                             mutualChannelsList.Add(channel);
                     }
 
-                    if (thread.HasFlag(GuildThread.TournamentChat) && scope.TournamentThreadId != 0)
+                    if (thread.HasFlag(GuildThread.TournamentChat) && scope.MainThreadId != 0)
                     {
-                        var channel = main.GetTextChannel(scope.TournamentThreadId);
+                        var channel = main.GetTextChannel(scope.MainThreadId);
                         channelsList.Add(channel);
-                        if (otherOptions.Any(x => x.Value.TournamentThreadId == scope.TournamentThreadId))
+                        if (otherOptions.Any(x => x.Value.MainThreadId == scope.MainThreadId))
                             mutualChannelsList.Add(channel);
                     }
 

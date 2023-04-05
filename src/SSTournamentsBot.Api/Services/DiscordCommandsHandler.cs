@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static SSTournaments.Domain;
 
 namespace SSTournamentsBot.Api.Services
 {
@@ -19,7 +20,7 @@ namespace SSTournamentsBot.Api.Services
         readonly IContextService _contextService;
         readonly DiscordBotOptions _options;
         readonly TournamentEventsOptions _tournamentOptions;
-        readonly Dictionary<string, SlashCommandBase> _commands;
+        readonly Dictionary<SetupType, Dictionary<string, SlashCommandBase>> _overrides = new Dictionary<SetupType, Dictionary<string, SlashCommandBase>>();
 
         private volatile bool _firstReadyRecieved;
         public DiscordCommandsHandler(
@@ -36,7 +37,7 @@ namespace SSTournamentsBot.Api.Services
             _options = options.Value;
             _tournamentOptions = tournamentOptions.Value;
 
-            _commands = new SlashCommandBase[]
+            _overrides.Add(SetupType.Tournament1v1bo1, new SlashCommandBase[]
             {
                 new AddBotsSlashCommand(),
                 new CallSlashCommand(client, dataService),
@@ -68,7 +69,7 @@ namespace SSTournamentsBot.Api.Services
                 new RebuildCommandsSlashCommand(this),
                 new WaitSlashCommand(),
                 new BanMapsSlashCommand(dataService),
-                new DropTournamentSlashCommand(timeline),
+                new DropActivitySlashCommand(timeline),
                 new ForceEventSlashCommand(timeline),
                // new GoGoGoSlashCommand(botApi),
                // new VoteAddTimeSlashCommand(api),
@@ -76,7 +77,12 @@ namespace SSTournamentsBot.Api.Services
                // new VoteKickSlashCommand(api),
                 new MatchesSlashCommand(),
                 new DeleteContextDataSlashCommand(dataService)
-            }.ToDictionary(x => x.Name);
+            }.ToDictionary(x => x.Name));
+
+            _overrides.Add(SetupType.Auto1v1bo1, new SlashCommandBase[]
+            {
+
+            }.ToDictionary(x => x.Name));
         }
 
         public async Task RebuildCommands()
@@ -102,21 +108,36 @@ namespace SSTournamentsBot.Api.Services
             if (user == null || user.IsBot)
                 return;
 
-            if (_commands.TryGetValue(arg.CommandName, out var command))
+            var (locale, context) = _contextService.GetLocaleAndContext(arg.Channel.Id);
+            SlashCommandBase command;
+            var culture = CultureInfo.GetCultureInfo(locale);
+
+            Dictionary<string, SlashCommandBase> commands;
+
+            try
             {
-                try
+                switch (context.Options.Type)
                 {
-                    var (locale, context) = _contextService.GetLocaleAndContext(arg.Channel.Id);
-                    await command.Handle(context, arg, CultureInfo.GetCultureInfo(locale));
+                    case var x when x == SetupType.Tournament1v1bo1:
+                        commands = _defaultTournamentCommands;
+                        break;
+                    default:
+                        commands = _overrides[context.Options.Type];
+                        break;
                 }
-                catch (NotImplementedException)
+
+                if (commands.TryGetValue(arg.CommandName, out command))
                 {
-                    await arg.RespondAsync(Text.OfKey(nameof(S.Bot_CommandNotImplemented)).Build(CultureInfo.GetCultureInfo("en")));
+                    await command.Handle(context, arg, culture);
+                }
+                else
+                {
+                    await arg.RespondAsync(Text.OfKey(nameof(S.Bot_UnknownCommand)).Format(arg.CommandName).Build(culture));
                 }
             }
-            else
+            catch (NotImplementedException)
             {
-                await arg.RespondAsync(Text.OfKey(nameof(S.Bot_UnknownCommand)).Format(arg.CommandName).Build(CultureInfo.GetCultureInfo("en")));
+                await arg.RespondAsync(Text.OfKey(nameof(S.Bot_CommandNotImplemented)).Build(culture));
             }
         }
 
@@ -139,7 +160,7 @@ namespace SSTournamentsBot.Api.Services
         {
             var currentCommands = (await guild.GetApplicationCommandsAsync()).ToList();
 
-            foreach (var cmd in _commands.Values)
+            foreach (var cmd in _defaultTournamentCommands.Values)
             {
                 var sameCommand = currentCommands.FirstOrDefault(x => x.Name == cmd.Name);
                 if (sameCommand == null)
